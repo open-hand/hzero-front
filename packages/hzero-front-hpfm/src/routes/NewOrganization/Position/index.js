@@ -9,8 +9,8 @@ import {
   Table,
   Button,
   Modal,
-  Tree,
   Form,
+  Spin,
   TextField,
   IntlField,
   Lov,
@@ -18,7 +18,20 @@ import {
   NumberField,
   Output,
 } from 'choerodon-ui/pro';
-import { Row, Col, Input, Icon, Dropdown, Menu, Badge, Collapse, Tabs, Select } from 'choerodon-ui';
+import {
+  Row,
+  Col,
+  Input,
+  Icon,
+  Dropdown,
+  Menu,
+  Badge,
+  Collapse,
+  Tree,
+  Tabs,
+  Select,
+} from 'choerodon-ui';
+import axios from 'axios';
 import { Bind } from 'lodash-decorators';
 import { yesOrNoRender, enableRender } from 'utils/renderer';
 
@@ -28,8 +41,10 @@ import { Button as ButtonPermission } from 'components/Permission';
 
 import intl from 'utils/intl';
 import notification from 'utils/notification';
+import { HZERO_PLATFORM } from 'utils/config';
+import { getCurrentOrganizationId } from 'utils/utils';
 
-import { formDS, treeDS, employeeTableDS, baseInfoDs } from '@/stores/positionDS';
+import { formDS, employeeTableDS, baseInfoDs } from '@/stores/positionDS';
 import {
   updatePositionInformation,
   disablePosition,
@@ -42,7 +57,9 @@ const { Search, Group } = Input;
 const { TabPane } = Tabs;
 const { Panel } = Collapse;
 const { Option } = Select;
+const { TreeNode } = Tree;
 const statusMap = ['error', 'success'];
+
 @withCustomize({
   unitCode: [
     'HPFM.ORG_LIST.POSITION.BACIS',
@@ -54,50 +71,61 @@ const statusMap = ['error', 'success'];
 export default class Position extends React.Component {
   constructor(props) {
     super(props);
-    this.treeDS = new DataSet(treeDS);
-    this.formDS = new DataSet(formDS);
-    this.baseInfoDs = new DataSet(baseInfoDs);
-    this.employeeTableDS = new DataSet(employeeTableDS);
+    // this.treeDS = new DataSet(treeDS);
+    this.formDS = new DataSet(formDS());
+    this.baseInfoDs = new DataSet(baseInfoDs());
+    this.employeeTableDS = new DataSet(employeeTableDS());
     this.state = {
       basicInformation: {
         positionCode: '',
         positionName: '',
         enabledFlag: '',
       },
+      treeData: [],
       panelKey: 'information',
       searchValue: null,
       optionValue: undefined,
+      loading: false,
     };
   }
 
   componentDidMount() {
-    this.treeDS.addEventListener('load', this.loadData);
-  }
-
-  componentWillUnmount() {
-    this.treeDS.addEventListener('load', this.loadData);
+    this.handleQueryTree();
   }
 
   @Bind()
-  loadData() {
-    const initData = this.treeDS.toData()[0] || { positionId: '' };
-    const { positionId } = initData;
-    this.setState({ basicInformation: initData });
-    if (positionId !== '') {
-      this.employeeTableDS.setQueryParameter('positionId', positionId);
-      this.employeeTableDS.setQueryParameter(
-        'customizeUnitCode',
-        'HPFM.ORG_LIST.POSITION.EMPLOYEE.LINE'
-      );
-      this.employeeTableDS.query();
-    } else {
-      this.employeeTableDS.setQueryParameter('positionId', 0);
-      this.employeeTableDS.setQueryParameter(
-        'customizeUnitCode',
-        'HPFM.ORG_LIST.POSITION.EMPLOYEE.LINE'
-      );
-      this.employeeTableDS.query();
-    }
+  handleQueryTree(params = {}) {
+    this.setState({ loading: true });
+    axios({
+      url: `${HZERO_PLATFORM}/v1/${getCurrentOrganizationId()}/positions`,
+      method: 'GET',
+      params: {
+        customizeUnitCode: 'HPFM.ORG_LIST.POSITION.BACIS',
+        ...params,
+      },
+    }).then((res) => {
+      this.setState({ loading: false });
+      if (res) {
+        const initData = res[0] || { positionId: '' };
+        const { positionId } = initData;
+        this.setState({ basicInformation: initData, treeData: res });
+        if (positionId !== '') {
+          this.employeeTableDS.setQueryParameter('positionId', positionId);
+          this.employeeTableDS.setQueryParameter(
+            'customizeUnitCode',
+            'HPFM.ORG_LIST.POSITION.EMPLOYEE.LINE'
+          );
+          this.employeeTableDS.query();
+        } else {
+          this.employeeTableDS.setQueryParameter('positionId', 0);
+          this.employeeTableDS.setQueryParameter(
+            'customizeUnitCode',
+            'HPFM.ORG_LIST.POSITION.EMPLOYEE.LINE'
+          );
+          this.employeeTableDS.query();
+        }
+      }
+    });
   }
 
   get employeeColumn() {
@@ -110,10 +138,6 @@ export default class Position extends React.Component {
       },
       {
         name: 'gender',
-        renderer: ({ value }) =>
-          value === 0
-            ? intl.get('hpfm.organization.model.position.men').d('男')
-            : intl.get('hpfm.organization.model.position.women').d('女'),
       },
       {
         name: 'mobile',
@@ -170,11 +194,10 @@ export default class Position extends React.Component {
     if (searchCompanyAndDepartmentDS.current) {
       const { unitCompanyId = null, unitDepartmentId = null } =
         searchCompanyAndDepartmentDS.current.toJSONData() || {};
-      this.treeDS.setQueryParameter('unitCompanyId', unitCompanyId);
-      this.treeDS.setQueryParameter('unitId', unitDepartmentId);
+      this.handleQueryTree({ keyWord: record, unitCompanyId, unitId: unitDepartmentId });
+    } else {
+      this.handleQueryTree({ keyWord: record });
     }
-    this.treeDS.setQueryParameter('keyWord', record);
-    this.treeDS.query();
   }
 
   // 新建或者更新公司信息
@@ -190,14 +213,14 @@ export default class Position extends React.Component {
         break;
       case 'createLevelCompany':
         this.openModal(
-          record.toData(),
+          record,
           intl.get('hpfm.organization.view.message.createLevelPosition').d('新建平级岗位'),
           type
         );
         break;
       case 'createChildrenCompany':
         this.openModal(
-          record.toData(),
+          record,
           intl.get('hpfm.organization.view.message.createChildrenPosition').d('新建下级岗位'),
           type
         );
@@ -216,13 +239,14 @@ export default class Position extends React.Component {
   // 禁用公司
   @Bind()
   async handelDisabledPosition({ record = {} }) {
-    const res = await disablePosition(record.toData());
+    const res = await disablePosition(record);
     if (res && res.failed) {
       notification.error({
         message: res.message,
       });
     } else {
-      this.treeDS.query();
+      const { searchValue } = this.state;
+      this.handleQueryTree({ keyWord: searchValue });
       notification.success({
         message: intl.get('hpfm.organization.view.message.operationSuccess').d('操作成功！'),
       });
@@ -232,13 +256,14 @@ export default class Position extends React.Component {
   // 启用公司
   @Bind()
   async handelEnablePosition({ record = {} }) {
-    const res = await enablePosition(record.toData());
+    const res = await enablePosition(record);
     if (res && res.failed) {
       notification.error({
         message: res.message,
       });
     } else {
-      this.treeDS.query();
+      const { searchValue } = this.state;
+      this.handleQueryTree({ keyWord: searchValue });
       notification.success({
         message: intl.get('hpfm.organization.view.message.operationSuccess').d('操作成功！'),
       });
@@ -254,7 +279,8 @@ export default class Position extends React.Component {
       this.formDS.setQueryParameter('unitCompanyId', unitCompanyId);
       const res = await this.formDS.submit();
       if (res && res.success) {
-        this.treeDS.query();
+        const { searchValue } = this.state;
+        this.handleQueryTree({ keyWord: searchValue });
       }
       return true;
     } else {
@@ -267,8 +293,10 @@ export default class Position extends React.Component {
     const validate = await this.formDS.validate();
     if (validate) {
       const res = await this.formDS.submit();
+      this.formDS.setQueryParameter('parentPositionId', undefined);
       if (res && res.success) {
-        this.treeDS.query();
+        const { searchValue } = this.state;
+        this.handleQueryTree({ keyWord: searchValue });
       }
       return true;
     } else {
@@ -279,10 +307,12 @@ export default class Position extends React.Component {
   @Bind()
   async handleCreateChildrenPosition() {
     const validate = await this.formDS.validate();
+    this.formDS.setQueryParameter('parentPositionId', undefined);
     if (validate) {
       const res = await this.formDS.submit();
       if (res && res.success) {
-        this.treeDS.query();
+        const { searchValue } = this.state;
+        this.handleQueryTree({ keyWord: searchValue });
       }
       return true;
     } else {
@@ -306,7 +336,8 @@ export default class Position extends React.Component {
           message: res.message,
         });
       } else {
-        this.treeDS.query();
+        const { searchValue } = this.state;
+        this.handleQueryTree({ keyWord: searchValue });
         notification.success({
           message: intl
             .get('hpfm.organization.view.message.editInformationSuccess')
@@ -347,10 +378,12 @@ export default class Position extends React.Component {
         break;
       case 'createLevelCompany':
         this.formDS.setQueryParameter('unitCompanyId', unitCompanyId);
+        this.formDS.setQueryParameter('parentPositionId', parentPositionId);
         this.formDS.create({ unitId, unitName, unitCompanyId, unitCompanyName, parentPositionId });
         break;
       case 'createChildrenCompany':
         this.formDS.setQueryParameter('unitCompanyId', unitCompanyId);
+        this.formDS.setQueryParameter('parentPositionId', positionId);
         this.formDS.create({
           unitId,
           unitName,
@@ -410,7 +443,7 @@ export default class Position extends React.Component {
   // 选中某一个节点
   @Bind()
   handleSelect(record) {
-    const tempRecord = record.toData();
+    const tempRecord = record;
     const { positionId } = tempRecord;
     this.setState({ basicInformation: tempRecord, optionValue: undefined });
     this.employeeTableDS.setQueryParameter('keyWord', null);
@@ -418,99 +451,129 @@ export default class Position extends React.Component {
     this.employeeTableDS.query();
   }
 
-  // 树节点渲染方式
-  @Bind()
-  nodeRenderer({ record }) {
-    const { path } = this.props;
-    const { positionCode = '', positionName = '', enabledFlag = '' } = record.toData();
-    const menu = (
-      <Menu style={{ marginTop: 16 }}>
-        <Menu.Item key="itemOne">
-          <ButtonPermission
-            type="text"
-            permissionList={[
-              {
-                code: `${path}/createLevelPosition`,
-                type: 'button',
-                meaning: '企业通讯录-新建平级岗位',
-              },
-            ]}
-            onClick={() => {
-              this.handelCreatePosition({ type: 'createLevelCompany', record });
-            }}
-          >
-            {intl.get('hpfm.organization.view.button.createLevelPosition').d('新建平级岗位')}
-          </ButtonPermission>
-        </Menu.Item>
-        <Menu.Item key="itemTwo">
-          <ButtonPermission
-            type="text"
-            permissionList={[
-              {
-                code: `${path}/createChildrenPosition`,
-                type: 'button',
-                meaning: '企业通讯录-新建下级岗位',
-              },
-            ]}
-            onClick={() => {
-              this.handelCreatePosition({ type: 'createChildrenCompany', record });
-            }}
-          >
-            {intl.get('hpfm.organization.view.button.createChildrenPosition').d('新建下级岗位')}
-          </ButtonPermission>
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item key="itemThree">
-          {enabledFlag ? (
+  renderTreeNodes(data) {
+    return data.map((item) => {
+      const { path } = this.props;
+      const { positionCode = '', positionName = '', enabledFlag = '' } = item;
+      const menu = (
+        <Menu style={{ marginTop: 16 }}>
+          <Menu.Item key="itemOne">
             <ButtonPermission
               type="text"
               permissionList={[
                 {
-                  code: `${path}/disabledPosition`,
+                  code: `${path}/createLevelPosition`,
                   type: 'button',
-                  meaning: '企业通讯录-禁用岗位',
+                  meaning: '企业通讯录-新建平级岗位',
                 },
               ]}
               onClick={() => {
-                this.handelDisabledPosition({ record });
+                this.handelCreatePosition({ type: 'createLevelCompany', record: item });
               }}
             >
-              {intl.get('hpfm.organization.view.button.disabledPosition').d('禁用岗位')}
+              {intl.get('hpfm.organization.view.button.createLevelPosition').d('新建平级岗位')}
             </ButtonPermission>
-          ) : (
+          </Menu.Item>
+          <Menu.Item key="itemTwo">
             <ButtonPermission
               type="text"
               permissionList={[
                 {
-                  code: `${path}/enablePosition`,
+                  code: `${path}/createChildrenPosition`,
                   type: 'button',
-                  meaning: '企业通讯录-启用岗位',
+                  meaning: '企业通讯录-新建下级岗位',
                 },
               ]}
               onClick={() => {
-                this.handelEnablePosition({ record });
+                this.handelCreatePosition({ type: 'createChildrenCompany', record: item });
               }}
             >
-              {intl.get('hpfm.organization.view.button.enablePosition').d('启用岗位')}
+              {intl.get('hpfm.organization.view.button.createChildrenPosition').d('新建下级岗位')}
             </ButtonPermission>
-          )}
-        </Menu.Item>
-      </Menu>
-    );
-    return (
-      <Row type="flex" justify="space-between" style={{ width: '20vw' }}>
-        <Col span={20} onClick={() => this.handleSelect(record)}>
-          <span>
-            {positionCode}-{positionName}
-          </span>
-        </Col>
-        <Col span={2}>
-          <Dropdown overlay={menu} trigger="click">
-            <Icon type="more_horiz" />
-          </Dropdown>
-        </Col>
-      </Row>
-    );
+          </Menu.Item>
+          <Menu.Divider />
+          <Menu.Item key="itemThree">
+            {enabledFlag ? (
+              <ButtonPermission
+                type="text"
+                permissionList={[
+                  {
+                    code: `${path}/disabledPosition`,
+                    type: 'button',
+                    meaning: '企业通讯录-禁用岗位',
+                  },
+                ]}
+                onClick={() => {
+                  this.handelDisabledPosition({ record: item });
+                }}
+              >
+                {intl.get('hpfm.organization.view.button.disabledPosition').d('禁用岗位')}
+              </ButtonPermission>
+            ) : (
+              <ButtonPermission
+                type="text"
+                permissionList={[
+                  {
+                    code: `${path}/enablePosition`,
+                    type: 'button',
+                    meaning: '企业通讯录-启用岗位',
+                  },
+                ]}
+                onClick={() => {
+                  this.handelEnablePosition({ record: item });
+                }}
+              >
+                {intl.get('hpfm.organization.view.button.enablePosition').d('启用岗位')}
+              </ButtonPermission>
+            )}
+          </Menu.Item>
+        </Menu>
+      );
+      const key = `${positionCode}-${positionName}`;
+      if (item.children) {
+        return (
+          <TreeNode
+            title={
+              <Row type="flex" justify="space-between" style={{ width: '20vw' }}>
+                <Col span={20} onClick={() => this.handleSelect(item)}>
+                  <span className={styles.positionLine}>
+                    {positionCode}-{positionName}
+                  </span>
+                </Col>
+                <Col span={2}>
+                  <Dropdown overlay={menu} trigger="click">
+                    <Icon type="more_horiz" />
+                  </Dropdown>
+                </Col>
+              </Row>
+            }
+            key={key}
+            dataRef={item}
+          >
+            {this.renderTreeNodes(item.children)}
+          </TreeNode>
+        );
+      }
+      return (
+        <TreeNode
+          title={
+            <Row type="flex" justify="space-between" style={{ width: '20vw' }}>
+              <Col span={20} onClick={() => this.handleSelect(item)}>
+                <span className={styles.positionLine}>
+                  {positionCode}-{positionName}
+                </span>
+              </Col>
+              <Col span={2}>
+                <Dropdown overlay={menu} trigger="click">
+                  <Icon type="more_horiz" />
+                </Dropdown>
+              </Col>
+            </Row>
+          }
+          key={key}
+        />
+      );
+    });
   }
 
   // 查询员工或者岗位信息
@@ -548,7 +611,14 @@ export default class Position extends React.Component {
 
   render() {
     const { path, customizeTable, customizeForm, customizeTabPane } = this.props;
-    const { basicInformation = {}, panelKey, searchValue, optionValue } = this.state;
+    const {
+      basicInformation = {},
+      panelKey,
+      searchValue,
+      optionValue,
+      treeData,
+      loading,
+    } = this.state;
     const panelKeyFlag = panelKey === 'information';
     this.baseInfoDs.create(basicInformation);
     return (
@@ -585,7 +655,9 @@ export default class Position extends React.Component {
               {intl.get('hpfm.organization.view.button.createPosition').d('新建岗位')}
             </ButtonPermission>
             <div style={{ height: 420, overflow: 'auto', marginTop: 16 }}>
-              <Tree disableCheckbox dataSet={this.treeDS} renderer={this.nodeRenderer} />
+              <Spin spinning={loading}>
+                <Tree height={420}>{this.renderTreeNodes(treeData)}</Tree>
+              </Spin>
             </div>
           </Col>
           <Col span={16}>

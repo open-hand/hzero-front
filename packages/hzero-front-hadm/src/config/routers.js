@@ -187,44 +187,10 @@ module.exports = [
     ],
     models: [],
   },
-  {
-    path: '/hadm/node-rule',
-    models: [() => import('../models/nodeRule')],
-    components: [
-      {
-        path: '/hadm/node-rule/list',
-        component: () => import('../routes/NodeRule'),
-        models: [() => import('../models/nodeRule')],
-      },
-      {
-        path: '/hadm/node-rule/config/:nodeRuleId',
-        component: () => import('../routes/NodeRule/Editor'),
-        models: [() => import('../models/nodeRule')],
-      },
-    ],
-  },
   // Seata监控
   {
     path: '/hadm/seata',
     component: () => import('../routes/SeataMonitor'),
-  },
-  // URL映射配置
-  {
-    path: '/hadm/url-mapping-config',
-    authorized: true,
-    components: [
-      {
-        key: '/hadm/url-mapping-config',
-        path: '/hadm/url-mapping-config/list',
-        component: () => import('../routes/URLMappingConfig'),
-      },
-      {
-        key: '/hadm/url-mapping-config',
-        path: '/hadm/url-mapping-config/detail/:id',
-        component: () => import('../routes/URLMappingConfig/Detail'),
-        // authorized: true,
-      },
-    ],
   },
   {
     path: '/hadm/ds-mapping',

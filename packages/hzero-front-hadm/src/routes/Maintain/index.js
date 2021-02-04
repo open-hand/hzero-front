@@ -22,7 +22,7 @@ const Maintain = (props) => {
     match: { path },
   } = props;
 
-  const tableDS = React.useMemo(() => new DataSet(tableDs), []);
+  const tableDS = React.useMemo(() => new DataSet(tableDs()), []);
 
   const columns = React.useMemo(
     () => [

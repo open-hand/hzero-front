@@ -74,15 +74,15 @@ const statusMap = ['error', 'success'];
 export default class Department extends React.Component {
   constructor(props) {
     super(props);
-    this.treeDS = new DataSet(treeDS);
-    this.formDS = new DataSet(formDS);
-    this.baseInfoDs = new DataSet(baseInfoDs);
-    this.createFormDS = new DataSet(createFormDS);
-    this.positionFormDS = new DataSet(positionFormDS);
-    this.employeeTableDS = new DataSet(employeeTableDS);
-    this.employeeFormDS = new DataSet(employeeFormDS);
-    this.employeePositionFormDS = new DataSet(employeePositionFormDS);
-    this.positionTableDS = new DataSet(positionTableDS);
+    this.treeDS = new DataSet(treeDS());
+    this.formDS = new DataSet(formDS());
+    this.baseInfoDs = new DataSet(baseInfoDs());
+    this.createFormDS = new DataSet(createFormDS());
+    this.positionFormDS = new DataSet(positionFormDS());
+    this.employeeTableDS = new DataSet(employeeTableDS());
+    this.employeeFormDS = new DataSet(employeeFormDS());
+    this.employeePositionFormDS = new DataSet(employeePositionFormDS());
+    this.positionTableDS = new DataSet(positionTableDS());
     this.state = {
       basicInformation: {
         unitCode: '',
@@ -156,12 +156,6 @@ export default class Department extends React.Component {
         name: 'gender',
         align: 'left',
         width: 80,
-        renderer: ({ value }) => {
-          const tempFlag = value === 0 || value === '0' ? 1 : 0;
-          return tempFlag
-            ? intl.get('hpfm.organization.model.department.men').d('男')
-            : intl.get('hpfm.organization.model.department.women').d('女');
-        },
       },
       {
         name: 'mobile',
@@ -900,7 +894,12 @@ export default class Department extends React.Component {
               {intl.get('hpfm.organization.view.button.createDepartment').d('新建部门')}
             </ButtonPermission>
             <div style={{ height: 420, overflow: 'auto', marginTop: 16 }}>
-              <Tree disableCheckbox dataSet={this.treeDS} renderer={this.nodeRenderer} />
+              <Tree
+                disableCheckbox
+                dataSet={this.treeDS}
+                renderer={this.nodeRenderer}
+                height={420}
+              />
             </div>
           </Col>
           {detailFlag ? (

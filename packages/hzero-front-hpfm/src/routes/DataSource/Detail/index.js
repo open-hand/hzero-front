@@ -42,7 +42,7 @@ import {
   currentTenantId: getCurrentOrganizationId(),
 }))
 @formatterCollections({
-  code: ['hpfm.ruleEngine', 'entity.tenant', 'hpfm.dataSource'],
+  code: ['hpfm.ruleEngine', 'entity.tenant', 'hpfm.dataSource', 'hpfm.reportDataSource'],
 })
 export default class Detail extends React.Component {
   constructor(props) {
@@ -293,7 +293,7 @@ export default class Detail extends React.Component {
     const {
       form,
       dispatch,
-      dataSource: { dataSourceDetail, dbPoolParams = {}, extConfigs = [] },
+      dataSource: { dataSourceDetail, dbPoolParams = {}, extConfigs = [], publicKey },
     } = this.props;
     form.validateFields((err, values) => {
       if (!err) {
@@ -310,7 +310,10 @@ export default class Detail extends React.Component {
         let temp = { ...values };
         if (values.password === dataSourceDetail.password) {
           const { password, ...other } = values;
-          temp = other;
+          temp = { ...other };
+        }
+        if (values.passwordEncrypted) {
+          temp.passwordEncrypted = encryptPwd(values.passwordEncrypted, publicKey);
         }
         dispatch({
           type: 'dataSource/testConnection',
@@ -545,7 +548,8 @@ export default class Detail extends React.Component {
     // 获取连接池参数
     const newDbPoolParams = map(dbPoolParams, (value, key) => ({ key, value }));
     const newExtConfig = JSON.parse(extConfig);
-    const pageDisabled = datasourceId === undefined ? false : currentTenantId !== tenantId;
+    const pageDisabled =
+      datasourceId === undefined ? false : !isSiteFlag && currentTenantId !== tenantId;
     const columns = this.getColumns(pageDisabled);
     return (
       <>
@@ -928,7 +932,7 @@ export default class Detail extends React.Component {
                             }),
                           },
                         ],
-                      })(<Input disabled={pageDisabled} />)}
+                      })(<Input disabled={pageDisabled} autocomplete="off" />)}
                     </Form.Item>
                   </Col>
                   <Col {...FORM_COL_3_LAYOUT}>
@@ -948,7 +952,7 @@ export default class Detail extends React.Component {
                         ],
                       })(
                         <Input
-                          // autocomplete="new-password"
+                          autocomplete="new-password"
                           disabled={pageDisabled}
                           type="password"
                           placeholder={

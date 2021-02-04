@@ -104,12 +104,6 @@ const getPageCss = ({
       }
     }
   }
-  .page-content {
-    padding: ${contentPadding}px;
-    border-radius: 4px;
-    margin: 0;
-    position: relative;
-  }
   .page-container {
     height: 100%;
     overflow: hidden;
@@ -119,8 +113,16 @@ const getPageCss = ({
       background: #fff;
       height: 100%;
       flex: 1;
-      overflow: auto;
+      overflow: hidden;
       margin: ${contentWrapMargin};
+      .page-content {
+        padding: ${contentPadding}px;
+        height: 100%;
+        border-radius: 4px;
+        margin: 0;
+        position: relative;
+        overflow: auto;
+      }
     }
   }
 `;
@@ -195,9 +197,9 @@ function getCommonCss(props) {
       .hzero-header-right > span > .ant-badge .anticon,
       .hzero-side-layout-header-right-item-notice .ant-badge .anticon,
       .hzero-common-layout-header-toolbar-item .ant-badge .anticon {
-        background: url("${noticeIcon}") no-repeat;
+        background: url('${noticeIcon}') no-repeat;
         background-size: cover;
-        transition: all .2s;
+        transition: all 0.2s;
         :hover {
           opacity: 0.8;
         }
@@ -230,8 +232,9 @@ const getTabsStyle = (props) => {
       .hzero-common-layout-body
       .hzero-common-layout-content-wrap
       .hzero-common-layout-content,
-    .hzero-side-layout-container > .hzero-side-layout-body >
-      .hzero-side-layout-content
+    .hzero-side-layout-container
+      > .hzero-side-layout-body
+      > .hzero-side-layout-content
       > .hzero-side-layout-content-container,
     .hzero-layout .hzero-page.hzero-page {
       > .ant-tabs {
@@ -240,13 +243,10 @@ const getTabsStyle = (props) => {
           background: none;
         }
       }
-      > .ant-tabs.ant-tabs-top
-        > .ant-tabs-content
-        > .ant-tabs-tabpane
-        > .page-container {
+      > .ant-tabs.ant-tabs-top > .ant-tabs-content > .ant-tabs-tabpane > .page-container {
         background-color: transparent;
-        & > .page-content-wrap > .page-content {
-          min-height: 100%;
+        .page-content-wrap > .page-content {
+          height: 100%;
         }
       }
       > .ant-tabs.ant-tabs-top .ant-tabs-content {
@@ -261,7 +261,8 @@ const getTabsStyle = (props) => {
           background: none;
         }
         > .ant-tabs-nav-container {
-          > .ant-tabs-tab-prev, > .ant-tabs-tab-next {
+          > .ant-tabs-tab-prev,
+          > .ant-tabs-tab-next {
             span:before {
               color: ${tabFontColor};
             }
@@ -294,7 +295,7 @@ const getTabsStyle = (props) => {
             display: inline-block;
             width: 14px;
             height: 14px;
-            background: url("${workspaceIcon}");
+            background: url('${workspaceIcon}');
             content: '';
             background-size: cover;
             opacity: ${workspaceIconOpacity};
@@ -313,7 +314,7 @@ const getTabsStyle = (props) => {
           }
           :first-of-type.ant-tabs-tab-active .ant-tabs-tab-unclosable span .anticon:before {
             opacity: ${workspaceIconActiveOpacity};
-            background: url("${workspaceActiveIcon}");
+            background: url('${workspaceActiveIcon}');
             background-size: cover;
           }
           :first-of-type:hover .ant-tabs-tab-unclosable span .anticon:before {

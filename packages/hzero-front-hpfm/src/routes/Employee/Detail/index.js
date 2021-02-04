@@ -125,14 +125,14 @@ export default class Detail extends Component {
     let newCursorList = cursorList;
     const cursor = newCursorList[0];
 
-    return collections.map(n => {
+    return collections.map((n) => {
       let m = n;
       if (m.typeWithId === cursor) {
         if (newCursorList[1]) {
-          newCursorList = newCursorList.filter(o => newCursorList.indexOf(o) !== 0);
+          newCursorList = newCursorList.filter((o) => newCursorList.indexOf(o) !== 0);
           m.children = m.children ? this.findAndSetNodeProps(m.children, newCursorList, data) : [];
         } else {
-          m = data;
+          m = { ...data, INDENT_INDEX: undefined, children: m.children };
         }
       }
       return m;
@@ -152,7 +152,7 @@ export default class Detail extends Component {
       employee: { employeeInfo = {}, positionList = [] },
     } = this.props;
     // 校验：如果设置了岗位信息，则必须有一个主岗
-    const primaryPosition = positionList.find(item => item.primaryPositionFlag === 1);
+    const primaryPosition = positionList.find((item) => item.primaryPositionFlag === 1);
 
     if (positionList.length !== 0 && isUndefined(primaryPosition)) {
       notification.warning({
@@ -174,7 +174,7 @@ export default class Detail extends Component {
             saveData: { ...employeeInfo, ...temp },
             positionId: (primaryPosition || {}).positionId,
           },
-        }).then(res => {
+        }).then((res) => {
           if (res) {
             notification.success();
             dispatch({
@@ -229,7 +229,7 @@ export default class Detail extends Component {
         employee: { positionList = [] },
       } = this.props;
       // 移除岗位，不做是否存在主岗校验
-      const newPositions = positionList.filter(i => !selectedPositionKeys.includes(i.positionId));
+      const newPositions = positionList.filter((i) => !selectedPositionKeys.includes(i.positionId));
       dispatch({
         type: 'employee/updatePosition',
         payload: {
@@ -237,7 +237,7 @@ export default class Detail extends Component {
           employeeId: match.params.employeeId,
           positionList: newPositions,
         },
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           this.setState({ selectedPositionKeys: [] });
@@ -293,7 +293,7 @@ export default class Detail extends Component {
     const newPositions = [];
 
     function findPosition(collections, emp, tenant) {
-      collections.map(item => {
+      collections.map((item) => {
         if (item.type === 'P' && item.assignFlag === 1) {
           newPositions.push({
             employeeId: emp,
@@ -318,7 +318,7 @@ export default class Detail extends Component {
       newPositionList = [...newPositions];
     } else {
       // 主岗ID
-      const primaryPositionId = (positionList.find(item => item.primaryPositionFlag === 1) || {})
+      const primaryPositionId = (positionList.find((item) => item.primaryPositionFlag === 1) || {})
         .positionId;
       // 如果主岗ID不存在时，更新主岗信息，默认第一个岗位为主岗
       if (isUndefined(primaryPositionId)) {
@@ -326,7 +326,7 @@ export default class Detail extends Component {
           index === 0 ? { ...item, primaryPositionFlag: 1 } : item
         );
       } else {
-        newPositionList = newPositions.map(item =>
+        newPositionList = newPositions.map((item) =>
           item.positionId === primaryPositionId ? { ...item, primaryPositionFlag: 1 } : item
         );
       }
@@ -338,7 +338,7 @@ export default class Detail extends Component {
         employeeId,
         positionList: newPositionList,
       },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         dispatch({
@@ -435,7 +435,7 @@ export default class Detail extends Component {
     // isExpand ? 展开 : 收起
     const rowKeys = isExpand
       ? [...expandedRowKeys, record.typeWithId]
-      : expandedRowKeys.filter(item => item !== record.typeWithId);
+      : expandedRowKeys.filter((item) => item !== record.typeWithId);
     dispatch({
       type: 'employee/updateState',
       payload: {
@@ -458,14 +458,14 @@ export default class Detail extends Component {
     let newPositionList = [];
     if (flag) {
       // 将岗位设定为主岗
-      newPositionList = positionList.map(i =>
+      newPositionList = positionList.map((i) =>
         i.positionId === record.positionId
           ? { ...i, primaryPositionFlag: 1 }
           : { ...i, primaryPositionFlag: 0 }
       );
     } else {
       // 取消岗位的主岗标记
-      newPositionList = positionList.map(i =>
+      newPositionList = positionList.map((i) =>
         i.positionId === record.positionId ? { ...i, primaryPositionFlag: 0 } : { ...i }
       );
     }
@@ -516,9 +516,9 @@ export default class Detail extends Component {
         type: 'employee/deleteUser',
         payload: {
           tenantId,
-          data: userList.filter(item => includes(selectedUserKeys, item.employeeUserId)),
+          data: userList.filter((item) => includes(selectedUserKeys, item.employeeUserId)),
         },
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           this.setState({ selectedUserKeys: [] });
@@ -558,8 +558,8 @@ export default class Detail extends Component {
         employee: { users },
       } = this.props;
       const userData = users.content
-        .filter(i => includes(availableUserKeys, i.id))
-        .map(item => ({
+        .filter((i) => includes(availableUserKeys, i.id))
+        .map((item) => ({
           ...item,
           tenantId,
           userId: item.id,
@@ -571,7 +571,7 @@ export default class Detail extends Component {
           tenantId,
           data: userData,
         },
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           dispatch({

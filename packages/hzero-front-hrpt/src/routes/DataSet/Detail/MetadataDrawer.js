@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import uuidv4 from 'uuid/v4';
 import PropTypes from 'prop-types';
 import { Form, Input, InputNumber, Modal } from 'hzero-ui';
 import { isEmpty } from 'lodash';
@@ -52,15 +53,16 @@ export default class Drawer extends PureComponent {
    */
   @Bind()
   saveBtn() {
-    const { form, onOk, onEditOk, itemData } = this.props;
+    const { form, onOk, onEditOk, itemData = {} } = this.props;
+    const { uuid = uuidv4() } = itemData;
     if (onOk) {
       form.validateFields((err, values) => {
         if (isEmpty(err)) {
           // 校验通过，进行保存操作
           if (isEmpty(itemData)) {
-            onOk(values);
+            onOk({ ...values, uuid });
           } else {
-            onEditOk(values);
+            onEditOk({ ...values, uuid });
           }
         }
       });

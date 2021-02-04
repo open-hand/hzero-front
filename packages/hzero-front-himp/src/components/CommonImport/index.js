@@ -464,7 +464,7 @@ export default class CommentImport extends PureComponent {
    * @param {Function} cb - 关闭编辑模式
    */
   @Bind()
-  save(form, _id, _, cb = (e) => e) {
+  save(form, _id, currentRecord, cb = (e) => e) {
     const { prefixPatch, sync, tenantId } = this.state;
     this.showLoading('updateOneLoading');
     form.validateFields((error, row) => {
@@ -472,12 +472,13 @@ export default class CommentImport extends PureComponent {
         this.hiddenLoading('updateOneLoading');
         return;
       }
+      const { _tls } = currentRecord;
       updateOne({
         sync,
         _id,
         prefixPatch,
         data: {
-          // ...rest,
+          _tls,
           ...row,
         },
         tenantId,

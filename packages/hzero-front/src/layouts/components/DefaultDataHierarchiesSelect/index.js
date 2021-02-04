@@ -6,6 +6,7 @@ import { Form, Menu, Spin } from 'hzero-ui';
 import { connect } from 'dva';
 import { Bind } from 'lodash-decorators';
 import { isEmpty, isArray } from 'lodash';
+import qs from 'querystring';
 
 import Lov from 'components/Lov';
 
@@ -77,7 +78,18 @@ class DefaultDataHierarchies extends PureComponent {
             }
             const { valueField, displayField } = resp;
             this.setState({ valueField, displayField });
-            queryLovData(ret, { page: 0, size: 5 }).then((res2) => {
+            const queryIndex = ret.indexOf('?');
+            let sourceQueryParams = {};
+            if (queryIndex !== -1) {
+              sourceQueryParams = qs.parse(ret.substr(queryIndex + 1));
+            }
+            const sourceParams = {
+              page: 0,
+              size: 5,
+              ...sourceQueryParams,
+              lovCode: resp.lovTypeCode === 'URL' ? undefined : res.valueSourceCode,
+            };
+            queryLovData(ret, sourceParams).then((res2) => {
               if (getResponse(res2)) {
                 if (isArray(res2)) {
                   this.setState({ hierarchicalList: res2.slice(0, 5) || [] });

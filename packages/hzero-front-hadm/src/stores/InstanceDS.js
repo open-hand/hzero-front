@@ -49,95 +49,105 @@ const treeDS = {
   },
 };
 
-const detailDS = {
-  autoQuery: false,
-  selection: 'single',
-  paging: false,
-  transport: {
-    read: ({ dataSet }) => {
-      const {
-        queryParameter: { instanceId },
-      } = dataSet;
-      return {
-        url: isTenantRoleLevel()
-          ? `${HZERO_ADM}/v1/${organizationId}/instances/${instanceId}`
-          : `${HZERO_ADM}/v1/instances/${instanceId}`,
-        method: 'get',
-      };
+const detailDS = () => {
+  return {
+    autoQuery: false,
+    selection: 'single',
+    paging: false,
+    transport: {
+      read: ({ dataSet }) => {
+        const {
+          queryParameter: { instanceId },
+        } = dataSet;
+        return {
+          url: isTenantRoleLevel()
+            ? `${HZERO_ADM}/v1/${organizationId}/instances/${instanceId}`
+            : `${HZERO_ADM}/v1/instances/${instanceId}`,
+          method: 'get',
+        };
+      },
     },
-  },
-  fields: [
-    {
-      name: 'instanceId',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.instanceId').d('实例ID'),
-    },
-    {
-      name: 'hostName',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.hostName').d('主机名'),
-    },
-    {
-      name: 'ipAddr',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.ipAddr').d('IP'),
-    },
-    {
-      name: 'app',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.app').d('所属微服务'),
-    },
-    {
-      name: 'port',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.port').d('端口号'),
-    },
-    {
-      name: 'version',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.version').d('版本'),
-    },
-    {
-      name: 'registrationTime',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.registrationTime').d('注册时间'),
-    },
-    {
-      name: 'metadata',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.metadata').d('元数据'),
-    },
-  ],
+    fields: [
+      {
+        name: 'instanceId',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.instanceId').d('实例ID'),
+      },
+      {
+        name: 'hostName',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.hostName').d('主机名'),
+      },
+      {
+        name: 'ipAddr',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.ipAddr').d('IP'),
+      },
+      {
+        name: 'app',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.app').d('所属微服务'),
+      },
+      {
+        name: 'port',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.port').d('端口号'),
+      },
+      {
+        name: 'version',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.version').d('版本'),
+      },
+      {
+        name: 'registrationTime',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.registrationTime').d('注册时间'),
+      },
+      {
+        name: 'metadata',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.metadata').d('元数据'),
+      },
+    ],
+  };
 };
 
-const tableDS = {
-  selection: false,
-  paging: false,
-  fields: [
-    { name: 'key', type: 'string', label: intl.get('hadm.instance.model.instance.key').d('名字') },
-    {
-      name: 'value',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.value').d('值'),
-    },
-  ],
+const tableDS = () => {
+  return {
+    selection: false,
+    paging: false,
+    fields: [
+      {
+        name: 'key',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.key').d('名字'),
+      },
+      {
+        name: 'value',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.value').d('值'),
+      },
+    ],
+  };
 };
 
-const codeDS = {
-  selection: false,
-  paging: false,
-  fields: [
-    {
-      name: 'configInfo',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.configInfo').d('配置信息'),
-    },
-    {
-      name: 'envInfo',
-      type: 'string',
-      label: intl.get('hadm.instance.model.instance.env').d('环境信息'),
-    },
-  ],
+const codeDS = () => {
+  return {
+    selection: false,
+    paging: false,
+    fields: [
+      {
+        name: 'configInfo',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.configInfo').d('配置信息'),
+      },
+      {
+        name: 'envInfo',
+        type: 'string',
+        label: intl.get('hadm.instance.model.instance.env').d('环境信息'),
+      },
+    ],
+  };
 };
 
 export { treeDS, detailDS, tableDS, codeDS };

@@ -15,7 +15,7 @@ import { detailFormDS } from '@/stores/missPermissionRecordDS';
 export default class MissPermissionRecord extends React.Component {
   constructor(props) {
     super(props);
-    this.detailFormDS = new DataSet(detailFormDS);
+    this.detailFormDS = new DataSet(detailFormDS());
   }
 
   componentDidMount() {

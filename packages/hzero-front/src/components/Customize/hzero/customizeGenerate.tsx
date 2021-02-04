@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Form, Row, Col } from 'hzero-ui';
-import { isNumber, isNil, omit } from 'lodash';
+import { isNumber, isNil, omit, throttle } from 'lodash';
 import {
   getRender,
   getFormItemComponent,
@@ -12,6 +12,7 @@ import {
   adjustRowAndCol,
   getComputeComp,
   selfValidator,
+  defaultValueFx,
 } from './customizeTool';
 import { UnitConfig, FieldConfig, FormItem } from './interfaces';
 
@@ -19,6 +20,10 @@ const fixedMap = {
   L: 'left',
   R: 'right',
 };
+// eslint-disable-next-line func-names
+const setErrors = throttle(function (form, fields) {
+  form.setFields(fields);
+}, 500);
 
 export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options) {
   const {
@@ -37,15 +42,19 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
   const {
     form,
     dataSource = {},
+    dataSourceLoading,
     getValueFromCache,
     code,
     className,
     unitData,
+    cache = {},
     readOnly: _readOnly1,
   } = options;
+  const { validRes } = cache;
   const readOnly = _readOnly1 || _readOnly2;
   const parseRows = {};
   const tempItems: FormItem[] = []; // 存放位置冲突或者未配置位置的扩展字段的FormItem
+  let needUpdate = false;
   Object.keys(rows).forEach((i) => {
     if (!allConfigFields.includes(i)) {
       newFields.push({ fieldCode: i });
@@ -85,7 +94,7 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
       }
       return;
     }
-    const selfRules = selfValidator(conValidDTO, { getValueFromCache, code });
+    const { defaultValue, defaultValueMeaning } = defaultValueFx({ getValueFromCache, code }, i);
     if (!rows[fieldCode]) {
       if (visible === -1) return; // 排除保留原有逻辑的显示控制
       const newRowProps = {
@@ -103,7 +112,6 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
         textMaxLength,
         textMinLength,
         fieldName,
-        selfRules,
         dateFormat,
       };
       const wrapProps = {
@@ -125,6 +133,8 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
           formOptions,
           contentProps: {
             ...i,
+            defaultValue,
+            defaultValueMeaning,
             style: { width: '100%' },
             getValueFromCache,
             editable,
@@ -144,7 +154,7 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
       });
     } else {
       adapterStandardFormIndividual(
-        { ...i, editable, selfRules, required },
+        { ...i, editable, required, defaultValue, defaultValueMeaning },
         rows[fieldCode],
         parseRows,
         {
@@ -157,7 +167,38 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
         }
       );
     }
+    if (cache?.count === 0 || !validRes) return;
+    if (!validRes[fieldCode]) {
+      validRes[fieldCode] = { lastErrors: [], init: true };
+    }
+    const value = form.getFieldValue(fieldCode);
+    if (value !== validRes[fieldCode].value || validRes[fieldCode].hasInit) {
+      const oldError = form.getFieldError(fieldCode) || [];
+      const valid = selfValidator(conValidDTO, {
+        getValueFromCache,
+        code,
+      });
+      const newError = oldError
+        .filter((err) => !(validRes[fieldCode].lastErrors || []).includes(err))
+        .map((err) => new Error(err))
+        .concat(valid);
+      needUpdate = true;
+      validRes[fieldCode].value = value;
+      validRes[fieldCode].lastErrors = valid.map((e) => e.message);
+      validRes[fieldCode].errors = newError.length > 0 ? newError : undefined;
+      validRes[fieldCode].hasInit = false;
+    }
   });
+
+  if (!dataSourceLoading && cache?.count === 0) {
+    setTimeout(() => {
+      cache.count = 1;
+      form.setFields();
+    }, 0);
+  }
+  if (needUpdate && !dataSourceLoading && cache?.count === 1) {
+    setErrors(form, validRes);
+  }
   const configRows: any[] = Object.keys(parseRows).sort(
     (prev, next) => Number(prev) - Number(next)
   );
@@ -207,9 +248,10 @@ export function generateFormSkeleton(rows = {}, config: UnitConfig = {}, options
 export function generateTableColumns(
   columns,
   config: any = {},
-  { unitData, code, getValueFromCache, readOnly: _readOnly1 }
+  { unitData, code, getValueFromCache, readOnly: _readOnly1, cache }
 ) {
   const { fields = [], readOnly: _readOnly2 } = config;
+  const { validRes, needUpdate } = cache as any;
   const readOnly = _readOnly1 || _readOnly2;
   let noWidthCount = 0;
   let noneStandardSeq = columns.length;
@@ -230,7 +272,6 @@ export function generateTableColumns(
   // 配置拆分
   fields.forEach((i) => {
     const {
-      defaultValue,
       conditionHeaderDTOs = [],
       fieldCode,
       fieldType,
@@ -248,7 +289,7 @@ export function generateTableColumns(
     const { visible } = coverConfig(
       { visible: i.visible },
       conditionHeaderDTOs.filter((k) => k.conType === 'visible'),
-      { getValueFromCache, isGridVisible: true, currentUnitCode: code }
+      { getValueFromCache, isGridVisible: true, code }
     );
     if (visible === 0) return;
     if (columnsObj[i.fieldCode] !== undefined) {
@@ -273,7 +314,7 @@ export function generateTableColumns(
       if (sorter) {
         oldItem.sorter = true;
       }
-      oldItem.render = (val, record) => {
+      oldItem.render = (val, record, index) => {
         let meaning = record[`${fieldCode}Meaning`];
         if (meaning === undefined) meaning = record[fieldCode];
         const { _status } = record;
@@ -283,30 +324,57 @@ export function generateTableColumns(
             targetForm: record.$form,
             targetDataSource: record,
             getValueFromCache,
-            currentUnitCode: code,
+            code,
           };
           const { required, editable } = coverConfig(
             { required: i.required, editable: i.editable },
             conditionHeaderDTOs.filter((k) => k.conType !== 'visible'),
             toolsObj
           );
-          const selfRules = selfValidator(conValidDTO, toolsObj);
+          const { defaultValue, defaultValueMeaning } = defaultValueFx(toolsObj, i);
           const rules = customizeFormRules({
             ...i,
             required,
-            selfRules,
             fieldName: i.fieldName || oldItem.title,
           });
-          let formItem = oldRender(val, record);
+          let formItem = oldRender(val, record, index);
           formItem = isNil(formItem) ? {} : formItem;
-          traversalFormItems(formItem, {
+          const isInput = traversalFormItems(formItem, {
             ...omit(i, ['fieldName']),
             defaultValue: preAdapterInitValue(fieldType, defaultValue),
+            defaultValueMeaning,
             rules,
             editable,
             form: record.$form,
             dataSource: record,
           } as any);
+          // 避免getFieldValue的副作用，会将对应字段注册到form中
+          if (isInput) {
+            if (!validRes[index]) {
+              validRes[index] = {};
+            }
+            if (!validRes[index][fieldCode]) {
+              validRes[index][fieldCode] = { value: val, init: true };
+            }
+            const realValue = record.$form.getFieldValue(fieldCode);
+            if (
+              realValue !== validRes[index][fieldCode].value ||
+              validRes[index][fieldCode].hasInit
+            ) {
+              needUpdate.push(index);
+              const oldError = record.$form.getFieldError(fieldCode) || [];
+              const valid = selfValidator(conValidDTO, toolsObj);
+              const newError = oldError
+                .filter((err) => !(validRes[index][fieldCode].lastErrors || []).includes(err))
+                .map((err) => new Error(err))
+                .concat(valid);
+              validRes[index][fieldCode].value = realValue;
+              validRes[index][fieldCode].lastErrors = valid.map((e) => e.message);
+              validRes[index][fieldCode].errors = newError.length > 0 ? newError : undefined;
+              validRes[index][fieldCode].hasInit = false;
+              setErrors(record.$form, validRes[index]);
+            }
+          }
           return formItem;
         }
         return oldRender
@@ -330,7 +398,7 @@ export function generateTableColumns(
         configOrder.push(seq - 1);
         order = seq - 1;
       }
-      const render = (val, record) => {
+      const render = (val, record, index) => {
         const { _status, $form } = record;
         let meaning = record[`${fieldCode}Meaning`];
         if (meaning === undefined) meaning = record[fieldCode];
@@ -342,7 +410,8 @@ export function generateTableColumns(
             form: $form,
           });
         }
-        let selfRules = {};
+        let { defaultValue } = i;
+        let { defaultValueMeaning } = i;
         const wrapProps = {
           className: `cust-field-${fieldCode}`,
         };
@@ -366,7 +435,7 @@ export function generateTableColumns(
           targetForm: $form,
           targetDataSource: record,
           getValueFromCache,
-          currentUnitCode: code,
+          code,
         };
         if (['update', 'create'].includes(_status)) {
           isEdit = true;
@@ -375,10 +444,37 @@ export function generateTableColumns(
             conditionHeaderDTOs.filter((k) => k.conType !== 'visible'),
             toolsObj
           );
-          selfRules = selfValidator(conValidDTO, toolsObj);
+          const { defaultValue: v, defaultValueMeaning: m } = defaultValueFx(toolsObj, i);
+          defaultValue = v;
+          defaultValueMeaning = m;
           formOptions.required = required;
-          formOptions.selfRules = selfRules;
           contentProps.editable = editable;
+        }
+        if (isEdit && !readOnly && renderOptions !== 'TEXT') {
+          if (!validRes[index]) {
+            validRes[index] = {};
+          }
+          if (!validRes[index][fieldCode]) {
+            validRes[index][fieldCode] = { value: val, errors: [], init: true };
+          }
+          const realValue = record.$form.getFieldValue(fieldCode);
+          if (
+            realValue !== validRes[index][fieldCode].value ||
+            validRes[index][fieldCode].hasInit
+          ) {
+            needUpdate.push(index);
+            const oldError = record.$form.getFieldError(fieldCode) || [];
+            const valid = selfValidator(conValidDTO, toolsObj);
+            const newError = oldError
+              .filter((err) => !(validRes[index][fieldCode].lastErrors || []).includes(err))
+              .map((err) => new Error(err))
+              .concat(valid);
+            validRes[index][fieldCode].value = realValue;
+            validRes[index][fieldCode].lastErrors = valid.map((e) => e.message);
+            validRes[index][fieldCode].errors = newError.length > 0 ? newError : undefined;
+            validRes[index][fieldCode].hasInit = false;
+            setErrors(record.$form, validRes[index]);
+          }
         }
         return getFormItemComponent(
           fieldType,
@@ -389,6 +485,7 @@ export function generateTableColumns(
           readOnly,
           form: $form,
           defaultValue,
+          defaultValueMeaning,
           formOptions,
           contentProps,
           fieldCode,
@@ -402,7 +499,7 @@ export function generateTableColumns(
         width: i.width === undefined ? 200 : i.width,
         fixed: fixedMap[fixed],
         title: fieldName,
-        sorter: !!sorter,
+        sorter,
         dataIndex: fieldCode,
         render,
       });

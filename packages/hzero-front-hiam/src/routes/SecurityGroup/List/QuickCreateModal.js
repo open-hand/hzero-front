@@ -41,7 +41,7 @@ export default observer((props) => {
   const secGrpDS = useMemo(
     () =>
       new DataSet({
-        ...SecGrpDS,
+        ...SecGrpDS(),
         selection: 'multiple',
         queryParameter: {},
         transport: {

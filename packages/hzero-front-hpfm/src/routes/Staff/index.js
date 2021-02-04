@@ -60,7 +60,9 @@ const listBtnColSpan = {
   deleteStaffLoading: loading.effects['staff/deleteStaff'],
   tenantId: getCurrentOrganizationId(),
 }))
-@formatterCollections({ code: ['hpfm.employee', 'entity.position', 'entity.employee'] })
+@formatterCollections({
+  code: ['hpfm.employee', 'entity.position', 'entity.employee', 'hpfm.staff'],
+})
 export default class Staff extends Component {
   constructor(props) {
     super(props);
@@ -179,7 +181,7 @@ export default class Staff extends Component {
         unitId: staff.unitId,
         positionId: match.params.positionId,
       },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.handleAddibleStaff();
@@ -204,7 +206,7 @@ export default class Staff extends Component {
         unitId: staff.unitId,
         positionId: match.params.positionId,
       },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.handleAddibleStaff();

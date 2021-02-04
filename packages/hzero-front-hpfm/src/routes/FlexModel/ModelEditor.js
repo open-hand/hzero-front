@@ -44,14 +44,14 @@ export default class ModalEditor extends Component {
   @Bind()
   handleSearchTable(value) {
     const { tables = [] } = this.props;
-    const filterTables = tables.filter(item => item.tableName.includes(value));
+    const filterTables = tables.filter((item) => item.tableName.includes(value));
     this.setState({ filterTables });
   }
 
   @Bind()
   handleChangeTable(value) {
     const { form, tables } = this.props;
-    const table = tables.find(item => item.tableName === value) || {};
+    const table = tables.find((item) => item.tableName === value) || {};
     const { tableName = '', tableRemarks = '', supportMultiLang } = table;
     this.setState({ supportMultiLang: supportMultiLang ? 1 : 0 });
     let modelCode = form.getFieldValue('modelCode');
@@ -81,7 +81,7 @@ export default class ModalEditor extends Component {
         dispatch({
           type: 'flexModel/saveModel',
           params,
-        }).then(res => {
+        }).then((res) => {
           if (!isEmpty(res)) {
             this.setState({
               serviceName: '',
@@ -153,7 +153,7 @@ export default class ModalEditor extends Component {
               <Lov
                 code={getSingleTenantValueCode('HCNF.ROUTE.SERVICE_CODE')}
                 textValue={serviceName}
-                onChange={e => this.fetchTables(e)}
+                onChange={(e) => this.fetchTables(e)}
               />
             )}
           </FormItem>
@@ -167,9 +167,9 @@ export default class ModalEditor extends Component {
                   }),
                 },
                 {
-                  max: 30,
+                  max: 128,
                   message: intl.get('hzero.common.validation.max', {
-                    max: 30,
+                    max: 128,
                   }),
                 },
               ],
@@ -185,7 +185,7 @@ export default class ModalEditor extends Component {
                 onChange={this.handleChangeTable}
                 notFoundContent={null}
               >
-                {filterTables.map(item => (
+                {filterTables.map((item) => (
                   <Option key={item.tableName}>{item.tableName}</Option>
                 ))}
               </Select>

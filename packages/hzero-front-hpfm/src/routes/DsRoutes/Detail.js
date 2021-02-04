@@ -28,14 +28,8 @@ import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { operatorRender, yesOrNoRender } from 'utils/renderer';
 import { DETAIL_CARD_CLASSNAME } from 'utils/constants';
-import { HZERO_PLATFORM, API_HOST } from 'utils/config';
-import { getMenuId } from 'utils/menuTab';
-import {
-  getAccessToken,
-  getCurrentOrganizationId,
-  getResponse,
-  isTenantRoleLevel,
-} from 'utils/utils';
+import { HZERO_PLATFORM } from 'utils/config';
+import { getCurrentOrganizationId, isTenantRoleLevel } from 'utils/utils';
 import notification from 'utils/notification';
 
 import {
@@ -215,11 +209,9 @@ const Detail = (props) => {
           : `${HZERO_PLATFORM}/v1/ds-routes/save`,
         method: 'POST',
         data: dataSource,
-        baseURL: `${API_HOST}`,
-        headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
       })
         .then((res) => {
-          if (res && getResponse(res)) {
+          if (res) {
             notification.success();
             history.push(`/hpfm/ds-routes/detail/${res.dsRouteId}`);
             detailDS.setQueryParameter('dsRouteId', res.dsRouteId);

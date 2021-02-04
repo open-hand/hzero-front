@@ -19,13 +19,12 @@ if (
   process.cwd().indexOf('packages') > -1 &&
   process.env.NODE_ENV === 'development'
 ) {
-  aliasConfig = {
-    ...aliasConfig,
+  aliasConfig = Object.assign(aliasConfig, {
     components: 'hzero-front/src/components/',
     utils: 'hzero-front/src/utils/',
     services: 'hzero-front/src/services/',
     'hzero-front/lib': 'hzero-front/src',
-  };
+  });
 }
 
 module.exports = aliasConfig;

@@ -5,7 +5,8 @@ import { forEach, isObject, startsWith } from 'lodash';
 import EventEmitter from 'event-emitter';
 import { getActiveTabKey } from 'utils/menuTab';
 
-const emitter = new EventEmitter();
+const emitter =
+  window.CacheComponentEventManager || (window.CacheComponentEventManager = new EventEmitter());
 
 // const CLEAR_MAP = {};
 const CACHE_MAP = {};
@@ -17,7 +18,7 @@ function getWillCacheCount(cachePreKey) {
 }
 
 // 当 缓存组件 didMount 时 cachePreKey 计数 +1
-emitter.on('willCache', cachePreKey => {
+emitter.on('willCache', (cachePreKey) => {
   if (WILL_CACHE_PRE_MAP[cachePreKey]) {
     WILL_CACHE_PRE_MAP[cachePreKey].willCacheCount = Math.max(
       1,
@@ -32,12 +33,17 @@ emitter.on('willCache', cachePreKey => {
 
 // 当缓存组件 willUnmount 时 cachePreKey 计数 -1 并将 cacheKey 对应的缓存写进缓存
 emitter.on('save', (cacheKey, data, cachePreKey) => {
-  WILL_CACHE_PRE_MAP[cachePreKey].willCacheCount = Math.max(0, getWillCacheCount(cachePreKey) - 1);
-  setCache(cacheKey, data);
+  if (WILL_CACHE_PRE_MAP[cachePreKey]) {
+    WILL_CACHE_PRE_MAP[cachePreKey].willCacheCount = Math.max(
+      0,
+      getWillCacheCount(cachePreKey) - 1
+    );
+    setCache(cacheKey, data);
+  }
 });
 
 // 如果 Tab 没有关闭, 会添加一个 清除方法 在 组件触发缓存后 立即清空缓存 直至 全部清除完毕 后清除 清除方法
-emitter.on('clean', cachePreKey => {
+emitter.on('clean', (cachePreKey) => {
   if (getWillCacheCount(cachePreKey) > 0) {
     const cleanFunc = (cacheKey, _, componentCachePreKey) => {
       if (cachePreKey === componentCachePreKey) {
@@ -85,7 +91,7 @@ function cleanCacheData(cachePreKey) {
       removeCacheKeys.push(cacheKey);
     }
   });
-  forEach(removeCacheKeys, cacheKey => {
+  forEach(removeCacheKeys, (cacheKey) => {
     delete CACHE_MAP[cacheKey];
   });
 }
@@ -96,7 +102,7 @@ export function cleanCache(cachePreKey) {
 }
 
 export default function cacheComponent({ cacheKey, cachePreKey = getActiveTabKey() } = {}) {
-  return Component =>
+  return (Component) =>
     class CacheComponent extends React.Component {
       loadCache(component, callback) {
         if (cacheKey) {
@@ -104,7 +110,7 @@ export default function cacheComponent({ cacheKey, cachePreKey = getActiveTabKey
           const cache = getCache(cacheKey);
           if (form && cache && cache.form) {
             if (isObject(cache.form)) {
-              Object.keys(cache.form).forEach(item => form.registerField(item));
+              Object.keys(cache.form).forEach((item) => form.registerField(item));
             }
             form.setFieldsValue(cache.form);
           }
@@ -140,7 +146,7 @@ export default function cacheComponent({ cacheKey, cachePreKey = getActiveTabKey
         // }
       }
 
-      setComponent = component => {
+      setComponent = (component) => {
         this.pageComponent = component;
       };
 

@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React from 'react';
 import { Form, Modal, Popconfirm, Icon, Select, Input } from 'hzero-ui';
 import intl from 'utils/intl';
@@ -16,7 +17,7 @@ function getFilter(type) {
     case 'INPUT_NUMBER':
       return ['>', '<', '>=', '<=', '=', '!='];
     case 'DATE_PICKER':
-      return ['BEFORE', 'AFTER', '~BEFORE', '~AFTER'];
+      return ['BEFORE', 'AFTER', '~BEFORE', '~AFTER', 'SAME', 'NOTSAME'];
     default:
       return ['LIKE', 'UNLIKE', '~LIKE', '~UNLIKE', '=', '!=', 'ISNULL', 'NOTNULL'];
   }
@@ -38,7 +39,7 @@ export default class ConditionModal extends React.Component {
     const querySelectOptions = {};
     let selectOptionsLoading = false;
     const conditionNo = [1, 1];
-    lines.forEach(i => {
+    lines.forEach((i) => {
       conditionNo[i.conCode] = 1;
       querySelectOptions[i.conCode] = i.sourceFieldValueCode;
     });
@@ -55,9 +56,9 @@ export default class ConditionModal extends React.Component {
         });
       });
     const fieldMapObj = {};
-    Object.keys(fieldList).forEach(item => {
+    Object.keys(fieldList).forEach((item) => {
       const subList = fieldList[item];
-      subList.forEach(field => {
+      subList.forEach((field) => {
         fieldMapObj[field.modelFieldId] = field;
       });
     });
@@ -191,8 +192,8 @@ export default class ConditionModal extends React.Component {
           <Select
             allowClear
             style={{ width: '100%' }}
-            onChange={v => {
-              const obj = (selectOptions[config.conCode] || []).find(i => i.value === v) || {};
+            onChange={(v) => {
+              const obj = (selectOptions[config.conCode] || []).find((i) => i.value === v) || {};
               form.setFieldsValue({ [`targetValueMeaning#${index}`]: obj.meaning });
             }}
           >
@@ -201,7 +202,7 @@ export default class ConditionModal extends React.Component {
                 <Icon type="loading" />
               </Option>
             ) : (
-              (selectOptions[config.conCode] || []).map(n => (
+              (selectOptions[config.conCode] || []).map((n) => (
                 <Option value={n.value}>{n.meaning}</Option>
               ))
             )}
@@ -243,7 +244,7 @@ export default class ConditionModal extends React.Component {
     const { fieldList, form } = this.props;
     const { selectOptions } = this.state;
     const fieldObj = (fieldList[form.getFieldValue(`sourceUnitId#${index}`)] || []).find(
-      i => i.modelFieldId === id
+      (i) => i.modelFieldId == id
     );
     if (fieldObj) {
       if (fieldObj.widgetType === 'SELECT') {
@@ -273,7 +274,7 @@ export default class ConditionModal extends React.Component {
 
   setFieldTwoInfo(id, index) {
     const { form, id: unitId, fieldList } = this.props;
-    const fieldObj = (fieldList[unitId] || []).find(i => i.modelFieldId === id);
+    const fieldObj = (fieldList[unitId] || []).find((i) => i.modelFieldId == id);
     if (fieldObj) {
       form.setFieldsValue({
         [`targetModelId#${index}`]: fieldObj.modelId,
@@ -395,13 +396,13 @@ export default class ConditionModal extends React.Component {
                       placeholder={intl.get('hpfm.individual.model.config.unitWhich').d('所属单元')}
                       optionLabelProp="title"
                       dropdownClassName={styles['condition-dropdown']}
-                      onChange={v => {
-                        const obj = unitList.find(k => k.unitId === v) || {};
+                      onChange={(v) => {
+                        const obj = unitList.find((k) => k.unitId == v) || {};
                         form.setFieldsValue({ [`sourceUnitCode#${index}`]: obj.unitCode });
                         this.clearFields(1, index);
                       }}
                     >
-                      {unitList.map(unit => (
+                      {unitList.map((unit) => (
                         <Option
                           value={unit.unitId}
                           title={unit.unitName}
@@ -439,12 +440,12 @@ export default class ConditionModal extends React.Component {
                       placeholder={intl
                         .get('hpfm.individual.model.config.fieldSelect')
                         .d('字段选择')}
-                      onChange={id => this.setFieldOneInfo(id, index, i)}
+                      onChange={(id) => this.setFieldOneInfo(id, index, i)}
                       disabled={form.getFieldValue(`sourceUnitId#${index}`) === undefined}
                       optionLabelProp="title"
                       dropdownClassName={styles['condition-dropdown']}
                     >
-                      {(fieldList[form.getFieldValue(`sourceUnitId#${index}`)] || []).map(f1 => (
+                      {(fieldList[form.getFieldValue(`sourceUnitId#${index}`)] || []).map((f1) => (
                         <Option value={f1.modelFieldId} title={f1.unitFieldName}>
                           <div className="option-title">{f1.unitFieldName}</div>
                           <div className="option-value">{f1.unitFieldCode}</div>
@@ -486,12 +487,12 @@ export default class ConditionModal extends React.Component {
                       dropdownClassName={styles['condition-dropdown']}
                     >
                       {relationShip
-                        .filter(k =>
+                        .filter((k) =>
                           getFilter(form.getFieldValue(`sourceFieldWidget#${index}`)).includes(
                             k.value
                           )
                         )
-                        .map(k => (
+                        .map((k) => (
                           <Option value={k.value}>{k.meaning}</Option>
                         ))}
                     </Select>
@@ -556,11 +557,11 @@ export default class ConditionModal extends React.Component {
                         placeholder={intl
                           .get('hpfm.individual.model.config.fieldSelect')
                           .d('字段选择')}
-                        onChange={id => this.setFieldTwoInfo(id, index)}
+                        onChange={(id) => this.setFieldTwoInfo(id, index)}
                         optionLabelProp="title"
                         dropdownClassName={styles['condition-dropdown']}
                       >
-                        {(fieldList[currentUnitId] || []).map(f2 => (
+                        {(fieldList[currentUnitId] || []).map((f2) => (
                           <Option value={f2.modelFieldId} title={f2.unitFieldName}>
                             <div className="option-title">{f2.unitFieldName}</div>
                             <div className="option-value">{f2.unitFieldCode}</div>
@@ -638,7 +639,7 @@ export default class ConditionModal extends React.Component {
                 },
                 {
                   validator: (_, value, cb) => {
-                    if (conditionList.filter(k => !!k).length === 0) {
+                    if (conditionList.filter((k) => !!k).length === 0) {
                       cb();
                       return;
                     }

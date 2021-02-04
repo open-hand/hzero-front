@@ -6,7 +6,7 @@ import { CODE } from 'utils/regExp';
 const organizationId = getCurrentOrganizationId();
 const apiPrefix = isTenantRoleLevel() ? `${HZERO_IAM}/v1/${organizationId}` : `${HZERO_IAM}/v1`;
 
-const initDS = {
+const initDS = () => ({
   autoQuery: true,
   selection: false,
   dataKey: 'content',
@@ -106,10 +106,10 @@ const initDS = {
       params: { ...params, ...data },
     }),
   },
-};
+});
 
 // 模态框ds
-const drawerDS = {
+const drawerDS = () => ({
   autoQuery: false,
   autoQueryAfterSubmit: false,
   fields: [
@@ -202,6 +202,6 @@ const drawerDS = {
       };
     },
   },
-};
+});
 
 export { initDS, drawerDS };

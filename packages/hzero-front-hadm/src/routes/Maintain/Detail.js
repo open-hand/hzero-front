@@ -46,9 +46,9 @@ const Detail = (props) => {
 
   let modal = '';
 
-  const detailTableDS = React.useMemo(() => new DataSet(detailTableDs), []);
+  const detailTableDS = React.useMemo(() => new DataSet(detailTableDs()), []);
 
-  const detailDS = React.useMemo(() => new DataSet(detailDs), []);
+  const detailDS = React.useMemo(() => new DataSet(detailDs()), []);
 
   const [loading, setLoading] = React.useState(false);
 

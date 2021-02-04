@@ -9,6 +9,8 @@ import axios from 'axios';
 import React, { useState } from 'react';
 import { configure, message } from 'choerodon-ui';
 import { Button, Form } from 'choerodon-ui/pro';
+import { getConfig } from 'hzero-boot';
+import { routerRedux } from 'dva/router';
 // import './c7n-ued-polyfill.important.less';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
@@ -17,13 +19,65 @@ import {
   getAccessToken,
   getCurrentOrganizationId,
   isTenantRoleLevel,
+  setSession,
+  getSession,
 } from 'utils/utils';
+import { getEnvConfig, getDvaApp } from 'utils/iocUtils';
+
 import { getMenuId } from './menuTab';
-import { getEnvConfig } from './iocUtils';
 
 const jsonMimeType = 'application/json';
 
 export const withTokenAxios = axios;
+
+/**
+ * 鉴权 401
+ * @param status 状态码
+ */
+const authrIntercept = (status) => {
+  if (status === 401) {
+    const accessToken = getAccessToken();
+    const { HZERO_OAUTH } = getEnvConfig();
+    const dvaApp = getDvaApp();
+    const language = getSession('language') || 'zh_CN';
+    // FIXME:已处理过一次401后就不再处理
+    const cacheLocation = encodeURIComponent(window.location.toString());
+    if (accessToken) {
+      withTokenAxios(`${HZERO_OAUTH}/public/token/kickoff`, {
+        method: 'POST',
+        params: {
+          access_token: accessToken,
+        },
+      }).then((res) => {
+        if (res.kickoff === 1) {
+          // 跳转到踢下线界面
+          // eslint-disable-next-line
+          dvaApp._store.dispatch(
+            routerRedux.push({
+              pathname: '/public/kickoff',
+              search: `?language=${language}`,
+            })
+          );
+          setSession('redirectUrl', cacheLocation);
+          setSession('isErrorFlag', false);
+        } else {
+          // token 失效, 跳转到 token失效页面
+          dvaApp._store.dispatch(
+            routerRedux.push({
+              pathname: '/public/unauthorized',
+              search: `?language=${language}`,
+            })
+          );
+          setSession('isErrorFlag', true);
+          // 登陆后需要跳回的界面， 放到session中
+          setSession('redirectUrl', cacheLocation);
+        }
+      });
+    }
+    return false;
+  }
+  return true;
+};
 
 if (!withTokenAxios._HZERO_AXIOS_IS_CONFIGED) {
   // 微前端模式下， 这个语句块会多次执行， 所以加一个条件限制， 只能执行一次
@@ -49,6 +103,18 @@ if (!withTokenAxios._HZERO_AXIOS_IS_CONFIGED) {
       }
       // Do something before request is sent
       const MenuId = getMenuId();
+
+      // 添加额外的请求头
+      const patchRequestHeaderConfig = getConfig('patchRequestHeader');
+      let patchRequestHeader;
+      if (patchRequestHeaderConfig) {
+        if (typeof patchRequestHeaderConfig === 'function') {
+          patchRequestHeader = patchRequestHeaderConfig();
+        } else {
+          patchRequestHeader = patchRequestHeaderConfig;
+        }
+      }
+
       if (MenuId) {
         return {
           ...config,
@@ -57,6 +123,7 @@ if (!withTokenAxios._HZERO_AXIOS_IS_CONFIGED) {
             ...config.headers,
             Authorization: `bearer ${getAccessToken()}`,
             'H-Menu-Id': `${getMenuId()}`,
+            ...patchRequestHeader,
           },
         };
       } else {
@@ -66,6 +133,7 @@ if (!withTokenAxios._HZERO_AXIOS_IS_CONFIGED) {
           headers: {
             ...config.headers,
             Authorization: `bearer ${getAccessToken()}`,
+            ...patchRequestHeader,
           },
         };
       }
@@ -77,6 +145,9 @@ if (!withTokenAxios._HZERO_AXIOS_IS_CONFIGED) {
 
   withTokenAxios.interceptors.response.use((response) => {
     const { status, data } = response;
+    if (!authrIntercept(status)) {
+      return;
+    }
     if (status === 204) {
       return undefined;
     }
@@ -372,6 +443,9 @@ configure({
           message: resp && resp.message,
         });
       } else if (resp && resp.response) {
+        if (!authrIntercept(resp.response.status)) {
+          return;
+        }
         let m = require('../assets/icon_page_wrong.svg');
         if (m.__esModule) {
           m = m.default;

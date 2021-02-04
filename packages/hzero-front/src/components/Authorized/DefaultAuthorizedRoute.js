@@ -14,6 +14,7 @@ import {
   setRefreshToken,
   getCurrentOrganizationId,
   getCurrentRole,
+  setSession,
 } from 'utils/utils';
 
 @withRouter
@@ -40,10 +41,12 @@ export default class AuthorizedRoute extends React.Component {
 
     dispatch({
       type: 'user/fetchCurrent',
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         if (!(res instanceof Error)) {
           // 请求 self 接口成功
+          // 设置当前语言到session
+          setSession('language', res.language);
           dispatch({
             type: 'global/baseInit',
             payload: {
@@ -65,7 +68,7 @@ export default class AuthorizedRoute extends React.Component {
           // 清除首屏loading
           const loader = document.querySelector('#loader-wrapper');
           if (loader) {
-            document.body.removeChild(loader);
+            loader.parentNode.removeChild(loader);
           }
           history.push('/exception/500');
         }
@@ -76,8 +79,9 @@ export default class AuthorizedRoute extends React.Component {
   render() {
     const { render, ...rest } = this.props;
     const { isAuthorized, isException } = this.state;
+    // eslint-disable-next-line no-nested-ternary
     return isAuthorized === true ? (
-      <Route {...rest} render={props => render(props)} />
+      <Route {...rest} render={(props) => render(props)} />
     ) : isException === true ? (
       <Exception type="500" />
     ) : null;

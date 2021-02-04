@@ -30,7 +30,7 @@ export default {
     moduleList: [],
     codes: {
       dateFormat: [],
-      whereOption: [],
+      whereOptions: [],
       renderOptions: [],
       fieldWidget: [],
       custType: [],
@@ -48,6 +48,11 @@ export default {
     headerProps: {},
     conditionList: [],
     validatorList: [],
+
+    // 默认值条件 & 默认值列表
+    defaultValueProps: {},
+    defaultConList: [],
+    defaultValidList: [],
   },
   effects: {
     *queryCodes({ payload }, { call, put }) {
@@ -57,16 +62,16 @@ export default {
         const fieldWidgetObj = {};
         const unitTypeObj = {};
         const custTypeObj = {};
-        res.fixed.forEach(i => {
+        res.fixed.forEach((i) => {
           fixedObj[i.value] = i.meaning;
         });
-        res.fieldWidget.forEach(i => {
+        res.fieldWidget.forEach((i) => {
           fieldWidgetObj[i.value] = i.meaning;
         });
-        res.unitType.forEach(i => {
+        res.unitType.forEach((i) => {
           unitTypeObj[i.value] = i.meaning;
         });
-        res.custType.forEach(i => {
+        res.custType.forEach((i) => {
           custTypeObj[i.value] = i.meaning;
         });
         yield put({
@@ -170,6 +175,20 @@ export default {
             headerProps: omit(res, ['lines', 'valids']),
             conditionList: res.lines || [],
             validatorList: res.valids || [],
+          },
+        });
+      }
+      return res;
+    },
+    *queryDefaultValueFx({ payload }, { call, put }) {
+      const res = getResponse(yield call(querySelfValidator, payload));
+      if (res) {
+        yield put({
+          type: 'updateState',
+          payload: {
+            defaultValueProps: omit(res, ['lines', 'valids']),
+            defaultConList: res.lines || [],
+            defaultValidList: res.valids || [],
           },
         });
       }

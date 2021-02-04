@@ -48,10 +48,11 @@ export default class Lov extends React.Component<LovProps, any> {
 
   modalRef: React.RefObject<any> = { current: null };
 
+  cacheValue;
+
   constructor(props) {
     super(props);
     this.state = {
-      currentText: null,
       text: props.isInput ? props.value : props.textValue,
       textField: props.textField,
       lov: {},
@@ -63,23 +64,11 @@ export default class Lov extends React.Component<LovProps, any> {
 
   // eslint-disable-next-line
   UNSAFE_componentWillReceiveProps(nextProps) {
-    const { currentText, text } = this.state;
+    const { text } = this.state;
     let data: any = {
-      currentText: nextProps.textValue === currentText ? currentText : nextProps.textValue,
+      text: nextProps.value !== this.cacheValue ? undefined : text,
     };
 
-    if (currentText && currentText !== nextProps.textValue) {
-      data = {
-        ...data,
-        text: nextProps.textValue,
-      };
-    }
-    if (!text && nextProps.textValue) {
-      data = {
-        ...data,
-        text: nextProps.textValue,
-      };
-    }
     if (nextProps.value === null || nextProps.value === undefined) {
       data = {
         ...data,
@@ -129,7 +118,7 @@ export default class Lov extends React.Component<LovProps, any> {
   selectRecord() {
     const { isInput } = this.props;
     const { valueField: rowkey = defaultRowKey, displayField: displayName } = this.state.lov;
-
+    this.cacheValue = this.parseField(this.record, rowkey); // 记录lov变更时对应props中的value， 一旦此value改变，便说明此时、state中的text无效
     // TODO: 值为 0 -0 '' 等的判断
 
     this.setState(

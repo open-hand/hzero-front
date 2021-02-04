@@ -32,7 +32,7 @@ export default class FilterForm extends PureComponent {
   handleSearch() {
     const { onSearch, form } = this.props;
     if (onSearch) {
-      form.validateFields(err => {
+      form.validateFields((err) => {
         if (!err) {
           // 如果验证成功,则执行onSearch
           onSearch();

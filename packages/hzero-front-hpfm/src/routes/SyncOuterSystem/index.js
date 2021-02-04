@@ -36,13 +36,13 @@ export default class SyncOuterSystem extends React.Component {
     };
   }
 
-  tableDs = new DataSet(tableDs);
+  tableDs = new DataSet(tableDs());
 
-  tableDetailDs = new DataSet(tableDetailDs);
+  tableDetailDs = new DataSet(tableDetailDs());
 
-  handleUpdateDs = new DataSet(handleUpdateDs);
+  handleUpdateDs = new DataSet(handleUpdateDs());
 
-  handleUpdateDsLocal = new DataSet(handleUpdateDsLocal);
+  handleUpdateDsLocal = new DataSet(handleUpdateDsLocal());
 
   componentDidMount() {
     this.fetchPublicKey();
@@ -237,7 +237,7 @@ export default class SyncOuterSystem extends React.Component {
    */
   @Bind()
   fetchPublicKey() {
-    getPublicKey().then(res => {
+    getPublicKey().then((res) => {
       if (res) {
         this.setState({
           publicKey: res.publicKey,

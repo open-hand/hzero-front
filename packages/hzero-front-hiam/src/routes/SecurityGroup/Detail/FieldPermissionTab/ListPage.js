@@ -22,7 +22,7 @@ const levelUrl = isTenantRoleLevel() ? `/${organizationId}` : '';
 
 export default class FieldPermission extends Component {
   fieldPermissionDS = new DataSet({
-    ...fieldPermissionDS,
+    ...fieldPermissionDS(),
     transport: {
       read: ({ data, params }) => {
         const { secGrpId, isSelf = false, roleId, secGrpSource } = this.props;

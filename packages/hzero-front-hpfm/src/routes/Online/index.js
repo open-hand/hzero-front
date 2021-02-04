@@ -27,7 +27,7 @@ import { listDS } from '../../stores/OnlineDS';
 export default class Online extends React.Component {
   onlineTimer;
 
-  tableDS = new DataSet(listDS);
+  tableDS = new DataSet(listDS());
 
   componentDidMount() {
     this.onlineTimer = setInterval(() => {

@@ -14,9 +14,8 @@ import { Header, Content } from 'components/Page';
 import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { enableRender, operatorRender } from 'utils/renderer';
-import { getMenuId } from 'utils/menuTab';
-import { HZERO_PLATFORM, API_HOST } from 'utils/config';
-import { getAccessToken, getCurrentOrganizationId, isTenantRoleLevel } from 'utils/utils';
+import { HZERO_PLATFORM } from 'utils/config';
+import { getCurrentOrganizationId, isTenantRoleLevel } from 'utils/utils';
 import notification from 'utils/notification';
 
 import { tableDS as tableDs, pushTableDS as pushTableDs } from '../../stores/DsRoutesDS';
@@ -26,9 +25,9 @@ const DsRoutes = (props) => {
     match: { path },
   } = props;
 
-  const tableDS = React.useMemo(() => new DataSet(tableDs), []);
+  const tableDS = React.useMemo(() => new DataSet(tableDs()), []);
 
-  const pushTableDS = React.useMemo(() => new DataSet(pushTableDs), []);
+  const pushTableDS = React.useMemo(() => new DataSet(pushTableDs()), []);
 
   const columns = React.useMemo(
     () => [
@@ -185,12 +184,16 @@ const DsRoutes = (props) => {
       params: {
         dsRouteId: record.get('dsRouteId'),
       },
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
-    }).then(() => {
-      notification.success();
-      tableDS.query();
-    });
+    })
+      .then(() => {
+        notification.success();
+        tableDS.query();
+      })
+      .catch((err) => {
+        notification.error({
+          message: err.message,
+        });
+      });
   };
 
   /**
@@ -207,12 +210,16 @@ const DsRoutes = (props) => {
       params: {
         dsRouteId: record.get('dsRouteId'),
       },
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
-    }).then(() => {
-      notification.success();
-      tableDS.query();
-    });
+    })
+      .then(() => {
+        notification.success();
+        tableDS.query();
+      })
+      .catch((err) => {
+        notification.error({
+          message: err.message,
+        });
+      });
   };
 
   /**
@@ -250,11 +257,15 @@ const DsRoutes = (props) => {
           : `${HZERO_PLATFORM}/v1/ds-routes/push/service`,
         method: 'POST',
         data: selectedData,
-        baseURL: `${API_HOST}`,
-        headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
-      }).then(() => {
-        notification.success();
-      });
+      })
+        .then(() => {
+          notification.success();
+        })
+        .catch((err) => {
+          notification.error({
+            message: err.message,
+          });
+        });
     }
   };
 

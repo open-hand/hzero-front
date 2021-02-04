@@ -22,7 +22,7 @@ import Drawer from './Drawer';
 
 @formatterCollections({ code: ['hiam.labelManagement'] })
 export default class labelManagement extends React.Component {
-  initDs = new DataSet(initDS);
+  initDs = new DataSet(initDS());
 
   drawerDs = null;
 
@@ -155,7 +155,7 @@ export default class labelManagement extends React.Component {
   @Bind()
   handleUpdate(isCreate, record = {}) {
     const { id } = record;
-    this.drawerDs = new DataSet(drawerDS);
+    this.drawerDs = new DataSet(drawerDS());
     this.drawerDs.create({}, 0);
     const drawerProps = {
       isCreate,

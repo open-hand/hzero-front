@@ -22,8 +22,8 @@ import { addTOBlackList } from '@/services/apiLimitService';
 export default class ViewMonitor extends React.Component {
   constructor(props) {
     super(props);
-    this.detailFormDS = new DataSet(detailFormDS);
-    this.detailTableDS = new DataSet(detailTableDS);
+    this.detailFormDS = new DataSet(detailFormDS());
+    this.detailTableDS = new DataSet(detailTableDS());
   }
 
   componentDidMount() {

@@ -9,7 +9,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 
 const organizationId = getCurrentOrganizationId();
 
-const checkStatusFormConfigDS = {
+const checkStatusFormConfigDS = () => ({
   autoCreate: true,
   fields: [
     {
@@ -19,9 +19,9 @@ const checkStatusFormConfigDS = {
       defaultValue: 'PERMISSION_MISMATCH',
     },
   ],
-};
+});
 
-const searchFormConfigDS = {
+const searchFormConfigDS = () => ({
   fields: [
     {
       name: 'permissionType',
@@ -78,7 +78,7 @@ const searchFormConfigDS = {
       label: intl.get('hiam.missPermission.model.missPermission.apiMethod').d('请求方式'),
     },
   ],
-};
+});
 
 function tableConfigDS(checkStatusRecord, searchRecord) {
   return {
@@ -147,7 +147,7 @@ function tableConfigDS(checkStatusRecord, searchRecord) {
       },
     ],
     transport: {
-      read: config => {
+      read: (config) => {
         const { checkState = null } = checkStatusRecord.toJSONData()[0] || {};
         const {
           permissionCode = null,
@@ -186,7 +186,7 @@ function tableConfigDS(checkStatusRecord, searchRecord) {
   };
 }
 
-const permissionSetDS = {
+const permissionSetDS = () => ({
   dataKey: 'content',
   cacheSelection: true,
   queryFields: [
@@ -225,7 +225,7 @@ const permissionSetDS = {
     },
   ],
   transport: {
-    read: config => {
+    read: (config) => {
       const { params, data } = config;
       const url = VERSION_IS_OP
         ? `${HZERO_IAM}/v1/${organizationId}/permission-check/permission-set`
@@ -238,9 +238,9 @@ const permissionSetDS = {
       };
     },
   },
-};
+});
 
-const clearPermissionRecordFormDS = {
+const clearPermissionRecordFormDS = () => ({
   fields: [
     {
       name: 'checkType',
@@ -256,9 +256,9 @@ const clearPermissionRecordFormDS = {
       required: true,
     },
   ],
-};
+});
 
-const detailFormDS = {
+const detailFormDS = () => ({
   dateKey: 'content',
   fields: [
     {
@@ -322,7 +322,7 @@ const detailFormDS = {
     },
   ],
   transport: {
-    read: config => {
+    read: (config) => {
       const { params, data } = config;
       const { permissionCheckId } = data;
       const url = VERSION_IS_OP
@@ -336,7 +336,7 @@ const detailFormDS = {
       };
     },
   },
-};
+});
 
 export {
   checkStatusFormConfigDS,

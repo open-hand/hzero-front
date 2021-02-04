@@ -80,13 +80,13 @@ const statusMap = ['error', 'success'];
 export default class Company extends React.Component {
   constructor(props) {
     super(props);
-    this.treeDS = new DataSet(treeDS);
-    this.formDS = new DataSet(formDS);
-    this.baseInfoDs = new DataSet(baseInfoDs);
-    this.departmentFormDS = new DataSet(departmentFormDS);
-    this.employeeTableDS = new DataSet(employeeTableDS);
-    this.positionTableDS = new DataSet(positionTableDS);
-    this.departmentTableDS = new DataSet(departmentTableDS);
+    this.treeDS = new DataSet(treeDS());
+    this.formDS = new DataSet(formDS());
+    this.baseInfoDs = new DataSet(baseInfoDs());
+    this.departmentFormDS = new DataSet(departmentFormDS());
+    this.employeeTableDS = new DataSet(employeeTableDS());
+    this.positionTableDS = new DataSet(positionTableDS());
+    this.departmentTableDS = new DataSet(departmentTableDS());
     this.state = {
       basicInformation: {
         unitCode: '',
@@ -169,12 +169,6 @@ export default class Company extends React.Component {
         name: 'gender',
         align: 'left',
         width: 80,
-        renderer: ({ value }) => {
-          const tempFlag = value === 0 || value === '0' ? 1 : 0;
-          return tempFlag
-            ? intl.get('hpfm.organization.model.company.men').d('男')
-            : intl.get('hpfm.organization.model.company.women').d('女');
-        },
       },
       {
         name: 'mobile',
@@ -427,7 +421,6 @@ export default class Company extends React.Component {
       companyId = '',
       companyName = '',
     } = record;
-    debugger;
     switch (type) {
       case 'create':
         this.formDS.create({});
@@ -793,7 +786,12 @@ export default class Company extends React.Component {
               {intl.get('hpfm.organization.view.button.createCompany').d('新建公司')}
             </ButtonPermission>
             <div style={{ height: 520, overflow: 'auto', marginTop: 16 }}>
-              <Tree disableCheckbox dataSet={this.treeDS} renderer={this.nodeRenderer} />
+              <Tree
+                disableCheckbox
+                dataSet={this.treeDS}
+                renderer={this.nodeRenderer}
+                height={520}
+              />
             </div>
           </Col>
           <Col span={16}>

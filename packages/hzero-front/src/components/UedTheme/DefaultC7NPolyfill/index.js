@@ -2,6 +2,14 @@ import { css, createGlobalStyle } from 'styled-components';
 import { getRequiredData } from '@hzero-front-ui/cfg/lib/utils/utils';
 import { hzeroFontSize, vars, hexToRgbaColor } from './utils';
 
+const fitUed = () => {
+  return css`
+    .c7n-pro-table-cell.c7n-pro-table-cell-multiLine > .c7n-pro-output:before {
+      display: none;
+    }
+  `;
+};
+
 const sectionOne = () => {
   return css`
     /* // 层级比正常的 antd 样式 高一层 */
@@ -116,6 +124,11 @@ const sectionOne = () => {
       &:focus {
         box-shadow: 0 0 2px 1px ${vars['@hzero-primary-color-2']};
       }
+    }
+
+    // fix 输入框缩进去的问题
+    .c7n-pro-input-multiple-input {
+      box-sizing: initial;
     }
 
     /* FIXME: 待确定是否按照 UI 给的 设计 */
@@ -416,6 +429,47 @@ const sectionOne = () => {
         text-align: left;
       }
     }
+
+    .c7n-collapse-header {
+      font-size: 14px;
+    }
+
+    .c7n-tabs-nav .c7n-tabs-tab {
+      font-size: 14px;
+    }
+
+    // c7n pro 弹窗设置底部靠右
+    .c7n-pro-modal-drawer .c7n-pro-modal-footer-drawer {
+      text-align: right;
+    }
+
+    // 自动高度
+
+    .c7n-tabs:not(.c7n-tabs-vertical) > .c7n-tabs-content > .c7n-tabs-tabpane {
+      height: 100%;
+    }
+
+    .page-tabs {
+      height: 100%;
+
+      .c7n-pro-pagination {
+        line-height: inherit;
+      }
+
+      .c7n-tabs-content {
+        height: calc(100% - 40px);
+      }
+    }
+
+    .page-card {
+      height: 100%;
+
+      .c7n-card-body {
+        height: calc(100% - 32px);
+      }
+    }
+
+    // 结束
   `;
 };
 
@@ -573,6 +627,22 @@ const sectionFour = (props) => {
     .c7n-pro-table-cell-inner {
       border: none;
       border-radius: 4px;
+
+      .c7n-pro-input-wrapper {
+        background-color: inherit;
+      }
+    }
+
+    .c7n-pro-table-header-edit {
+      border: none;
+      border-radius: 4px;
+
+      &:before {
+        display: inline-block;
+        content: '';
+        height: 100%;
+        vertical-align: middle;
+      }
     }
 
     .c7n-pro-table-cell-editable.c7n-pro-table-cell-required .c7n-pro-table-cell-inner {
@@ -738,9 +808,10 @@ const sectionFour = (props) => {
       border-left: 1px solid #e8e8e8;
     }
     .c7n-pro-table-wrapper .c7n-pro-table table .c7n-pro-table-tbody > tr > td {
-      padding-left: 8px;
-      padding-right: 8px;
       border-left: 1px solid #e8e8e8;
+      &:last-child {
+        border-right: 1px solid #e8e8e8;
+      }
     }
     .c7n-pro-table-cell-editable {
       padding-left: 16px !important;
@@ -1050,13 +1121,11 @@ const sectionFive = () => {
     }
 
     .more-fields-form {
-
       .c7n-pro-input-number,
       .c7n-pro-calendar-picker,
       .c7n-pro-form-item {
         width: 100%;
       }
-
 
       > div.c7n-pro-form-item {
         margin-bottom: 3px;
@@ -1668,6 +1737,10 @@ const sectionFive = () => {
 export default createGlobalStyle`
   /* hzero-c7n-polyfill-style */
   html body {
+    .c7n-pro-modal-title {
+      font-size: 14px;
+    }
+    ${fitUed}
     ${sectionFour}
     ${sectionOne}
     ${sectionTwo}

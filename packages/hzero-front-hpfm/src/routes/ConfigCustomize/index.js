@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/state-in-constructor */
 import React, { Component } from 'react';
@@ -25,8 +26,12 @@ import intl from 'utils/intl';
 import { connect } from 'dva';
 import notification from 'utils/notification';
 import formatterCollections from 'utils/intl/formatterCollections';
-import { getFieldNameAlias, getFieldConfigAlias } from '@/utils/constConfig.js';
-
+import {
+  getFieldNameAlias,
+  getFieldConfigAlias,
+  getDefaultActiveAlias,
+} from '@/utils/constConfig.js';
+import { yesOrNoRender } from 'utils/renderer';
 import ConfigModal from './ConfigModal';
 import styles from './index.less';
 
@@ -105,11 +110,11 @@ export default class configCustomize extends Component {
     dispatch({
       type: 'configCustomize/queryRelatedUnits',
       payload: { unitId: id },
-    }).then(res => {
+    }).then((res) => {
       if (!isEmpty(res)) {
         const unitList = res || [];
         const fieldList = {};
-        unitList.forEach(i => {
+        unitList.forEach((i) => {
           fieldList[i.unitId] = i.unitFields || [];
         });
         this.setState({ unitList, fieldList });
@@ -119,8 +124,8 @@ export default class configCustomize extends Component {
     });
   }
 
-  renderTreeNodes = data =>
-    data.map(item => {
+  renderTreeNodes = (data) =>
+    data.map((item) => {
       const { menuCode, menuName, subMenus, ...rest } = item;
       if (item.subMenus) {
         return (
@@ -207,16 +212,26 @@ export default class configCustomize extends Component {
           </div>
         ),
       },
+      pureVirtual && {
+        title: getDefaultActiveAlias(unitType),
+        dataIndex: 'defaultActive',
+        width: 100,
+        render: yesOrNoRender,
+      },
       !pureVirtual && {
         title: intl.get('hpfm.individual.model.config.custType').d('类型'),
         dataIndex: 'custType',
         width: 100,
-        render: val => custTypeObj[val],
+        render: (val) => custTypeObj[val],
       },
       !pureVirtual && {
         title: intl.get('hpfm.individual.model.config.modelCategory').d('所属模型'),
         dataIndex: 'field.modelName',
         width: 150,
+      },
+      !pureVirtual && {
+        title: intl.get('hpfm.individuationUnit.model.individuationUnit.bindField').d('字段绑定'),
+        dataIndex: 'bindField',
       },
       {
         title: intl.get('hpfm.individual.model.config.visible').d('显示'),
@@ -260,13 +275,13 @@ export default class configCustomize extends Component {
         title: intl.get('hpfm.individual.model.config.gridFixed').d('冻结'),
         width: 90,
         dataIndex: 'gridFixed',
-        render: val => fixedObj[val],
+        render: (val) => fixedObj[val],
       },
       !pureVirtual && {
         title: intl.get('hpfm.individual.model.config.componentType').d('组件类型'),
         dataIndex: 'widget.fieldWidget',
         width: 150,
-        render: val => fieldWidgetObj[val],
+        render: (val) => fieldWidgetObj[val],
       },
     ].filter(Boolean);
   }
@@ -281,7 +296,7 @@ export default class configCustomize extends Component {
       dispatch({
         type: 'configCustomize/queryGroup',
         payload: { menuCode: node.props.eventKey },
-      }).then(res => {
+      }).then((res) => {
         if (!isEmpty(res)) {
           const currentGroup = res[0] || { units: [] };
           this.setState({ currentGroup });
@@ -293,7 +308,7 @@ export default class configCustomize extends Component {
     } else {
       let { expandedKeys } = this.state;
       if (key.length === 0) {
-        expandedKeys = expandedKeys.filter(i => !i.startsWith(node.props.eventKey));
+        expandedKeys = expandedKeys.filter((i) => !i.startsWith(node.props.eventKey));
       } else {
         expandedKeys = expandedKeys.concat(key);
       }
@@ -318,7 +333,7 @@ export default class configCustomize extends Component {
     const { unitGroup } = this.props;
     if (e.target && e.target.id) {
       // eslint-disable-next-line eqeqeq
-      const currentGroup = unitGroup.find(i => i.unitGroupId == e.target.id) || { units: [] };
+      const currentGroup = unitGroup.find((i) => i.unitGroupId == e.target.id) || { units: [] };
       this.setState({ currentGroup });
       if (!currentGroup.units) return;
       this.queryUnitDetails((currentGroup.units[0] || {}).id);
@@ -341,7 +356,7 @@ export default class configCustomize extends Component {
     dispatch({
       type: 'configCustomize/deleteFieldIndividual',
       payload: { configFieldId: record.configFieldId },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.queryUnitDetails(this.props.currentUnit.id);
@@ -391,11 +406,11 @@ export default class configCustomize extends Component {
             <div className={styles['units-list']}>
               <FormItem label={intl.get('hpfm.individual.model.config.unitGroup').d('单元分组')}>
                 <div className="units-container" onClick={this.clickGroup}>
-                  {unitGroup.map(i => (
+                  {unitGroup.map((i) => (
                     <div
                       id={i.unitGroupId}
                       className={`unit-card ${
-                        currentGroup.unitGroupId === i.unitGroupId ? 'active' : ''
+                        currentGroup.unitGroupId == i.unitGroupId ? 'active' : ''
                       }`}
                     >
                       <div id={i.unitGroupId} className="icon-unit" />
@@ -411,7 +426,7 @@ export default class configCustomize extends Component {
               >
                 <div className="units-container" onClick={this.clickUnit}>
                   {!noUnits &&
-                    currentGroup.units.map(i =>
+                    currentGroup.units.map((i) =>
                       i.enableFlag === 0 ? (
                         <Tooltip
                           title={intl.get('hpfm.individual.model.config.lockUnit').d('单元已禁用')}
@@ -419,7 +434,7 @@ export default class configCustomize extends Component {
                           <div
                             id={i.id}
                             className={`unit-card ${
-                              currentUnit.id === i.id ? 'active' : ''
+                              currentUnit.id == i.id ? 'active' : ''
                             } disabled`}
                           >
                             <div id={i.id} className="icon-unit" />
@@ -431,7 +446,7 @@ export default class configCustomize extends Component {
                       ) : (
                         <div
                           id={i.id}
-                          className={`unit-card ${currentUnit.id === i.id ? 'active' : ''}`}
+                          className={`unit-card ${currentUnit.id == i.id ? 'active' : ''}`}
                         >
                           <div id={i.id} className="icon-unit" />
                           <div id={i.id} className="content-unit">

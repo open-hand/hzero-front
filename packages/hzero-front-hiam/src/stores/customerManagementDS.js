@@ -101,7 +101,7 @@ function tableDS(formRecord) {
       },
     },
     transport: {
-      read: config => {
+      read: (config) => {
         const { params } = config;
         const url = `${HZERO_IAM}/v1/tenant-custom/points`;
         let data = {};
@@ -130,7 +130,7 @@ function tableDS(formRecord) {
           method: 'GET',
         };
       },
-      update: config => {
+      update: (config) => {
         const { __id, _status, ...other } = Array.isArray(config.data) ? config.data[0] : {};
         return {
           ...config,
@@ -139,7 +139,7 @@ function tableDS(formRecord) {
           method: 'PUT',
         };
       },
-      destroy: config => {
+      destroy: (config) => {
         const { params = {}, data = [] } = config;
         return {
           data,
@@ -152,7 +152,7 @@ function tableDS(formRecord) {
   };
 }
 
-const tenantDS = {
+const tenantDS = () => ({
   autoQuery: true,
   dataKey: 'content',
   cacheSelection: true,
@@ -197,7 +197,7 @@ const tenantDS = {
     },
   },
   transport: {
-    read: config => {
+    read: (config) => {
       const url = `${HZERO_IAM}/v1/tenants`;
       return {
         ...config,
@@ -206,10 +206,10 @@ const tenantDS = {
       };
     },
   },
-};
+});
 
 // 租户客户化管理查询form
-const tenantFormDS = {
+const tenantFormDS = () => ({
   fields: [
     {
       name: 'tenantIdLov',
@@ -231,7 +231,7 @@ const tenantFormDS = {
     },
     ...fromFields,
   ],
-};
+});
 
 // 租户客户化管理表格DS
 function tenantTableDS(record) {
@@ -253,7 +253,7 @@ function tenantTableDS(record) {
       },
     },
     transport: {
-      read: config => {
+      read: (config) => {
         const url = `${HZERO_IAM}/v1/tenant-custom/points/tenant`;
         const { params } = config;
         let data = {};
@@ -284,7 +284,7 @@ function tenantTableDS(record) {
           method: 'GET',
         };
       },
-      destroy: config => {
+      destroy: (config) => {
         const url = `${HZERO_IAM}/v1/tenant-custom/points/revoke`;
         const { params = {}, data = [] } = config;
         return {
@@ -299,7 +299,7 @@ function tenantTableDS(record) {
 }
 
 // 刷新客户化表单DS
-const refreshDS = {
+const refreshDS = () => ({
   autoQueryAfterSubmit: false,
   fields: [
     {
@@ -342,6 +342,6 @@ const refreshDS = {
       };
     },
   },
-};
+});
 
 export { formDS, tableDS, tenantDS, refreshDS, tenantFormDS, tenantTableDS };

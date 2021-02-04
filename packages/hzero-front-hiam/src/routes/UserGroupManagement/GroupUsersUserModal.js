@@ -32,7 +32,7 @@ export default class GroupUsersUserModal extends Component {
 
   getCurrentRestGroupUsers(query) {
     const { onSearch } = this.props;
-    onSearch(query).then(res => {
+    onSearch(query).then((res) => {
       if (res) {
         this.setState({
           selectedRowKeys: [],
@@ -79,13 +79,14 @@ export default class GroupUsersUserModal extends Component {
   handleRowSelectionChange(_, selectedRows) {
     this.setState({
       selectedRows,
-      selectedRowKeys: selectedRows.map(r => r.userId),
+      selectedRowKeys: selectedRows.map((r) => r.userId),
     });
   }
 
   @Bind()
   handleTableChange(page, filter, sort) {
-    this.getCurrentRestGroupUsers({ page, sort });
+    const { form } = this.props;
+    this.getCurrentRestGroupUsers({ page, sort, ...form.getFieldsValue() });
   }
 
   // Modal
@@ -95,7 +96,7 @@ export default class GroupUsersUserModal extends Component {
     if (selectedRows.length > 0) {
       const { onOk } = this.props;
       onOk(
-        selectedRows.map(r => ({
+        selectedRows.map((r) => ({
           userId: r.userId,
         }))
       );

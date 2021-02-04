@@ -5,7 +5,7 @@ import { EMAIL, PHONE } from 'utils/regExp';
 
 const organizationId = getCurrentOrganizationId();
 
-const treeDS = {
+const treeDS = () => ({
   autoQuery: true,
   selection: 'single',
   primaryKey: 'unitId',
@@ -38,9 +38,9 @@ const treeDS = {
       };
     },
   },
-};
+});
 
-const searchDepartmentDS = {
+const searchDepartmentDS = () => ({
   fields: [
     {
       name: 'parentUnitIdLov',
@@ -51,9 +51,9 @@ const searchDepartmentDS = {
       noCache: true,
     },
   ],
-};
+});
 
-const createFormDS = {
+const createFormDS = () => ({
   fields: [
     {
       name: 'unitCode',
@@ -125,9 +125,9 @@ const createFormDS = {
     },
     {
       name: 'tenantId',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.department.tenantId').d('租户'),
-      defaultValue: 0,
+      defaultValue: organizationId,
     },
   ],
   transport: {
@@ -143,9 +143,9 @@ const createFormDS = {
       };
     },
   },
-};
+});
 
-const baseInfoDs = {
+const baseInfoDs = () => ({
   fields: [
     {
       name: 'unitCode',
@@ -176,9 +176,9 @@ const baseInfoDs = {
       label: intl.get('hpfm.organization.model.department.company').d('公司'),
     },
   ],
-};
+});
 
-const formDS = {
+const formDS = () => ({
   fields: [
     {
       name: 'unitCode',
@@ -249,9 +249,9 @@ const formDS = {
     },
     {
       name: 'tenantId',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.department.tenantId').d('租户'),
-      defaultValue: 0,
+      defaultValue: organizationId,
     },
   ],
   transport: {
@@ -267,9 +267,9 @@ const formDS = {
       };
     },
   },
-};
+});
 
-const employeeTableDS = {
+const employeeTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -365,7 +365,8 @@ const employeeTableDS = {
     },
     {
       name: 'gender',
-      type: 'number',
+      type: 'string',
+      lookupCode: 'HPFM.GENDER',
       label: intl.get('hpfm.organization.model.department.gender').d('性别'),
     },
     {
@@ -381,7 +382,7 @@ const employeeTableDS = {
     },
     {
       name: 'positionId',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.department.positionId').d('岗位ID'),
     },
     {
@@ -407,9 +408,9 @@ const employeeTableDS = {
       };
     },
   },
-};
+});
 
-const employeeFormDS = {
+const employeeFormDS = () => ({
   fields: [
     {
       name: 'employeeCode',
@@ -426,8 +427,9 @@ const employeeFormDS = {
     },
     {
       name: 'gender',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.department.gender').d('性别'),
+      lookupCode: 'HPFM.GENDER',
       required: true,
     },
     {
@@ -498,9 +500,9 @@ const employeeFormDS = {
       label: intl.get('hpfm.organization.model.department.enabledFlag').d('启用状态'),
     },
   ],
-};
+});
 
-const employeePositionFormDS = {
+const employeePositionFormDS = () => ({
   fields: [
     {
       name: 'partTimeDepartmentLov',
@@ -538,9 +540,9 @@ const employeePositionFormDS = {
       defaultValue: 0,
     },
   ],
-};
+});
 
-const employeeDetailFormDS = {
+const employeeDetailFormDS = () => ({
   fields: [
     {
       name: 'employeeCode',
@@ -600,9 +602,9 @@ const employeeDetailFormDS = {
       label: intl.get('hpfm.organization.model.department.enabledFlag').d('启用状态'),
     },
   ],
-};
+});
 
-const positionTableDS = {
+const positionTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -681,7 +683,7 @@ const positionTableDS = {
       };
     },
   },
-};
+});
 
 export {
   treeDS,

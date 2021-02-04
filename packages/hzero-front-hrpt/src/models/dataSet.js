@@ -36,7 +36,7 @@ export default {
   },
   effects: {
     // 获取数据集列表
-    * fetchDataSetList({ payload }, { call, put }) {
+    *fetchDataSetList({ payload }, { call, put }) {
       let result = yield call(fetchDataSetList, payload);
       result = getResponse(result);
       if (result) {
@@ -50,7 +50,7 @@ export default {
       }
     },
     // 获取数据集关联报表
-    * fetchAssignList({ payload }, { call, put }) {
+    *fetchAssignList({ payload }, { call, put }) {
       let result = yield call(fetchAssignList, payload);
       result = getResponse(result);
       if (result) {
@@ -64,7 +64,7 @@ export default {
       }
     },
     // 初始化元数据
-    * getMetadata({ payload }, { call, put }) {
+    *getMetadata({ payload }, { call, put }) {
       const { header, ...otherValues } = payload;
       let result = yield call(getMetadata, otherValues);
       result = getResponse(result);
@@ -79,7 +79,7 @@ export default {
       return result;
     },
     // 初始化参数
-    * getParameters({ payload }, { call, put }) {
+    *getParameters({ payload }, { call, put }) {
       const { header, ...otherValues } = payload;
       let result = yield call(getParameters, otherValues);
       result = getResponse(result);
@@ -94,7 +94,7 @@ export default {
       return result;
     },
     // 预览sql
-    * previewSql({ payload }, { call, put }) {
+    *previewSql({ payload }, { call, put }) {
       let result = yield call(previewSql, payload);
       result = getResponse(result);
       if (result) {
@@ -108,7 +108,7 @@ export default {
       return result;
     },
     // 获取xml示例数据
-    * handleGetXmlSample({ payload }, { call, put }) {
+    *handleGetXmlSample({ payload }, { call, put }) {
       let result = yield call(handleGetXmlSample, payload);
       result = getResponse(result);
       if (result) {
@@ -122,12 +122,12 @@ export default {
       return result;
     },
     // 导出xml文件
-    * handleExportXmlFile({ payload }, { call }) {
+    *handleExportXmlFile({ payload }, { call }) {
       const result = yield call(handleExportXmlFile, payload);
       return result;
     },
     // 统一获取值级的数据
-    * batchCode({ payload }, { put, call }) {
+    *batchCode({ payload }, { put, call }) {
       const { lovCodes } = payload;
       const code = getResponse(yield call(queryMapIdpValue, lovCodes));
       if (!isEmpty(code)) {
@@ -140,22 +140,25 @@ export default {
       }
     },
     // 获取数据集明细
-    * fetchDataSetDetail({ payload }, { call, put }) {
+    *fetchDataSetDetail({ payload }, { call, put }) {
       let result = yield call(fetchDataSetDetail, { ...payload });
       result = getResponse(result);
       if (result) {
         const { queryParams, metaColumns, ...otherResults } = result;
-        const tempQueryParams = JSON.parse(queryParams || '[]').map(item => ({
+        const tempQueryParams = JSON.parse(queryParams || '[]').map((item) => ({
           ...item,
           uuid: uuid(),
         }));
-
+        const temMetaColumns = JSON.parse(metaColumns || '[]').map((item) => ({
+          ...item,
+          uuid: uuid(),
+        }));
         yield put({
           type: 'updateState',
           payload: {
             header: {
               queryParams: tempQueryParams,
-              metaColumns: JSON.parse(metaColumns || '[]'),
+              metaColumns: temMetaColumns,
               ...otherResults,
             },
           },
@@ -164,17 +167,17 @@ export default {
       return result;
     },
     // 新增数据集
-    * createDataSet({ payload }, { call }) {
+    *createDataSet({ payload }, { call }) {
       const result = yield call(createDataSet, { ...payload });
       return getResponse(result);
     },
     // 更新数据集
-    * updateDataSet({ payload }, { call }) {
+    *updateDataSet({ payload }, { call }) {
       const result = yield call(updateDataSet, { ...payload });
       return getResponse(result);
     },
     // 删除数据集
-    * deleteDataSet({ payload }, { call }) {
+    *deleteDataSet({ payload }, { call }) {
       const result = getResponse(yield call(deleteDataSet, { ...payload }));
       return result;
     },

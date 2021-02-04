@@ -3,7 +3,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { HZERO_PLATFORM } from 'utils/config';
 
 const organizationId = getCurrentOrganizationId();
-const treeDS = {
+const treeDS = () => ({
   autoQuery: true,
   selection: 'single',
   idField: 'unitId',
@@ -35,9 +35,9 @@ const treeDS = {
       };
     },
   },
-};
+});
 
-const baseInfoDs = {
+const baseInfoDs = () => ({
   fields: [
     {
       name: 'unitCode',
@@ -74,9 +74,9 @@ const baseInfoDs = {
       label: intl.get('hpfm.organization.model.company.status').d('状态'),
     },
   ],
-};
+});
 
-const formDS = {
+const formDS = () => ({
   fields: [
     {
       name: 'unitCode',
@@ -166,9 +166,9 @@ const formDS = {
     },
     {
       name: 'tenantId',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.company.tenantId').d('租户'),
-      defaultValue: 0,
+      defaultValue: organizationId,
     },
   ],
   transport: {
@@ -184,9 +184,9 @@ const formDS = {
       };
     },
   },
-};
+});
 
-const employeeTableDS = {
+const employeeTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -289,7 +289,8 @@ const employeeTableDS = {
     },
     {
       name: 'gender',
-      type: 'number',
+      type: 'string',
+      lookupCode: 'HPFM.GENDER',
       label: intl.get('hpfm.organization.model.company.gender').d('性别'),
     },
     {
@@ -326,9 +327,9 @@ const employeeTableDS = {
       };
     },
   },
-};
+});
 
-const positionTableDS = {
+const positionTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -409,9 +410,9 @@ const positionTableDS = {
       };
     },
   },
-};
+});
 
-const departmentTableDS = {
+const departmentTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -486,7 +487,7 @@ const departmentTableDS = {
     },
     {
       name: 'tenantId',
-      type: 'number',
+      type: 'string',
       label: intl.get('hpfm.organization.model.company.tenantId').d('租户'),
     },
     {
@@ -513,6 +514,6 @@ const departmentTableDS = {
       };
     },
   },
-};
+});
 
 export { treeDS, formDS, employeeTableDS, positionTableDS, departmentTableDS, baseInfoDs };

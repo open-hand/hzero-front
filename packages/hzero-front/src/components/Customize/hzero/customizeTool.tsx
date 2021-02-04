@@ -1,3 +1,4 @@
+/* eslint-disable no-new-func */
 /* eslint-disable eqeqeq */
 /**
  * 个性化组件utils工具包
@@ -113,7 +114,7 @@ export function customizeFormOptions(options: FieldConfig) {
   }
   return formOptions;
 }
-export function parseContentProps(contentProps: FieldConfig, code) {
+export function parseContentProps(contentProps: FieldConfig, code: string | undefined) {
   const {
     lovCode,
     editable,
@@ -148,7 +149,10 @@ export function parseContentProps(contentProps: FieldConfig, code) {
     meaning = defaultValueMeaning;
   }
   if (!isNil(meaning)) {
-    meaning = typeof meaning === 'object' ? Object.values(meaning).join('/') : meaning;
+    meaning =
+      typeof meaning === 'object' && fieldType !== 'LOV'
+        ? Object.values(meaning).join('/')
+        : meaning;
   } else {
     meaning = value;
   }
@@ -310,7 +314,7 @@ export function getFormItemComponent(fieldType, renderOptions, code?: string) {
       formOptions = {},
     } = options;
     const viewOnly = !isEdit || readOnly || renderOptions !== 'WIDGET' || !form;
-    const hasFormDec = !viewOnly;
+    const hasFormDec = !!form;
     contentProps.form = form;
     const { initialValue, initialMeaning, ...componentProps } = parseContentProps(
       contentProps,
@@ -318,7 +322,7 @@ export function getFormItemComponent(fieldType, renderOptions, code?: string) {
     );
     let values = componentProps.dataSource;
     // 只读单元不需要用form中的值覆盖
-    if (hasFormDec) {
+    if (!readOnly) {
       values = { ...values, ...(form && form.getFieldsValue()) };
     }
     const newValue = preAdapterInitValue(fieldType, values[fieldCode]);
@@ -327,26 +331,35 @@ export function getFormItemComponent(fieldType, renderOptions, code?: string) {
       newMeaning = newValue;
     }
     const newFormOptions = customizeFormOptions({ ...formOptions, initialValue });
-    let component = Component(componentProps);
-    let forceUseComponent = false;
-    if (contentProps.multipleFlag && fieldType === 'LOV') {
-      component = <LovMulti {...componentProps} viewOnly={viewOnly} />;
-      forceUseComponent = true;
-    }
-    if (fieldType === 'UPLOAD' || fieldType === 'LINK') {
-      forceUseComponent = true;
-    }
+    let component =
+      fieldType === 'LOV' && contentProps.multipleFlag ? (
+        <LovMulti {...componentProps} viewOnly={viewOnly} />
+      ) : (
+        Component(componentProps)
+      );
+    const forceUseComponent =
+      fieldType === 'UPLOAD' ||
+      fieldType === 'LINK' ||
+      (contentProps.multipleFlag && fieldType === 'LOV');
+
     // 调整component
-    if (hasFormDec) {
-      component = form.getFieldDecorator(fieldCode, newFormOptions)(component);
-    } else if (!forceUseComponent) {
+    if (viewOnly && !forceUseComponent) {
+      // 只读但不使用组件自带的只读模式
       const renderText = getRender(
         fieldType,
         componentProps
       )(fieldType === 'LOV' || fieldType === 'SELECT' ? newMeaning : newValue);
       component = <span>{renderText}</span>;
-    } else {
-      component.props.value = initialValue;
+    } else if (viewOnly) {
+      // 只读并使用组件自带的只读模式需手动设置组件对应的value
+      // eslint-disable-next-line no-unused-expressions
+      fieldType === 'UPLOAD'
+        ? (component.props.attachmentUUID = initialValue)
+        : (component.props.value = initialValue);
+    }
+    // 如果form存在，value将由form接管
+    if (hasFormDec) {
+      component = form.getFieldDecorator(fieldCode, newFormOptions)(component);
     }
     return isEdit ? <FormItem {...wrapProps}>{component}</FormItem> : component;
   };
@@ -422,7 +435,7 @@ export function adapterStandardFormIndividual(
  * @param {object} individual 个性化配置属性
  */
 export function customizeFormRules(individual: FieldConfig) {
-  const { textMaxLength, textMinLength, required, fieldName, selfRules = {} } = individual || {};
+  const { textMaxLength, textMinLength, required, fieldName } = individual || {};
   const rules: any[] = [];
   if (textMaxLength !== -1 && textMaxLength !== undefined) {
     rules.push({
@@ -447,9 +460,6 @@ export function customizeFormRules(individual: FieldConfig) {
         name: fieldName,
       }),
     });
-  }
-  if (selfRules.validator) {
-    rules.push(selfRules);
   }
   return rules;
 }
@@ -496,6 +506,7 @@ export function adjustRowAndCol(
 export function traversalFormItems(formItem: any = {}, fieldConfig: FieldConfig) {
   const { fieldName } = fieldConfig || {};
   const children = formItem && formItem.props ? formItem.props.children : null;
+  let isInput = false;
   if (children) {
     if (!isNil(fieldName)) {
       // eslint-disable-next-line no-param-reassign
@@ -507,17 +518,19 @@ export function traversalFormItems(formItem: any = {}, fieldConfig: FieldConfig)
           return;
         }
         const { props } = children[i];
-        mergeFormItemIndividual(props, fieldConfig);
+        isInput = mergeFormItemIndividual(props, fieldConfig);
         // if (props && props['data-__meta']) {
         //   return;
         // }
       }
     } else {
       const { props } = children;
-      mergeFormItemIndividual(props, fieldConfig);
+      isInput = mergeFormItemIndividual(props, fieldConfig);
     }
   }
+  return isInput;
 }
+// 表格个性化需要用返回值确定原render是否为一个输入组件
 function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
   const {
     rules,
@@ -532,11 +545,12 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
     fieldType,
     multipleFlag,
     placeholder,
+    textField,
   } = fieldConfig;
   const newRulesCollection: any = { others: [], required: false, max: false, min: false };
   const newProps = props;
   if (newProps && newProps['data-__meta']) {
-    const { initialValue, rules: oldRules = [] } = newProps['data-__meta'];
+    const { rules: oldRules = [] } = newProps['data-__meta'];
     const { name } = newProps['data-__meta'];
     if (!isEmpty(rules)) {
       oldRules.forEach((k, index) => {
@@ -546,7 +560,7 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
           newRulesCollection.max = oldRules[index];
         } else if (k.min !== undefined) {
           newRulesCollection.min = oldRules[index];
-        } else if (!k.customize) {
+        } else {
           newRulesCollection.others.push(oldRules[index]);
         }
       });
@@ -557,8 +571,6 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
           newRulesCollection.max = rules[index];
         } else if (k.min !== undefined) {
           newRulesCollection.min = rules[index];
-        } else {
-          newRulesCollection.others.push(rules[index]);
         }
       });
       const { required, max, min, others } = newRulesCollection;
@@ -589,7 +601,7 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
     if (
       isNil(newProps['data-__field'].value) &&
       !isNil(defaultValue) &&
-      defaultValue != initialValue &&
+      // defaultValue != initialValue &&
       isNil(dataSource[name])
     ) {
       newProps['data-__meta'].initialValue = defaultValue;
@@ -597,6 +609,8 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
       if (fieldType === 'LOV' && multipleFlag === 1) {
         newProps.translateData = defaultValueMeaning;
       } else if (fieldType === 'LOV') {
+        // eslint-disable-next-line no-unused-expressions
+        !!textField && (newProps.textField = textField);
         newProps.textValue = isNil(defaultValueMeaning) ? defaultValue : defaultValueMeaning;
       }
     }
@@ -610,7 +624,9 @@ function mergeFormItemIndividual(props, fieldConfig: FieldConfig) {
     editable !== -1 && !isNil(editable) && (newProps.disabled = !editable);
     // eslint-disable-next-line no-unused-expressions
     !isNil(numberPrecision) && (newProps.precision = numberPrecision);
+    return true;
   }
+  return false;
 }
 
 export function coverConfig(originConfig, conditions: ConditionHeaderDTO[] = [], config) {
@@ -622,10 +638,12 @@ export function coverConfig(originConfig, conditions: ConditionHeaderDTO[] = [],
       if (!isErr) {
         const conNoReg = /(\d+)/g;
         const result = calculateExpression(i.lines || [], config);
-        conExpression = conExpression.replace(conNoReg, (_, m) => result[m] || false);
-        conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
-        // eslint-disable-next-line no-new-func
-        newConfig[i.conType] = new Function(`return ${conExpression};`)() ? 1 : 0;
+        if ((i.lines || []).length > 0) {
+          conExpression = conExpression.replace(conNoReg, (_, m) => result[m] || false);
+          conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
+          // eslint-disable-next-line no-new-func
+          newConfig[i.conType] = new Function(`return ${conExpression};`)() ? 1 : 0;
+        }
       }
     }
   });
@@ -642,7 +660,7 @@ function isErrConExpression(exp) {
 }
 function calculateExpression(
   conditionList,
-  { getValueFromCache, currentUnitCode = '', isGrid, code, isGridVisible, ...others }
+  { getValueFromCache, isGrid, code, isGridVisible, ...others }
 ) {
   const result = {};
   conditionList.forEach((i) => {
@@ -656,7 +674,7 @@ function calculateExpression(
       targetValue,
     } = i;
     if (!sourceUnitCode || !sourceFieldCode) return result;
-    if (isGridVisible && (currentUnitCode === sourceUnitCode || targetType === 'formNow')) {
+    if (isGridVisible && (code === sourceUnitCode || targetType === 'formNow')) {
       result[conCode] = true;
       return result;
     }
@@ -667,7 +685,7 @@ function calculateExpression(
       ...targetDataSource,
       ...(targetForm ? targetForm.getFieldsValue() : {}),
     };
-    if (isGrid && currentUnitCode === sourceUnitCode) {
+    if (isGrid && code === sourceUnitCode) {
       left = targetAllValue[sourceFieldCode];
     } else {
       left = getValueFromCache(sourceUnitCode, sourceFieldCode);
@@ -808,7 +826,8 @@ export function selfValidator(conValid: ConValid | undefined, config) {
   conLineList = isArray(conLineList) ? conLineList : [];
   conValidList = isArray(conValidList) ? conValidList : [];
   const result = calculateExpression(conLineList, config);
-  const validation: any[] = [];
+  let key = '';
+  const errors: any[] = [];
   conValidList.forEach((i) => {
     let newExpression = i.conExpression || '';
     const isErr = isErrConExpression(newExpression);
@@ -816,29 +835,38 @@ export function selfValidator(conValid: ConValid | undefined, config) {
       const conNoReg = /(\d+)/g;
       newExpression = newExpression.replace(conNoReg, (_, m) => result[m] || false);
       newExpression = newExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
-      // eslint-disable-next-line no-new-func
-      validation.push({
-        // eslint-disable-next-line no-new-func
-        isCorrect: new Function(`return ${newExpression};`)(),
-        message: i.errorMessage,
-      });
+      const isCorrect = new Function(`return ${newExpression};`)();
+      key = `${key}${isCorrect}`;
+      if (!isCorrect) {
+        const error = new Error(i.errorMessage);
+        error.name = 'customize';
+        errors.push(error);
+      }
     }
   });
-  if (validation.length > 0) {
-    return {
-      customize: true,
-      // eslint-disable-next-line no-unused-vars
-      validator: (_, _1, cb) => {
-        for (let i = 0; i < validation.length; i += 1) {
-          if (!validation[i].isCorrect) {
-            cb(validation[i].message);
-            // eslint-disable-next-line no-useless-return
-            return;
-          }
-        }
-        cb();
-      },
-    };
+  return errors;
+}
+
+export function defaultValueFx(config, fieldConfig: FieldConfig) {
+  let { conLineList = [], conValidList = [] } = fieldConfig.defaultValueConDTO || {};
+  conLineList = isArray(conLineList) ? conLineList : [];
+  conValidList = isArray(conValidList) ? conValidList : [];
+  const result = calculateExpression(conLineList, config);
+  for (let i = 0; i < conValidList.length; i++) {
+    const condition: any = conValidList[i];
+    let { conExpression = '' } = condition;
+    const isErr = isErrConExpression(conExpression);
+    if (!isErr) {
+      const conNoReg = /(\d+)/g;
+      conExpression = conExpression.replace(conNoReg, (_, m) => result[m] || false);
+      conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
+      // eslint-disable-next-line no-new-func
+      if (new Function(`return ${conExpression};`)()) {
+        const { value: defaultValue, valueMeaning: defaultValueMeaning } = condition;
+        return { defaultValue, defaultValueMeaning };
+      }
+    }
   }
-  return {};
+  const { defaultValue, defaultValueMeaning } = fieldConfig;
+  return { defaultValue, defaultValueMeaning };
 }

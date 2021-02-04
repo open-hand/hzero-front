@@ -46,7 +46,7 @@ const FormItem = Form.Item;
  * @reactProps {Object} organizationId - 组织编号
  * @return React.element
  */
-const CreateForm = Form.create({ fieldNameProp: null })(props => {
+const CreateForm = Form.create({ fieldNameProp: null })((props) => {
   const {
     form,
     modalVisible,
@@ -137,7 +137,6 @@ const CreateForm = Form.create({ fieldNameProp: null })(props => {
             initialValue: organizationId,
             rules: [
               {
-                type: 'number',
                 required: true,
                 message: intl.get('hzero.common.validation.notNull', {
                   name: intl.get('hpfm.codeRule.model.codeRule.tenantName').d('租户'),
@@ -206,7 +205,7 @@ export default class CodeRule extends React.Component {
       dispatch,
       codeRule: { organizationId },
     } = this.props;
-    const callback = res => {
+    const callback = (res) => {
       this.setState({
         modalVisible: false,
       });
@@ -220,7 +219,7 @@ export default class CodeRule extends React.Component {
         ...fieldsValue,
         organizationId,
       },
-    }).then(response => {
+    }).then((response) => {
       if (response) {
         callback(response);
       }
@@ -256,7 +255,7 @@ export default class CodeRule extends React.Component {
           selectedRows,
           organizationId,
         },
-      }).then(response => {
+      }).then((response) => {
         if (response) {
           this.refreshValue();
           notification.success();
@@ -466,7 +465,7 @@ export default class CodeRule extends React.Component {
     } = this.props;
     const { selectedRows, modalVisible } = this.state;
     const rowSelection = {
-      selectedRowKeys: selectedRows.map(n => n.ruleId),
+      selectedRowKeys: selectedRows.map((n) => n.ruleId),
       onChange: this.handleSelectRows,
     };
     const columns = [
@@ -519,7 +518,7 @@ export default class CodeRule extends React.Component {
           return operatorRender(operators, record);
         },
       },
-    ].filter(col =>
+    ].filter((col) =>
       !organizationId ? true : col.dataIndex !== 'meaning' && col.dataIndex !== 'tenantName'
     );
     const parentMethods = {

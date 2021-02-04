@@ -14,7 +14,7 @@ function codeValidator(value) {
     .d('全大写及数字，必须以字母、数字开头，可包含“-”、“_”、“.”、“/”');
 }
 
-const tableDs = {
+const tableDs = () => ({
   selection: false,
   autoQuery: true,
   queryFields: [
@@ -98,9 +98,9 @@ const tableDs = {
       };
     },
   },
-};
+});
 
-const detailDs = {
+const detailDs = () => ({
   autoQueryAfterSubmit: false,
   fields: [
     !isTenantRoleLevel() && {
@@ -262,9 +262,9 @@ const detailDs = {
       };
     },
   },
-};
+});
 
-const formConfigDs = {
+const formConfigDs = () => ({
   transport: {
     /**
      * 表单配置
@@ -280,6 +280,6 @@ const formConfigDs = {
       };
     },
   },
-};
+});
 
 export { tableDs, detailDs, formConfigDs };

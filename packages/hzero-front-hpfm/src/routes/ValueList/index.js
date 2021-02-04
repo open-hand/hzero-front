@@ -430,21 +430,6 @@ export default class ValueList extends React.Component {
           <ButtonPermission
             permissionList={[
               {
-                code: `${match.path}.button.valueImport`,
-                type: 'button',
-                meaning: '值集视图-值集行导入',
-              },
-            ]}
-            icon="to-top"
-            onClick={this.handleValueImport}
-          >
-            {intl.get('hpfm.valueList.view.message.title.valueImport').d('值集行导入')}
-          </ButtonPermission>
-        )}
-        {!isSiteFlag && (
-          <ButtonPermission
-            permissionList={[
-              {
                 code: `${match.path}.button.import`,
                 type: 'button',
                 meaning: '值集视图-值集头导入',
@@ -453,7 +438,7 @@ export default class ValueList extends React.Component {
             icon="to-top"
             onClick={this.handleImport}
           >
-            {intl.get('hpfm.valueList.view.message.title.importHeader').d('值集头导入')}
+            {intl.get('hpfm.valueList.view.message.title.import').d('值集导入')}
           </ButtonPermission>
         )}
       </Header>

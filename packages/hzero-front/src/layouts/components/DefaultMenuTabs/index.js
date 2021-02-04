@@ -1,10 +1,11 @@
 import React from 'react';
 import { Icon, Layout, Spin, List, Popover, Tabs } from 'hzero-ui';
-import { isFunction, map } from 'lodash';
-import { Bind } from 'lodash-decorators';
+import { isFunction, map, isArray } from 'lodash';
+import { Bind, memoize } from 'lodash-decorators';
 import { connect } from 'dva';
 import { Link, Redirect, Route, Switch } from 'dva/router';
 import uuid from 'uuid/v4';
+import { getConfig } from 'hzero-boot';
 
 import getTabRoutes from 'components/Router';
 import Exception from 'components/Exception';
@@ -79,6 +80,22 @@ class DefaultMenuTabs extends React.Component {
       contextMenuVisible: false, // 是否显示 右键菜单
     };
     this.refreshKeyMap = new Map();
+    this.defaultRedirectData = [{ from: '/', to: '/workplace' }];
+    const configRedirectData = getConfig('redirectData');
+    if (typeof configRedirectData === 'function') {
+      this.defaultRedirectData = configRedirectData(this.defaultRedirectData);
+    } else if (isArray(configRedirectData)) {
+      this.defaultRedirectData = configRedirectData;
+    }
+  }
+
+  @memoize
+  getRedirectData(menu) {
+    const redirectData = this.defaultRedirectData;
+    menu.forEach((item) => {
+      getRedirect(item, redirectData);
+    });
+    return redirectData;
   }
 
   /**
@@ -299,14 +316,6 @@ class DefaultMenuTabs extends React.Component {
     if (redirect) {
       urlParams.searchParams.delete('redirect');
       window.history.replaceState(null, 'redirect', urlParams.href);
-    } else {
-      const { routerData = {} } = this.props;
-      // get the first authorized route path in routerData
-      // const authorizedPath = Object.keys(routerData).find(
-      //   item => check(routerData[item].authority, item) && item !== '/'
-      // );
-      const authorizedPath = Object.keys(routerData).find((item) => item !== '/');
-      return authorizedPath;
     }
     return redirect;
   }
@@ -331,10 +340,7 @@ class DefaultMenuTabs extends React.Component {
       );
     }
     const { contextMenuVisibleKey, contextMenuVisible = false } = this.state;
-    const redirectData = [{ from: '/', to: '/workplace' }]; // 根目录需要跳转到工作台
-    menu.forEach((item) => {
-      getRedirect(item, redirectData);
-    });
+    const redirectData = this.getRedirectData(menu);
     const bashRedirect = this.getBaseRedirect();
 
     return (

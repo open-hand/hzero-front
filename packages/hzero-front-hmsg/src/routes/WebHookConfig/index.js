@@ -23,7 +23,7 @@ import { tableDS, drawerDS } from '../../stores/WebHookConfigDS';
 const isTenant = isTenantRoleLevel();
 const tenantId = getCurrentOrganizationId();
 const WebHookConfig = ({ match: { path } }) => {
-  const tableDs = useMemo(() => new DataSet(tableDS), []);
+  const tableDs = useMemo(() => new DataSet(tableDS()), []);
 
   let drawerDs = null;
 
@@ -152,7 +152,7 @@ const WebHookConfig = ({ match: { path } }) => {
 
   // 新建或编辑
   const handleEdit = (isEdit, record, isCopy) => {
-    drawerDs = new DataSet(drawerDS);
+    drawerDs = new DataSet(drawerDS());
     drawerDs.create({});
     const currentEditData = record && record.toData();
     const title = !isEdit

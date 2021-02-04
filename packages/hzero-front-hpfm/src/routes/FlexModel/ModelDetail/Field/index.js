@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { Component, Fragment } from 'react';
 import { Bind } from 'lodash-decorators';
 
@@ -15,7 +16,7 @@ export default class Field extends Component {
   @Bind()
   editField(id = '') {
     const { dataSource } = this.props;
-    const fieldEditorData = dataSource.find(item => item[defaultRowKey] === id);
+    const fieldEditorData = dataSource.find((item) => item[defaultRowKey] == id);
     this.setState({ fieldEditorVisible: true, fieldEditorData });
   }
 

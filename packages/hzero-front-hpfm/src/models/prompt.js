@@ -13,8 +13,8 @@ import {
   fetchPromptDetail,
   updatePrompt,
   refresh,
+  queryLanguage,
 } from '../services/promptService';
-import { queryLanguage } from '../services/languagesService';
 
 export default {
   namespace: 'prompt',
@@ -42,15 +42,13 @@ export default {
     // },
 
     // 查询初始化语言数据
-    *fetchLanguages({ payload }, { call, put }) {
-      const { page, ...query } = payload;
-      const response = yield call(queryLanguage, payload);
+    *fetchLanguages(_, { call, put }) {
+      const response = yield call(queryLanguage);
       const languageData = getResponse(response);
       if (languageData) {
         yield put({
           type: 'updateState',
           payload: {
-            query,
             languageList: languageData.content,
           },
         });

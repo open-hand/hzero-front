@@ -15,7 +15,7 @@ const isTenant = isTenantRoleLevel();
 const apiPrefix = isTenant ? `${HZERO_MSG}/v1/${organizationId}` : `${HZERO_MSG}/v1`;
 
 // 表格ds
-const tableDS = {
+const tableDS = () => ({
   autoQuery: true,
   selection: false,
   dataKey: 'content',
@@ -95,10 +95,10 @@ const tableDS = {
       };
     },
   },
-};
+});
 
 // 新建或编辑时的DS
-const drawerDS = {
+const drawerDS = () => ({
   autoQuery: false,
   autoQueryAfterSubmit: false,
   fields: [
@@ -224,6 +224,6 @@ const drawerDS = {
       }
     },
   },
-};
+});
 
 export { tableDS, drawerDS };

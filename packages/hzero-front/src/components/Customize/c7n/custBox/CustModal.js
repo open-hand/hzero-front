@@ -1,4 +1,3 @@
-/* eslint-disable react/state-in-constructor */
 import React, { Component } from 'react';
 import { DataSet, Table, Select, Button, Dropdown, IntlField } from 'choerodon-ui/pro';
 import { Modal, Checkbox, Icon, Menu, Spin, Popconfirm } from 'choerodon-ui';

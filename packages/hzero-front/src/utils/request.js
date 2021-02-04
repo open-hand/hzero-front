@@ -2,6 +2,7 @@ import fetch from 'dva/fetch';
 import { routerRedux } from 'dva/router';
 import React from 'react';
 import { notification } from 'hzero-ui';
+import { getConfig } from 'hzero-boot';
 import { getEnvConfig, getDvaApp } from './iocUtils';
 
 import intl from './intl';
@@ -103,6 +104,17 @@ export default function request(url, options, customOptions = {}) {
   let newUrl = !url.startsWith('/api') && !url.startsWith('http') ? `${API_HOST}${url}` : url;
 
   const newOptions = { ...defaultOptions, ...options };
+
+  const patchRequestHeaderConfig = getConfig('patchRequestHeader');
+  let patchRequestHeader;
+  if (patchRequestHeaderConfig) {
+    if (typeof patchRequestHeaderConfig === 'function') {
+      patchRequestHeader = patchRequestHeaderConfig();
+    } else {
+      patchRequestHeader = patchRequestHeaderConfig;
+    }
+  }
+
   if (
     newOptions.method === 'POST' ||
     newOptions.method === 'PUT' ||
@@ -114,6 +126,7 @@ export default function request(url, options, customOptions = {}) {
         Accept: 'application/json',
         'Content-Type': 'application/json; charset=utf-8',
         ...newOptions.headers,
+        ...patchRequestHeader,
       };
       newOptions.body = JSON.stringify(newOptions.body);
     } else {
@@ -121,6 +134,7 @@ export default function request(url, options, customOptions = {}) {
       newOptions.headers = {
         Accept: 'application/json',
         ...newOptions.headers,
+        ...patchRequestHeader,
       };
     }
   }
@@ -139,6 +153,7 @@ export default function request(url, options, customOptions = {}) {
     newOptions.headers = {
       ...newOptions.headers,
       Authorization: `bearer ${accessToken}`,
+      ...patchRequestHeader,
     };
   }
   const MenuId = getMenuId();
@@ -166,6 +181,7 @@ export default function request(url, options, customOptions = {}) {
   }
   fetchChain = fetchChain.catch(catchNormalError).catch((e) => {
     const status = e.name;
+    const language = getSession('language') || 'zh_CN';
     // 监听到 401 错误 重新登陆
     // isErrorFlag 用来处理，只对第一个401做处理，后续不再处理，防止多次跳回token失效界面
     const isError = getSession('isErrorFlag'); // 获取当前的session isErrorFlag
@@ -190,6 +206,7 @@ export default function request(url, options, customOptions = {}) {
             dvaApp._store.dispatch(
               routerRedux.push({
                 pathname: '/public/kickoff',
+                search: `?language=${language}`,
               })
             );
             setSession('redirectUrl', cacheLocation);
@@ -199,6 +216,7 @@ export default function request(url, options, customOptions = {}) {
             dvaApp._store.dispatch(
               routerRedux.push({
                 pathname: '/public/unauthorized',
+                search: `?language=${language}`,
               })
             );
             setSession('isErrorFlag', true);
@@ -230,6 +248,7 @@ export default function request(url, options, customOptions = {}) {
         dvaApp._store.dispatch(
           routerRedux.push({
             pathname: '/public/unauthorized',
+            search: `?language=${language}`,
           })
         );
         setSession('isErrorFlag', true);

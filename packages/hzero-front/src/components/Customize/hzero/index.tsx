@@ -22,9 +22,12 @@ interface DecoratorProps {
   unitCode: string[];
   query: any;
   manualQuery: boolean;
+  // {[unitCode]: ['attribute1', 'attribute2']}
+  // 临时方案，对特定的扩展字段添加queryUsePost: true属性，影响多选lov
+  usePostMap: any;
 }
 export default function withCustomize(decoratorProps: DecoratorProps) {
-  const { unitCode = [], query, manualQuery = false } = decoratorProps || {};
+  const { unitCode = [], query, manualQuery = false, usePostMap } = decoratorProps || {};
   return (Component) => {
     // eslint-disable-next-line react/no-redundant-should-component-update
     class WrapIndividual extends React.PureComponent<any> {
@@ -51,10 +54,12 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
       }
 
       @Bind()
-      queryUnitConfig(params = query) {
+      queryUnitConfig(params = query, fn?: Function) {
         if (unitCode && isArray(unitCode) && unitCode.length > 0) {
           queryUnitCustConfig({ unitCode: unitCode.join(','), ...params })
             .then((res) => {
+              // eslint-disable-next-line no-unused-expressions
+              typeof fn === 'function' && fn(res);
               if (res) {
                 Object.keys(res).forEach((code) => {
                   const unitConfig = res[code];
@@ -71,7 +76,17 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
                     unitConfig.fields.sort((before, after) => (before.seq || 0) - (after.seq || 0));
                   }
                 });
-
+                if (usePostMap) {
+                  Object.keys(usePostMap).forEach((code) => {
+                    const unitConfig = res[code];
+                    const usePostList = usePostMap[code];
+                    unitConfig.fields = unitConfig.fields.map((field) =>
+                      usePostList.includes(field.fieldCode)
+                        ? { ...field, queryUsePost: true }
+                        : field
+                    );
+                  });
+                }
                 this.setState({
                   configModel: res,
                 });
@@ -94,13 +109,19 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
           form,
           dataSource = {},
           readOnly = false,
-          dataSourceLoading, // 解决在dataSource查询完成前缓存dataSource的问题
+          // dataSourceLoading, // 解决在dataSource查询完成前缓存dataSource的问题
         } = options;
         const { configModel: config, loading, cache } = this.state;
         if (loading) return null;
         if (!code || isEmpty(config[code])) return formComponent;
+        const dataSourceLoading = isEmpty(dataSource);
         if (!cache[code] && !dataSourceLoading) {
-          cache[code] = { form, dataSource };
+          cache[code] = {
+            form,
+            dataSource,
+            validRes: {}, // 缓存校验错误信息
+            count: 0, // 渲染计数，避免第一次没有数据时进行自定义校验
+          };
           this.setState({
             cache,
           });
@@ -109,8 +130,10 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
         const unitData = getFieldValueObject(unitAlias, this.getCache, code); // 获取当前单元的关联单元数据
         return customizeFormCompatible(formComponent, config[code], {
           form,
+          cache: cache[code],
           code,
           dataSource,
+          dataSourceLoading,
           unitData,
           readOnly,
           getValueFromCache: this.getValueFromCache,
@@ -119,7 +142,7 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
 
       @Bind()
       customizeTable(options: any = {}, table) {
-        const { configModel: config, loading } = this.state;
+        const { configModel: config, loading, cache } = this.state;
         const { code, readOnly } = options;
         if (loading) {
           // eslint-disable-next-line no-param-reassign
@@ -131,13 +154,25 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
           return table;
         }
         if (!code || isEmpty(config[code])) return table;
+        if (!cache[code]) {
+          cache[code] = { validRes: {}, needUpdate: [] };
+          this.setState({
+            cache,
+          });
+        }
         const { unitAlias = [] } = config[code];
         const unitData = getFieldValueObject(unitAlias, this.getCache, code); // 获取当前单元的关联单元数据
         const { columns, scroll } = table.props;
         const { columns: newColumns, noWidthCount, scrollWidth } = generateTableColumns(
           columns,
           config[code],
-          { readOnly, unitData, code, getValueFromCache: this.getValueFromCache }
+          {
+            readOnly,
+            unitData,
+            code,
+            getValueFromCache: this.getValueFromCache,
+            cache: cache[code],
+          }
         );
         // eslint-disable-next-line no-param-reassign
         table.props.columns = newColumns;
@@ -186,13 +221,19 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
         } else if (refChildren && refChildren.props && refChildren.key) {
           childrenMap[refChildren.key] = refChildren;
         }
+        const defaultActive: string[] = [];
+        fields.every((field) => field.defaultActive === 1 && defaultActive.push(field.fieldCode));
+        if (defaultActive.length > 0) {
+          refTabs.props.activeKey = defaultActive;
+        }
         fields.forEach((i) => {
           const { fieldName, fieldCode, conditionHeaderDTOs } = i;
           const { visible } = coverConfig({ visible: i.visible }, conditionHeaderDTOs, {
             getValueFromCache: this.getValueFromCache,
           });
           const targetPane = childrenMap[fieldCode];
-          if (fieldName !== undefined && targetPane.props) {
+          if (!targetPane) return;
+          if (fieldName !== undefined && targetPane && targetPane.props) {
             const oldHeader = targetPane.props.header;
             if (typeof oldHeader === 'function') {
               targetPane.props.header = oldHeader(fieldName);
@@ -231,13 +272,18 @@ export default function withCustomize(decoratorProps: DecoratorProps) {
         } else if (refChildren && refChildren.props && refChildren.key) {
           childrenMap[refChildren.key] = refChildren;
         }
+        const defaultActive = fields.find((field) => field.defaultActive === 1);
+        if (defaultActive) {
+          refTabs.props.activeKey = defaultActive.fieldCode;
+        }
         fields.forEach((i) => {
           const { fieldName, fieldCode, conditionHeaderDTOs } = i;
           const { visible } = coverConfig({ visible: i.visible }, conditionHeaderDTOs, {
             getValueFromCache: this.getValueFromCache,
           });
           const targetPane = childrenMap[fieldCode];
-          if (fieldName !== undefined && targetPane.props) {
+          if (!targetPane) return;
+          if (fieldName !== undefined && targetPane && targetPane.props) {
             targetPane.props.tab = fieldName;
           }
           if (visible !== 0) {

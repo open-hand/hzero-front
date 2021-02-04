@@ -37,7 +37,7 @@ let modal;
 
 export default class CardTab extends Component {
   cardDS = new DataSet({
-    ...cardDS,
+    ...cardDS(),
     selection: this.props.isSelf ? 'multiple' : false,
     transport: {
       read: ({ data, params }) => {
@@ -76,6 +76,7 @@ export default class CardTab extends Component {
       this.cardDS.create();
     }
     const modalContent = {
+      // eslint-disable-next-line no-nested-ternary
       title: isSelf
         ? intl.get('hiam.securityGroup.view.title.card.detail').d('查看卡片')
         : isCreate

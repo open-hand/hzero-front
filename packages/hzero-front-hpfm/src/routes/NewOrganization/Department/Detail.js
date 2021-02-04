@@ -18,7 +18,7 @@ import styles from './index.less';
 export default class Detail extends React.Component {
   constructor(props) {
     super(props);
-    this.employeeDetailFormDS = new DataSet(employeeDetailFormDS);
+    this.employeeDetailFormDS = new DataSet(employeeDetailFormDS());
     this.state = {
       partTimePositionNode: [],
     };
@@ -30,7 +30,7 @@ export default class Detail extends React.Component {
     fetchEmployeeDetail({
       employeeId,
       customizeUnitCode: 'HPFM.ORG_LIST.DEPARTMENT.EMPLOYEE.DETAIL',
-    }).then(data => {
+    }).then((data) => {
       const {
         list,
         employeeCode = '',
@@ -42,7 +42,7 @@ export default class Detail extends React.Component {
         enabledFlag = '',
       } = data;
       const { unitName = '', positionName = '' } = list.filter(
-        item => item.primaryPositionFlag === 1
+        (item) => item.primaryPositionFlag === 1
       )[0];
 
       this.employeeDetailFormDS.loadData([
@@ -59,8 +59,8 @@ export default class Detail extends React.Component {
         },
       ]);
       partTimePositionNode = list
-        .filter(item => item.primaryPositionFlag === 0)
-        .map(item => [
+        .filter((item) => item.primaryPositionFlag === 0)
+        .map((item) => [
           <Output
             newLine
             key="partTimeDepartment"

@@ -7,8 +7,29 @@ import 'hzero-ui/lib/anchor/style';
 import 'hzero-ui/lib/switch/style';
 import 'hzero-ui/lib/slider/style';
 
+const modalWrapCss = css`
+  text-align: center;
+  &&:before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 100%;
+    vertical-align: middle;
+  }
+`;
+
+const modalContentCss = css`
+  position: static;
+  display: inline-block;
+  vertical-align: middle;
+  text-align: left;
+`;
+
 const globalCss = css`
   body {
+    .action-link > * {
+      vertical-align: middle;
+    }
     .c7n-form-line-with-btn {
       display: flex;
       flex-direction: row;
@@ -39,26 +60,41 @@ const globalCss = css`
       align-items: flex-start;
     }
   }
-  .hzero-permission-btn {
-    /* &&&&&& {
-      &.ant-btn-primary {
-        background: #1e3255;
-        color: #fff;
-        border-color: #1e3255;
-        :hover,
-        :active {
-          color: #fff;
-          border-color: #405477;
-          background: #405477;
-        }
-        &.hzero-permission-btn-disabled {
-          cursor: not-allowed;
-          color: rgba(0, 0, 0, 0.25);
-          border-color: rgba(0, 0, 0, 0.35);
-        }
+
+  /* .c7n-pro-modal-container-pristine {
+    position: fixed;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    .c7n-pro-modal {
+      position: static;
+      .c7n-pro-modal-movable {
+        cursor: initial;
       }
-    } */
+      &.c7n-pro-modal-fullscreen {
+        position: absolute;
+        top: calc(50% - 50vh);
+        height: 100vh;
+      }
+    }
+  } */
+  .c7n-modal-wrap {
+    ${modalWrapCss}
+    .c7n-modal-sidebar {
+      text-align: left;
+    }
+    && .c7n-modal:not(.c7n-modal-sidebar) {
+      ${modalContentCss}
+    }
   }
+  /* .ant-modal-wrap {
+    ${modalWrapCss}
+    && .ant-modal {
+      ${modalContentCss}
+    }
+  } */
 `;
 
 export default createGlobalStyle`

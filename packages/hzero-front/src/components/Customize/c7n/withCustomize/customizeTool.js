@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable no-new-func */
 /* eslint-disable eqeqeq */
 import React from 'react';
 import moment from 'moment';
@@ -20,11 +20,27 @@ import {
   Upload,
   DatePicker,
 } from 'choerodon-ui/pro';
-import { isArray } from 'lodash';
+import { isArray, isNil } from 'lodash';
 import { getEnvConfig } from 'utils/iocUtils';
 import { FlexLink, FlexIntlField } from './FlexComponents';
 
 const { HZERO_PLATFORM } = getEnvConfig('config');
+
+/**
+ * 对initialValue进行预处理
+ * @param type 处理类型
+ * @param value 表单值
+ */
+export function preAdapterInitValue(type, value) {
+  switch (type) {
+    case 'CHECKBOX':
+    case 'SWITCH':
+      // eslint-disable-next-line eqeqeq
+      return isNil(value) ? value : Number(value);
+    default:
+      return value;
+  }
+}
 
 /**
  * 处理组件的特有配置
@@ -34,7 +50,7 @@ export function parseProps(props = {}, tools, oldConfig = {}) {
   const {
     numberMax,
     numberMin,
-    numberPrecision,
+    numberPrecision = 1,
     areaMaxLine,
     fieldType,
     textMaxLength,
@@ -42,55 +58,45 @@ export function parseProps(props = {}, tools, oldConfig = {}) {
     defaultValue,
     paramList,
     lovCode,
-    dateFormat = '',
+    dateFormat,
     multipleFlag,
   } = props;
-  const commonProps = filterNullValueObject({
+
+  const extraProps = {
     maxLength: textMaxLength,
     minLength: textMinLength,
     max: numberMax,
     min: numberMin,
-    defaultValue,
-  });
+    defaultValue: preAdapterInitValue(fieldType, defaultValue),
+  };
+
   if (fieldType !== undefined) {
-    commonProps.type = getComponentType(fieldType);
+    extraProps.type = getComponentType(fieldType);
   }
   if (fieldType === 'TEXT_AREA') {
-    return {
-      ...commonProps,
-      rows: areaMaxLine || 2,
-    };
+    extraProps.rows = areaMaxLine;
   }
   if (fieldType === 'INPUT_NUMBER') {
-    return {
-      ...commonProps,
-      step: 1 / 10 ** numberPrecision,
-    };
+    extraProps.step = typeof numberPrecision === 'number' ? 1 / 10 ** numberPrecision : undefined;
   }
   if (fieldType === 'LOV') {
-    return {
-      ...commonProps,
-      multiple: multipleFlag === 1,
-      lovPara: { ...oldConfig.lovPara, ...getContextParams(paramList, tools) },
-      lovCode: lovCode || oldConfig.lovCode,
-    };
+    extraProps.multiple = multipleFlag === undefined ? undefined : multipleFlag === 1;
+    extraProps.lovPara = { ...oldConfig.lovPara, ...getContextParams(paramList, tools) };
+    extraProps.lovCode = lovCode || oldConfig.lovCode;
   }
   if (fieldType === 'SELECT') {
-    return {
-      ...commonProps,
-      multiple: multipleFlag === 1,
-      lovPara: { ...oldConfig.lovPara, ...getContextParams(paramList, tools) },
-      lookupCode: lovCode || oldConfig.lookupCode,
-    };
+    extraProps.multiple = multipleFlag === undefined ? undefined : multipleFlag === 1;
+    extraProps.lovPara = { ...oldConfig.lovPara, ...getContextParams(paramList, tools) };
+    extraProps.lookupCode = lovCode || oldConfig.lookupCode;
   }
   if (fieldType === 'DATE_PICKER') {
-    return {
-      ...commonProps,
-      format: dateFormat.replace(/hh/, 'HH'),
-      type: /hh|mm|ss|HH/g.test(dateFormat) ? 'dateTime' : 'date',
-    };
+    extraProps.format = dateFormat && dateFormat.replace(/hh/, 'HH');
+    extraProps.type = /hh|mm|ss|HH/g.test(dateFormat) ? 'dateTime' : 'date';
   }
-  return commonProps;
+  return {
+    ...oldConfig,
+    ...filterNullValueObject(extraProps),
+  };
 }
 export function transformCompProps(props = {}) {
   const {
@@ -134,6 +140,9 @@ export function transformCompProps(props = {}) {
 export function getComponent(type, extra) {
   let Component = null;
   switch (type) {
+    case 'EMPTY':
+      Component = () => <div />;
+      break;
     case 'INPUT':
       Component = (props) => <TextField {...props} />;
       break;
@@ -203,7 +212,6 @@ export function getComponentType(type) {
     case 'LINK':
       return 'url';
     default:
-      return 'string';
   }
 }
 // 查询用户个性化渲染数据
@@ -244,13 +252,15 @@ export function coverConfig(conditions = [], config, ignore = []) {
       if (!isErr && !ignore.includes(i.conType)) {
         const conNoList = conExpression.match(/\s?\d+\s?/g);
         const result = calculateExpression(i.lines || [], config);
-        conNoList.forEach((k) => {
-          const newKey = k.trim();
-          conExpression = conExpression.replace(newKey, result[newKey] || false);
-        });
-        conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
-        // eslint-disable-next-line no-eval
-        newConfig[i.conType] = eval(conExpression) ? 1 : 0;
+        if ((i.lines || []).length > 0) {
+          conNoList.forEach((k) => {
+            const newKey = k.trim();
+            conExpression = conExpression.replace(newKey, result[newKey] || false);
+          });
+          conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
+          // eslint-disable-next-line no-eval
+          newConfig[i.conType] = eval(conExpression) ? 1 : 0;
+        }
       }
     }
   });
@@ -462,4 +472,28 @@ export function selfValidator(conValid = {}, config) {
     };
   }
   return {};
+}
+
+export function defaultValueFx(config, fieldConfig) {
+  let { conLineList = [], conValidList = [] } = fieldConfig.defaultValueConDTO || {};
+  conLineList = isArray(conLineList) ? conLineList : [];
+  conValidList = isArray(conValidList) ? conValidList : [];
+  const result = calculateExpression(conLineList, config);
+  for (let i = 0; i < conValidList.length; i++) {
+    const condition = conValidList[i];
+    let { conExpression = '' } = condition;
+    const isErr = isErrConExpression(conExpression);
+    if (!isErr) {
+      const conNoReg = /(\d+)/g;
+      conExpression = conExpression.replace(conNoReg, (_, m) => result[m] || false);
+      conExpression = conExpression.replace(/AND/g, '&&').replace(/OR/g, '||');
+      // eslint-disable-next-line no-extra-boolean-cast
+      if (!!new Function(`return ${conExpression};`)()) {
+        const { value: defaultValue, valueMeaning: defaultValueMeaning } = condition;
+        return { defaultValue, defaultValueMeaning };
+      }
+    }
+  }
+  const { defaultValue, defaultValueMeaning } = fieldConfig;
+  return { defaultValue, defaultValueMeaning };
 }

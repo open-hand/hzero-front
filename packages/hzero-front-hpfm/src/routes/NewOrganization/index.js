@@ -36,8 +36,8 @@ export default class SearchConfig extends React.Component {
     super(props);
     this.departmentRef = React.createRef();
     this.positionRef = React.createRef();
-    this.searchDepartmentDS = new DataSet(searchDepartmentDS);
-    this.searchCompanyAndDepartmentDS = new DataSet(searchCompanyAndDepartmentDS);
+    this.searchDepartmentDS = new DataSet(searchDepartmentDS());
+    this.searchCompanyAndDepartmentDS = new DataSet(searchCompanyAndDepartmentDS());
     this.state = {
       searchNode: [
         <Lov
@@ -70,14 +70,14 @@ export default class SearchConfig extends React.Component {
       const { unitCompanyId } = this.searchCompanyAndDepartmentDS.current.toData();
       that.treeDS.setQueryParameter('unitCompanyId', unitCompanyId);
       that.treeDS.setQueryParameter('unitId', null);
+      that.searchAllFormation();
     } else {
       const { unitCompanyId, unitId } = record || { unitCompanyId: '', unitDepartmentId: '' };
       that.treeDS.setQueryParameter('unitCompanyId', unitCompanyId);
       that.treeDS.setQueryParameter('unitId', unitId);
+      that.searchAllFormation();
     }
-    that.treeDS.setQueryParameter('keyWord', null);
     that.setState({ searchValue: null, optionValue: undefined });
-    that.treeDS.query();
   }
 
   @Bind()

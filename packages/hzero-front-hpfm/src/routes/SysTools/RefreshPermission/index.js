@@ -9,6 +9,7 @@ import React from 'react';
 import { Card, Popconfirm } from 'choerodon-ui';
 import { DataSet, Form, Icon, TextArea, TextField, Tooltip, Switch, Lov } from 'choerodon-ui/pro';
 import axios from 'axios';
+import { isUndefined } from 'lodash';
 
 import { Button as ButtonPermission } from 'components/Permission';
 
@@ -48,7 +49,7 @@ const RefreshPermission = ({ match }) => {
     if (refreshPermissionAxionsConfig[module] && refreshPermissionAxionsConfig[module][code]) {
       axios(refreshPermissionAxionsConfig[module][code](data))
         .then((res) => {
-          if (res.status === 204) {
+          if (isUndefined(res)) {
             setLoading({
               ...loadingProxy.loading,
               [buildRefreshPermissionLoadingName(module, code)]: false,
@@ -241,7 +242,7 @@ const RefreshPermission = ({ match }) => {
           />
         </Form>
       </Card>
-      <Card
+      {/* <Card
         bordered={false}
         className={DETAIL_CARD_CLASSNAME}
         title={
@@ -274,7 +275,7 @@ const RefreshPermission = ({ match }) => {
             {intl.get('hzero.common.button.refresh').d('刷新')}
           </ButtonPermission>
         </Popconfirm>
-      </Card>
+      </Card> */}
     </>
   );
 };

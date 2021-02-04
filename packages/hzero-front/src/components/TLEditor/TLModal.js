@@ -18,7 +18,7 @@ const formItemLayout = {
 export default class TLModal extends React.Component {
   @Bind()
   saveAndClose() {
-    const { onOK = e => e, form } = this.props;
+    const { onOK = (e) => e, form } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err) {
         onOK(fieldsValue);
@@ -35,6 +35,7 @@ export default class TLModal extends React.Component {
       label,
       width = '520px',
       inputSize = {},
+      dbc2sbc = false,
     } = this.props;
     const { getFieldDecorator } = form;
     const { zh = 60, en = 120 } = inputSize;
@@ -48,7 +49,7 @@ export default class TLModal extends React.Component {
         onOk={this.saveAndClose}
       >
         <Form>
-          {list.map(item => (
+          {list.map((item) => (
             <FormItem label={item.name} key={item.code} {...formItemLayout}>
               {getFieldDecorator(item.code, {
                 initialValue: item.value,
@@ -60,7 +61,7 @@ export default class TLModal extends React.Component {
                     }),
                   },
                 ],
-              })(<Input />)}
+              })(<Input dbc2sbc={dbc2sbc} />)}
             </FormItem>
           ))}
         </Form>

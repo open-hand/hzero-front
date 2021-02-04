@@ -49,12 +49,6 @@ export default class Prompt extends PureComponent {
   form;
 
   componentDidMount() {
-    const { dispatch } = this.props;
-    const { tenantId } = this.state;
-    dispatch({
-      type: 'prompt/fetchLanguages',
-      payload: tenantId,
-    });
     this.fetchPromptList();
   }
 
@@ -142,20 +136,24 @@ export default class Prompt extends PureComponent {
     });
     const { dispatch } = this.props;
     dispatch({
-      type: 'prompt/fetchPromptDetail',
-      payload: {
-        tenantId: record.tenantId,
-        promptKey: record.promptKey,
-        promptCode: record.promptCode,
-        lang: record.lang,
-      },
-    });
-    this.handleModalVisible(true);
-    dispatch({
-      type: 'prompt/update',
-      payload: {
-        record: {},
-      },
+      type: 'prompt/fetchLanguages',
+    }).then(() => {
+      dispatch({
+        type: 'prompt/fetchPromptDetail',
+        payload: {
+          tenantId: record.tenantId,
+          promptKey: record.promptKey,
+          promptCode: record.promptCode,
+          lang: record.lang,
+        },
+      });
+      this.handleModalVisible(true);
+      dispatch({
+        type: 'prompt/update',
+        payload: {
+          record: {},
+        },
+      });
     });
   }
 

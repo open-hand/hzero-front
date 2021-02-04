@@ -790,9 +790,19 @@ CKEditor.defaultProps = {
   readOnly: false,
 };
 
-CKEditor.editorUrl = `${
-  (process.env.PUBLIC_URL || '').startsWith('http') ||
-  (process.env.PUBLIC_URL || '').startsWith('https')
-    ? process.env.PUBLIC_URL
-    : process.env.BASE_PATH || '/'
-}lib/ckeditor/ckeditor.js`;
+const getEditorUrl = () => {
+  let CKEDITOR_BASEPATH = window.CKEDITOR_BASEPATH;
+  if (!window.CKEDITOR_BASEPATH) {
+    let publicUrl = process.env.PUBLIC_URL || '/';
+    if (!publicUrl.endsWith('/')) {
+      publicUrl = publicUrl + '/';
+    }
+    CKEDITOR_BASEPATH = `${publicUrl}lib/ckeditor/`;
+  }
+  if (!CKEDITOR_BASEPATH.endsWith('/')) {
+    CKEDITOR_BASEPATH = CKEDITOR_BASEPATH + '/';
+  }
+  return `${CKEDITOR_BASEPATH}ckeditor.js`;
+};
+
+CKEditor.editorUrl = getEditorUrl();

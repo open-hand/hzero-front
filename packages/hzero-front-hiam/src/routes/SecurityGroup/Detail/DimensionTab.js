@@ -31,7 +31,7 @@ export default class Dimension extends Component {
   originData;
 
   dimensionDS = new DataSet({
-    ...dimensionDS,
+    ...dimensionDS(),
     transport: {
       read: ({ data, params }) => {
         this.setState({

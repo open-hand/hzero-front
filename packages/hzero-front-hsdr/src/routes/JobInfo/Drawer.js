@@ -22,7 +22,7 @@ import Switch from 'components/Switch';
 import { getDateFormat } from 'utils/utils';
 import intl from 'utils/intl';
 import { DEFAULT_DATETIME_FORMAT } from 'utils/constants';
-import { CODE_UPPER, EMAIL } from 'utils/regExp';
+import { CODE_UPPER } from 'utils/regExp';
 
 import CronModal from './CronModal';
 
@@ -502,12 +502,6 @@ export default class Drawer extends React.PureComponent {
                 >
                   {getFieldDecorator('alarmEmail', {
                     initialValue: alarmEmail,
-                    rules: [
-                      {
-                        pattern: EMAIL,
-                        message: intl.get('hzero.common.validation.email').d('邮箱格式不正确'),
-                      },
-                    ],
                   })(<Input />)}
                 </FormItem>
                 <FormItem

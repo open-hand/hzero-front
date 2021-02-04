@@ -28,7 +28,7 @@ const optionDs = new DataSet({
   },
 });
 // API管理查询from
-const formDS = {
+const formDS = () => ({
   fields: [
     {
       name: 'code',
@@ -107,7 +107,7 @@ const formDS = {
       label: intl.get('hiam.apiManagement.model.apiManagement.signAccess').d('是否签名接口'),
     },
   ],
-};
+});
 
 function tableDS(formRecord) {
   return {
@@ -323,7 +323,7 @@ function tableDS(formRecord) {
   };
 }
 
-const tenantDS = {
+const tenantDS = () => ({
   autoQuery: true,
   dataKey: 'content',
   cacheSelection: true,
@@ -379,10 +379,10 @@ const tenantDS = {
       };
     },
   },
-};
+});
 
 // 租户API管理查询列
-const tenantFormDS = {
+const tenantFormDS = () => ({
   fields: [
     {
       name: 'tenantIdLov',
@@ -473,7 +473,7 @@ const tenantFormDS = {
       options: optionDs,
     },
   ],
-};
+});
 
 // 租户API管理表格DS
 function tenantTableDS(record) {
@@ -636,7 +636,7 @@ function tenantTableDS(record) {
 }
 
 // 刷新api表单DS
-const refreshDS = {
+const refreshDS = () => ({
   autoQueryAfterSubmit: false,
   fields: [
     {
@@ -672,9 +672,9 @@ const refreshDS = {
       };
     },
   },
-};
+});
 
-const drawerDS = {
+const drawerDS = () => ({
   autoQuery: false,
   autoQueryAfterSubmit: false,
   fields: [
@@ -702,6 +702,6 @@ const drawerDS = {
       };
     },
   },
-};
+});
 
 export { formDS, tableDS, tenantDS, refreshDS, tenantFormDS, tenantTableDS, drawerDS };

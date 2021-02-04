@@ -189,9 +189,21 @@ export default class LovMultiModal extends React.Component {
     return { params, url };
   }
 
+  queryLovDataByPost(url, params) {
+    const { page, size, ...others } = params;
+    return getResponse(
+      request(url, {
+        method: 'POST',
+        body: others,
+        query: { page, size },
+      })
+    );
+  }
+
   @Bind()
   queryData(pagination = {}) {
     const { letfTempSize } = this.state;
+    const { queryUsePost } = this.props.lov;
     if (letfTempSize) {
       // eslint-disable-next-line no-param-reassign
       pagination.pageSize -= letfTempSize;
@@ -202,7 +214,7 @@ export default class LovMultiModal extends React.Component {
         loading: true,
       },
       () => {
-        queryLovData(url, params)
+        (queryUsePost ? this.queryLovDataByPost(url, params) : queryLovData(url, params))
           .then((res) => {
             if (getResponse(res)) {
               this.dataFilter(res);
@@ -503,8 +515,10 @@ export default class LovMultiModal extends React.Component {
   splitGroupSelect({ resolve, onError, onFinish, query = 'right' }) {
     const { params, url } = this.processQueryParams({ current: 1, pageSize: 500 }, query);
     const _this = this;
+    const { queryUsePost } = this.props.lov;
+    const queryFun = queryUsePost ? this.queryLovDataByPost : queryLovData;
     function select(queryParams) {
-      queryLovData(url, queryParams)
+      queryFun(url, queryParams)
         .then((res) => {
           if (getResponse(res)) {
             const data = processTreeData(res.content || []);

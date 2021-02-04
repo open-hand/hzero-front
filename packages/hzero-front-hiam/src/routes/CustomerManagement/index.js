@@ -55,10 +55,10 @@ export default class CustomerManagement extends React.Component {
       customerFlag: false,
       tenantCustomerFlag: false,
     };
-    this.formDS = new DataSet(formDS);
+    this.formDS = new DataSet(formDS());
     this.tableDS = new DataSet(tableDS(this.formDS));
-    this.tenantDS = new DataSet(tenantDS);
-    this.tenantFormDS = new DataSet(tenantFormDS);
+    this.tenantDS = new DataSet(tenantDS());
+    this.tenantFormDS = new DataSet(tenantFormDS());
     this.tenantTableDS = new DataSet(tenantTableDS(this.tenantFormDS));
     this.refreshDs = null;
   }
@@ -213,6 +213,7 @@ export default class CustomerManagement extends React.Component {
           const id = record.get('customPointId');
           let actions = [];
           actions = [
+            // eslint-disable-next-line no-nested-ternary
             tabFlag
               ? editItems.includes(id)
                 ? {
@@ -478,7 +479,7 @@ export default class CustomerManagement extends React.Component {
    */
   @Bind()
   openRefreshModal() {
-    this.refreshDs = new DataSet(refreshDS);
+    this.refreshDs = new DataSet(refreshDS());
     Modal.open({
       closable: true,
       key: 'refresh-customer-point',

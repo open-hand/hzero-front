@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { routerRedux, Switch, Route, withRouter } from 'dva/router';
+import { getConfig } from 'hzero-boot';
 
 import ModalContainer, { registerContainer } from 'components/Modal/ModalContainer';
 import { ModalContainer as C7nModalContainer } from 'choerodon-ui/pro';
@@ -42,19 +43,60 @@ function RouterConfig({ history, app }) {
       });
     });
   }, []);
+
+  const layoutExtraHeader = useMemo(() => {
+    return getConfig('layoutExtraHeader');
+  }, []);
+
+  // 全局系统属性
+  const configureParams = useMemo(() => {
+    const result = getConfig('configureParams');
+    if (typeof result === 'function') {
+      return result();
+    }
+    return result;
+  }, []);
+
+  const redirectData = useMemo(() => {
+    const result = getConfig('redirectData');
+    if (typeof result === 'function') {
+      return result();
+    }
+    return result;
+  }, []);
+
   return (
     <uedConfig.Container defaultTheme="theme2">
-      <LocalProviderAsync>
+      <LocalProviderAsync {...configureParams}>
         <PermissionProvider>
           <ConnectedRouter history={history}>
             <>
               <ModalContainer ref={registerContainer} />
               <WithRouterC7nModalContainer />
               <Switch>
-                <Route path="/private" render={(props) => <PrivateLayout {...props} />} />
-                <Route path="/public" render={(props) => <PublicLayout {...props} />} />
-                <PubAuthorizedRoute path="/pub" render={(props) => <PubLayout {...props} />} />
-                <DefaultAuthorizedRoute path="/" render={(props) => <Layout {...props} />} />
+                <Route
+                  path="/private"
+                  render={(props) => <PrivateLayout redirectData={redirectData} {...props} />}
+                />
+                <Route
+                  path="/public"
+                  render={(props) => <PublicLayout redirectData={redirectData} {...props} />}
+                />
+                <PubAuthorizedRoute
+                  path="/pub"
+                  render={(props) => <PubLayout redirectData={redirectData} {...props} />}
+                />
+                <DefaultAuthorizedRoute
+                  path="/"
+                  render={(props) => (
+                    <Layout
+                      redirectData={redirectData}
+                      {...props}
+                      extraHeaderRight={layoutExtraHeader}
+                      headerProps={{ toolbarProps: { extraHeaderRight: layoutExtraHeader } }}
+                    />
+                  )}
+                />
               </Switch>
             </>
           </ConnectedRouter>

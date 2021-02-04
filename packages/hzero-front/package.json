@@ -4,16 +4,16 @@
   "description": "HZero Front",
   "author": "HZero Front Team",
   "dependencies": {
-    "@hzero-front-ui/c7n-ui": "~1.1.0",
-    "@hzero-front-ui/cfg": "~1.1.0",
-    "@hzero-front-ui/hzero-ui": "~1.1.0",
+    "@hzero-front-ui/c7n-ui": "~1.1.25",
+    "@hzero-front-ui/cfg": "~1.1.25",
+    "@hzero-front-ui/hzero-ui": "~1.1.25",
     "abort-controller": "^3.0.0",
     "is-keyword-js": "^1.0.3",
     "js-tokens": "^3.0.2",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "sockjs-client": "^1.4.0",
-    "styled-components": "^4.4.0",
+    "styled-components": "^5.1.0",
     "what-di": "^1.0.2"
   },
   "devDependencies": {

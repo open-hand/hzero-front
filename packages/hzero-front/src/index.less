@@ -5,19 +5,16 @@
 @import './assets/styles/global.less';
 
 :global {
-  // fix 输入框缩进去的问题
-  .c7n-pro-input-multiple-input {
-    box-sizing: initial;
-  }
-
   .global-layout {
     .ant-row,
     .ant-form-item {
       .ant-form-item-label {
         text-align: left;
+
         .ant-form-item-required {
           padding-right: 4px;
           line-height: 20px;
+
           &::before {
             content: '' !important;
             margin-right: 0;
@@ -30,6 +27,7 @@
       .ant-form-item-required {
         .ant-form-item-children {
           display: flex;
+
           &::before {
             display: inline-block;
             content: '*';
@@ -44,6 +42,7 @@
           }
         }
       }
+
       .has-error {
         .ant-form-explain {
           margin: 3px auto;
@@ -51,11 +50,13 @@
       }
     }
   }
+
   .ant-row,
   .ant-form-item {
     .ant-form-item-label {
       white-space: pre-line;
       word-break: break-word;
+
       > label {
         display: inline-block;
         line-height: 20px;
@@ -115,6 +116,7 @@ body {
     margin: 40px 0 !important;
   }
 }
+
 // FIXME: 使用 auto 后, Spin 包裹的 组件会多出额外的滚动条
 // FIXME: 这个 issue 是说换成 auto, 不知道这里为什么换成 visible
 // temp fix for https://github.com/ant-design/ant-design/commit/a1fafb5b727b62cb0be29ce6e9eca8f579d4f8b7
@@ -328,7 +330,7 @@ body {
 
   .page-content-wrap {
     flex-grow: 1;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .page-content-wrap-no-card {
@@ -341,8 +343,9 @@ body {
     // FIXME: 先使用常量 之后 变量全部完成后再替换成变量
     margin: @hzero-gutter-sm @hzero-gutter @hzero-gutter;
     padding: @hzero-gutter;
-    min-height: calc(~'100% - @{hzero-gutter} - @{hzero-gutter}');
+    height: calc(~'100% - @{hzero-gutter} - @{hzero-gutter}');
     background-color: #fff;
+    overflow: auto;
   }
 
   .page-content-header {
@@ -379,6 +382,8 @@ body {
   // -------- Page Header Content --------
 
   // ------------- sidebar -------------
+  .ant-modal-sidebar-left.ant-modal-auto-center,
+  .ant-modal-sidebar-right.ant-modal-auto-center,
   .ant-modal-sidebar-left,
   .ant-modal-sidebar-right {
     overflow: hidden !important;
@@ -402,12 +407,14 @@ body {
     }
   }
 
+  .ant-modal-sidebar-left.ant-modal-auto-center,
   .ant-modal-sidebar-left {
     .ant-modal {
       left: 0;
     }
   }
 
+  .ant-modal-sidebar-right.ant-modal-auto-center,
   .ant-modal-sidebar-right {
     .ant-modal {
       right: 0;
@@ -478,6 +485,27 @@ body {
         }
       }
     }
+  }
+
+  .ant-table-fixed-header .ant-table-content .ant-table-scroll .ant-table-header {
+    //overflow: hidden;
+    //padding-bottom: 0 !important;
+    //margin-bottom: 0 !important;
+    //
+    //&::-webkit-scrollbar {
+    //  width: .08rem;
+    //  height: inherit;
+    //  border-radius: .1rem;
+    //}
+    //
+    //&::-webkit-scrollbar-thumb {
+    //  border-radius: .1rem;
+    //  box-shadow: inset 0 0 .05rem rgba(0, 0, 0, 0.2);
+    //
+    //  &:hover {
+    //    background: rgba(0, 0, 0, .2)
+    //  }
+    //}
   }
 
   // ---------删除按钮---------

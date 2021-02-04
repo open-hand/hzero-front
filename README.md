@@ -109,7 +109,7 @@ dva是基于 redux、redux-saga 和 react-router 的轻量级前端框架。
 使用如下命令clone本项目
 
 ```shell
-git clone https://github.com/open-hand/hzero-front.git
+git clone https://code.choerodon.com.cn/hzero-hosp/hzero-front.git
 cd hzero-front
 ```
 

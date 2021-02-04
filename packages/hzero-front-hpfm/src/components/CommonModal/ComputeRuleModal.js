@@ -36,10 +36,10 @@ export default class extends React.Component {
     const { unitList = [], unitAlias = [], unitCode } = props;
     const unitAliasMap = new Map();
     const fieldsMap = new Map();
-    unitAlias.forEach(i => {
+    unitAlias.forEach((i) => {
       unitAliasMap.set(i.unitCode, i.alias);
     });
-    unitList.forEach(i => {
+    unitList.forEach((i) => {
       const alias = i.unitCode === unitCode ? 'self' : unitAliasMap.get(i.unitCode);
       if (alias !== undefined) {
         fieldsMap.set(alias, i.unitFields);
@@ -85,7 +85,7 @@ export default class extends React.Component {
     const newAliasArray = unitAlias.concat([defaultAliasList]);
     const menu = (
       <Menu className={styles['unit-alias-list']}>
-        {newAliasArray.map(i => (
+        {newAliasArray.map((i) => (
           <MenuItem className="no-cursor" disabled>
             <div className="unit-name">{i.unitName}</div>
             <div className="unit-code">{i.unitCode}</div>
@@ -136,7 +136,7 @@ export default class extends React.Component {
           </div>
           <div className="unit-code">{'<%= var test = u1.test; %>'}</div>
         </MenuItem>
-        <MenuItem key={"<%= u1.test = '1' ? true : false %>"}>
+        <MenuItem key={"<% u1.test = '1' ? true : false %>"}>
           <div className="unit-name">
             {intl.get('hpfm.individual.view.message.title.thrExpression').d('三元表达式')}
           </div>
@@ -184,7 +184,7 @@ export default class extends React.Component {
         className={`${styles['fields-tip']} ${open ? '' : styles.hidden}`}
         style={{ left, top, transform: `translateY(${posReverseY ? '-100%' : '0'})` }}
       >
-        {fieldList.map(i => (
+        {fieldList.map((i) => (
           <li value={i.unitFieldCode}>
             <div className="name">{i.unitFieldName}</div>
             <div className="code">{i.unitFieldCode}</div>
@@ -250,7 +250,7 @@ export default class extends React.Component {
     const { insertPosition } = this.state;
     e.stopPropagation();
     const { path = [] } = e.nativeEvent;
-    const li = path.find(i => i.nodeName === 'LI');
+    const li = path.find((i) => i.nodeName === 'LI');
     if (li) {
       const value = li.getAttribute('value').replace(toCamel, (_, _1, $2) => $2.toUpperCase());
       let text = form.getFieldValue('renderRule');
@@ -335,7 +335,7 @@ export default class extends React.Component {
                   initialValue: rule,
                 })(
                   <TextArea
-                    ref={ref => {
+                    ref={(ref) => {
                       this.textArea = ref;
                     }}
                     className={styles['code-text-area']}

@@ -36,14 +36,14 @@ export default class SecGrpListPage extends Component {
   constructor(props) {
     super(props);
     this.secGrpDS = new DataSet({
-      ...secGrpDS,
+      ...secGrpDS(),
       queryParameter: {
         secGrpSource: 'self',
         roleId: currentRole.id,
       },
       autoQuery: false,
     });
-    this.roleLovDs = new DataSet(roleLovDS);
+    this.roleLovDs = new DataSet(roleLovDS());
     const {
       queryParameter: { secGrpSource = 'self' },
     } = this.secGrpDS;

@@ -40,9 +40,9 @@ const { Option } = Select;
 export default class ApiLimit extends React.Component {
   constructor(props) {
     super(props);
-    this.formDS = new DataSet(formDS);
-    this.displayFormDS = new DataSet(displayFormDS);
-    this.flowLimitFormDS = new DataSet(flowLimitFormDS);
+    this.formDS = new DataSet(formDS());
+    this.displayFormDS = new DataSet(displayFormDS());
+    this.flowLimitFormDS = new DataSet(flowLimitFormDS());
     this.tableDS = new DataSet(tableDS());
   }
 

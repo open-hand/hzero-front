@@ -79,7 +79,14 @@ export function getEditFieldAlias(type) {
       return intl.get('hpfm.customize.common.editField').d('编辑字段');
   }
 }
-
+export function getDefaultActiveAlias(type) {
+  switch (type) {
+    case 'COLLAPSE':
+      return intl.get('hpfm.customize.common.defaultExpand').d('默认展开');
+    default:
+      return intl.get('hpfm.customize.common.defaultActive').d('默认激活');
+  }
+}
 export function getSingleTenantValueCode(code = '') {
   return `${code}${isTenantRoleLevel() ? '.ORG' : ''}`;
 }

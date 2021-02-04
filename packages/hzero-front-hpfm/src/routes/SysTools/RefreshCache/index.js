@@ -9,6 +9,7 @@ import React from 'react';
 import { Card, Popconfirm } from 'choerodon-ui';
 import { Col, Row } from 'choerodon-ui/pro';
 import axios from 'axios';
+import { isUndefined } from 'lodash';
 
 import { Button as ButtonPermission } from 'components/Permission';
 
@@ -38,8 +39,8 @@ const RefreshCache = ({ match }) => {
     setLoading(newLoading);
     if (refreshCacheAxionsConfig[module] && refreshCacheAxionsConfig[module][code]) {
       axios(refreshCacheAxionsConfig[module][code]())
-        .then(res => {
-          if (res.status === 204) {
+        .then((res) => {
+          if (isUndefined(res)) {
             setLoading({
               ...loadingProxy.loading,
               [buildRefreshCacheLoadingName(module, code)]: false,
@@ -55,7 +56,7 @@ const RefreshCache = ({ match }) => {
             notification.error();
           }
         })
-        .catch(e => {
+        .catch((e) => {
           setLoading({
             ...loadingProxy.loading,
             [buildRefreshCacheLoadingName(module, code)]: false,
@@ -608,6 +609,41 @@ const RefreshCache = ({ match }) => {
                 loading={loading[buildRefreshCacheLoadingName('hiam', 'domain')]}
               >
                 {intl.get('hpfm.sysTools.view.button.refreshCache.hiam.domain').d('刷新域名配置')}
+              </ButtonPermission>
+            </Popconfirm>
+          </Col>
+        </Row>
+        <Row {...EDIT_FORM_ROW_LAYOUT}>
+          <Col {...FORM_COL_3_LAYOUT}>
+            <Popconfirm
+              title={intl
+                .get('hpfm.sysTools.view.message.refreshCache', {
+                  action: intl
+                    .get('hpfm.sysTools.view.button.refreshCache.hiam.doctype')
+                    .d('刷新单据权限'),
+                })
+                .d(
+                  `是否${intl
+                    .get('hpfm.sysTools.view.button.refreshCache.hiam.doctype')
+                    .d('刷新单据权限')}缓存`
+                )}
+              onConfirm={() => {
+                refreshCacheProxyCall('hiam', 'doctype');
+              }}
+            >
+              <ButtonPermission
+                style={btnStyle}
+                icon="sync"
+                permissionList={[
+                  {
+                    code: `${match.path}.button.refreshCache.hiam.doctype`,
+                    type: 'button',
+                    meaning: '系统工具-刷新缓存-刷新单据权限',
+                  },
+                ]}
+                loading={loading[buildRefreshCacheLoadingName('hiam', 'doctype')]}
+              >
+                {intl.get('hpfm.sysTools.view.button.refreshCache.hiam.doctype').d('刷新单据权限')}
               </ButtonPermission>
             </Popconfirm>
           </Col>

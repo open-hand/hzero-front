@@ -59,48 +59,50 @@ const detailDS = {
   },
 };
 
-const detailParamDS = {
-  autoCreate: false,
-  autoQuery: false,
-  autoQueryAfterSubmit: false,
-  paging: false,
-  selection: false,
-  fields: [
-    {
-      name: 'name',
-      type: 'string',
-      label: intl.get('hadm.apiTest.model.apiTest.name').d('参数名称'),
-    },
-    {
-      name: 'inDefault',
-      // type: 'string',
-      label: intl.get('hadm.apiTest.model.apiTest.request.data').d('请求数据'),
-      dynamicProps: {
-        required: ({ record }) => {
-          const required = record.get('type') === 'file' ? false : record.get('required');
-          return record.get('type') ? required : true;
-        },
-        lookupCode: ({ record }) => {
-          return record.get('type') === 'boolean' ? 'HPFM.FLAG' : null;
+const detailParamDS = () => {
+  return {
+    autoCreate: false,
+    autoQuery: false,
+    autoQueryAfterSubmit: false,
+    paging: false,
+    selection: false,
+    fields: [
+      {
+        name: 'name',
+        type: 'string',
+        label: intl.get('hadm.apiTest.model.apiTest.name').d('参数名称'),
+      },
+      {
+        name: 'inDefault',
+        // type: 'string',
+        label: intl.get('hadm.apiTest.model.apiTest.request.data').d('请求数据'),
+        dynamicProps: {
+          required: ({ record }) => {
+            const required = record.get('type') === 'file' ? false : record.get('required');
+            return record.get('type') ? required : true;
+          },
+          lookupCode: ({ record }) => {
+            return record.get('type') === 'boolean' ? 'HPFM.FLAG' : null;
+          },
         },
       },
-    },
-    {
-      name: 'type',
-      type: 'string',
-      label: intl.get('hadm.apiTest.model.apiTest.request.data.type').d('请求数据类型'),
-    },
-    {
-      name: 'description',
-      type: 'string',
-      label: intl.get('hadm.apiTest.model.apiTest.param.desc').d('参数描述'),
-    },
-    {
-      name: 'in',
-      type: 'string',
-      label: intl.get('hadm.apiTest.model.apiTest.param.type').d('参数类型'),
-    },
-  ],
+      {
+        name: 'type',
+        type: 'string',
+        label: intl.get('hadm.apiTest.model.apiTest.request.data.type').d('请求数据类型'),
+      },
+      {
+        name: 'description',
+        type: 'string',
+        label: intl.get('hadm.apiTest.model.apiTest.param.desc').d('参数描述'),
+      },
+      {
+        name: 'in',
+        type: 'string',
+        label: intl.get('hadm.apiTest.model.apiTest.param.type').d('参数类型'),
+      },
+    ],
+  };
 };
 
 export { treeDS, detailDS, detailParamDS };

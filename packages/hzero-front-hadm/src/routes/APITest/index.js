@@ -89,7 +89,7 @@ withTokenAxios.interceptors.response.use(
 
 const apiTest = () => {
   const detailDs = useMemo(() => new DataSet(detailDS), []);
-  const detailParamDs = useMemo(() => new DataSet(detailParamDS), []);
+  const detailParamDs = useMemo(() => new DataSet(detailParamDS()), []);
 
   const [values, setValues] = useState('');
   const [isShowTree, setIsShowTree] = useState(true);

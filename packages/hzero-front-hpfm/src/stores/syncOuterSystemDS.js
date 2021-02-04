@@ -4,7 +4,7 @@ import intl from 'utils/intl';
 
 const organizationId = getCurrentOrganizationId();
 
-const tableDs = {
+const tableDs = () => ({
   selection: false,
   autoQuery: true,
   fields: [
@@ -47,9 +47,9 @@ const tableDs = {
       };
     },
   },
-};
+});
 
-const logDs = {
+const logDs = () => ({
   selection: false,
   autoQuery: false,
   fields: [
@@ -99,9 +99,9 @@ const logDs = {
       };
     },
   },
-};
+});
 
-const tableDetailDs = {
+const tableDetailDs = () => ({
   autoQueryAfterSubmit: false,
   fields: [
     {
@@ -189,9 +189,9 @@ const tableDetailDs = {
       };
     },
   },
-};
+});
 
-const logDetailDs = {
+const logDetailDs = () => ({
   transport: {
     read({ dataSet }) {
       const { logId } = dataSet;
@@ -201,9 +201,9 @@ const logDetailDs = {
       };
     },
   },
-};
+});
 
-const handleUpdateDs = {
+const handleUpdateDs = () => ({
   transport: {
     read({ dataSet }) {
       const { requestData } = dataSet;
@@ -217,9 +217,9 @@ const handleUpdateDs = {
       };
     },
   },
-};
+});
 
-const handleUpdateDsLocal = {
+const handleUpdateDsLocal = () => ({
   transport: {
     read({ dataSet }) {
       const { requestData } = dataSet;
@@ -233,6 +233,6 @@ const handleUpdateDsLocal = {
       };
     },
   },
-};
+});
 
 export { tableDs, tableDetailDs, logDs, logDetailDs, handleUpdateDs, handleUpdateDsLocal };

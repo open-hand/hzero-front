@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { LocaleProvider } from 'hzero-ui';
+import { ConfigProvider } from 'hzero-ui';
 import { LocaleProvider as C7NLocaleProvider } from 'choerodon-ui';
 import { localeContext } from 'choerodon-ui/pro';
 import { connect } from 'dva';
@@ -18,7 +18,7 @@ export default class LocalProviderAsync extends Component {
     if (prevProps.supportLanguage !== supportLanguage) {
       const c7nLocaleContext = {};
       if (supportLanguage) {
-        supportLanguage.forEach(intlRecord => {
+        supportLanguage.forEach((intlRecord) => {
           c7nLocaleContext[intlRecord.code] = intlRecord.name;
         });
       }
@@ -33,10 +33,15 @@ export default class LocalProviderAsync extends Component {
   }
 
   render() {
-    const { hzeroUILocale, c7nLocale } = this.props;
+    const { hzeroUILocale, c7nLocale, modalMovable = true, modalAutoCenter = true } = this.props;
+    const config = {
+      modalMovable,
+      modalAutoCenter,
+    };
+    console.log(config);
     return (
       <C7NLocaleProvider locale={resolveRequire(c7nLocale)}>
-        <LocaleProvider {...this.props} locale={resolveRequire(hzeroUILocale)} />
+        <ConfigProvider {...config} {...this.props} locale={resolveRequire(hzeroUILocale)} />
       </C7NLocaleProvider>
     );
   }

@@ -1,13 +1,13 @@
 import React from 'react';
-import {Button, DatePicker, Form, Input, InputNumber, Modal} from 'hzero-ui';
+import { Button, DatePicker, Form, Input, InputNumber, Modal } from 'hzero-ui';
 import moment from 'moment';
-import {Bind} from 'lodash-decorators';
+import { Bind } from 'lodash-decorators';
 
 import Switch from 'components/Switch';
 import Lov from 'components/Lov';
 import TLEditor from 'components/TLEditor';
 
-import {getCurrentOrganizationId, getDateFormat} from 'utils/utils';
+import { getCurrentOrganizationId, getDateFormat } from 'utils/utils';
 import intl from 'utils/intl';
 
 @Form.create({ fieldNameProp: null })
@@ -18,7 +18,7 @@ export default class DetailForm extends React.Component {
 
   @Bind()
   handleOk() {
-    const { form, onOk = e => e } = this.props;
+    const { form, onOk = (e) => e } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (!err) {
         onOk(fieldsValue);
@@ -70,12 +70,12 @@ export default class DetailForm extends React.Component {
           isCurrentTenant
             ? null
             : [
-              <Button key="cancel" onClick={onCancel}>
-                {intl.get('hzero.common.button.cancel').d('取消')}
-              </Button>,
-              <Button key="on" type="primary" loading={saveLoading} onClick={this.handleOk}>
-                {intl.get('hzero.common.button.ok').d('确定')}
-              </Button>,
+                <Button key="cancel" onClick={onCancel}>
+                  {intl.get('hzero.common.button.cancel').d('取消')}
+                </Button>,
+                <Button key="on" type="primary" loading={saveLoading} onClick={this.handleOk}>
+                  {intl.get('hzero.common.button.ok').d('确定')}
+                </Button>,
               ]
         }
       >
@@ -91,7 +91,7 @@ export default class DetailForm extends React.Component {
                 },
               ],
               initialValue: value,
-            })(<Input disabled={!!value} />)}
+            })(<Input disabled={!!value} dbc2sbc={false} />)}
           </Form.Item>
           <Form.Item
             {...fromLayOut}
@@ -164,7 +164,7 @@ export default class DetailForm extends React.Component {
                 style={{ width: '100%' }}
                 placeholder=""
                 format={dateFormat}
-                disabledDate={currentDate =>
+                disabledDate={(currentDate) =>
                   getFieldValue('endDateActive') &&
                   moment(getFieldValue('endDateActive')).isBefore(currentDate, 'day')
                 }
@@ -183,7 +183,7 @@ export default class DetailForm extends React.Component {
                 style={{ width: '100%' }}
                 placeholder=""
                 format={dateFormat}
-                disabledDate={currentDate =>
+                disabledDate={(currentDate) =>
                   getFieldValue('startDateActive') &&
                   moment(getFieldValue('startDateActive')).isAfter(currentDate, 'day')
                 }

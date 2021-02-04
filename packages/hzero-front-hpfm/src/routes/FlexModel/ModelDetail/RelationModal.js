@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { Component } from 'react';
 import { Drawer, Card, Col, Row, Form, Select, Button, Icon, Input } from 'hzero-ui';
 import { Bind } from 'lodash-decorators';
@@ -118,7 +119,7 @@ export default class RelationMoal extends Component {
   checkEntityValid(rule, value, callback) {
     const { modelInfo = {} } = this.props;
     const masterModelId = modelInfo.modelId;
-    if (masterModelId !== undefined && value !== undefined && masterModelId === value) {
+    if (masterModelId !== undefined && value !== undefined && masterModelId == value) {
       callback(
         intl.get('hpfm.flexModelDetail.view.message.modelCannotSame').d('主模型和从模型不能相同')
       );

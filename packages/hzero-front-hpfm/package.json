@@ -26,7 +26,7 @@
   "scripts": {
     "build": "npm run lint:fix && cross-env NODE_PROFILE=production MULTIPLE_SKIN_ENABLE=true hzero-cli build",
     "build:analyze": "cross-env NODE_PROFILE=production MULTIPLE_SKIN_ENABLE=true ANALYZE=true hzero-cli build",
-    "start": "cross-env NODE_PROFILE=development MULTIPLE_SKIN_ENABLE=true hzero-cli start",
+    "start": "hzero-cli start",
     "test": "node ../../scripts/test.js",
     "lint": "eslint --ext .js src && npm run lint:style",
     "lint:fix": "eslint --quiet --fix --ext .js src && npm run lint:style",

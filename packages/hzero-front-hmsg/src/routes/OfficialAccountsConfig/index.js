@@ -24,7 +24,9 @@ import ModalDs from './stores/ModalDs';
 
 const tenantId = getCurrentOrganizationId();
 
-@formatterCollections({ code: ['hmsg.offcialAccountConfig', 'entity.tenant', 'hmsg.common'] })
+@formatterCollections({
+  code: ['hmsg.offcialAccountConfig', 'entity.tenant', 'hmsg.common', 'hmsg.wechatOfficials'],
+})
 export default class OfficialAccountsConfig extends React.Component {
   constructor(props) {
     super(props);

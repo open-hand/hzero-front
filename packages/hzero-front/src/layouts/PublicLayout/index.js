@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Layout } from 'hzero-ui';
+import { memoize } from 'lodash-decorators';
 import qs from 'querystring';
 import { map } from 'lodash';
 import DocumentTitle from 'react-document-title';
@@ -84,7 +85,7 @@ class PublicLayout extends React.Component {
     // 清除首屏loading
     const loader = document.querySelector('#loader-wrapper');
     if (loader) {
-      document.body.removeChild(loader);
+      loader.parentNode.removeChild(loader);
       // 设置默认页面加载动画
       dynamic.setDefaultLoadingComponent(() => <LoadingBar />);
     }
@@ -112,12 +113,19 @@ class PublicLayout extends React.Component {
     return redirect;
   };
 
-  render() {
-    const { routerData, menu = [], activeTabKey, tabs, currentUser = {} } = this.props;
-    const redirectData = [{ from: '/', to: '/workplace' }]; // 根目录需要跳转到工作台
+  @memoize
+  getRedirectData(menu) {
+    const redirectData = this.props.redirectData || [{ from: '/', to: '/workplace' }];
     menu.forEach((item) => {
       getRedirect(item, redirectData);
     });
+    return redirectData;
+  }
+
+  render() {
+    const { routerData, menu = [], activeTabKey, tabs, currentUser = {} } = this.props;
+
+    const redirectData = this.getRedirectData(menu);
     const bashRedirect = this.getBashRedirect();
 
     const layout = (

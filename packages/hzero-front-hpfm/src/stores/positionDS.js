@@ -3,7 +3,7 @@ import { getCurrentOrganizationId } from 'utils/utils';
 import { HZERO_PLATFORM } from 'utils/config';
 
 const organizationId = getCurrentOrganizationId();
-const treeDS = {
+const treeDS = () => ({
   autoQuery: true,
   selection: 'single',
   primaryKey: 'positionId',
@@ -36,9 +36,9 @@ const treeDS = {
       };
     },
   },
-};
+});
 
-const searchCompanyAndDepartmentDS = {
+const searchCompanyAndDepartmentDS = () => ({
   fields: [
     {
       name: 'companyLov',
@@ -70,9 +70,9 @@ const searchCompanyAndDepartmentDS = {
       bind: 'departmentLov.unitId',
     },
   ],
-};
+});
 
-const baseInfoDs = {
+const baseInfoDs = () => ({
   fields: [
     {
       name: 'positionCode',
@@ -115,19 +115,15 @@ const baseInfoDs = {
       label: intl.get('hpfm.organization.model.position.status').d('状态'),
     },
   ],
-};
-const formDS = {
+});
+const formDS = () => ({
   fields: [
     {
       name: 'positionId',
       type: 'string',
       label: intl.get('hpfm.organization.model.position.positionId').d('岗位ID'),
     },
-    {
-      name: 'parentPositionId',
-      type: 'string',
-      label: intl.get('hpfm.organization.model.position.parentPositionId').d('父岗位ID'),
-    },
+
     {
       name: 'positionCode',
       type: 'string',
@@ -237,11 +233,12 @@ const formDS = {
       const { data, params, dataSet } = config;
       const { unitId = '' } = data[0];
       const {
-        queryParameter: { unitCompanyId },
+        queryParameter: { unitCompanyId, parentPositionId },
       } = dataSet;
       const url = `${HZERO_PLATFORM}/v1/${organizationId}/companies/${unitCompanyId}/units/${unitId}/position`;
       return {
         data: {
+          parentPositionId,
           ...data[0],
           unitCompanyId,
         },
@@ -254,9 +251,9 @@ const formDS = {
       };
     },
   },
-};
+});
 
-const employeeTableDS = {
+const employeeTableDS = () => ({
   selection: false,
   dataKey: 'content',
   fields: [
@@ -352,7 +349,8 @@ const employeeTableDS = {
     },
     {
       name: 'gender',
-      type: 'number',
+      type: 'string',
+      lookupCode: 'HPFM.GENDER',
       label: intl.get('hpfm.organization.model.position.gender').d('性别'),
     },
     {
@@ -398,6 +396,6 @@ const employeeTableDS = {
       }
     },
   },
-};
+});
 
 export { treeDS, searchCompanyAndDepartmentDS, formDS, employeeTableDS, baseInfoDs };

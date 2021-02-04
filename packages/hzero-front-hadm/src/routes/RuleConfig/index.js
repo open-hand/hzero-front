@@ -20,7 +20,7 @@ import { initDS } from '../../stores/ruleConfigDS';
 
 @formatterCollections({ code: ['hadm.ruleConfig'] })
 export default class ruleConfig extends React.Component {
-  initDs = new DataSet(initDS);
+  initDs = new DataSet(initDS());
 
   get columns() {
     return [

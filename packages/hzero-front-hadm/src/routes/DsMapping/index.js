@@ -13,15 +13,12 @@ import intl from 'utils/intl';
 import formatterCollections from 'utils/intl/formatterCollections';
 import { operatorRender } from 'utils/renderer';
 import Drawer from './Drawer';
-import {
-  tableDs as TableDs,
-  detailDs as DetailDs,
-} from '../../stores/DsMappingDS';
+import { tableDs as TableDs, detailDs as DetailDs } from '../../stores/DsMappingDS';
 
 const DsMapping = ({ match: { path } }) => {
-  const tableDs = React.useMemo(() => new DataSet(TableDs), []);
+  const tableDs = React.useMemo(() => new DataSet(TableDs()), []);
 
-  const detailDs = React.useMemo(() => new DataSet(DetailDs), []);
+  const detailDs = React.useMemo(() => new DataSet(DetailDs()), []);
 
   const columns = React.useMemo(
     () => [
@@ -77,7 +74,7 @@ const DsMapping = ({ match: { path } }) => {
               ),
               len: 2,
               title: intl.get('hzero.common.button.delete').d('删除'),
-            },
+            }
           );
           return operatorRender(operators);
         },

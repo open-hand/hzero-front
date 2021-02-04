@@ -96,8 +96,8 @@ export default class TLEditor extends React.Component {
     const { form, field: fieldName } = this.props;
     const { list, language } = this.state;
     // 设置多语言后，构建编辑的数据结构
-    const newList = Object.keys(data).map(item => {
-      const filterName = list.find(items => item === items.code);
+    const newList = Object.keys(data).map((item) => {
+      const filterName = list.find((items) => item === items.code);
       return { code: item, value: data[item], name: filterName.name || '' };
     });
     this.setState({ text: data[language], list: newList, modalVisible: false });
@@ -123,12 +123,12 @@ export default class TLEditor extends React.Component {
     const { list, text, language, resLangList = [] } = this.state;
     if (Array.isArray(resLangList) && resLangList.length === 0) {
       // 仅调用一次接口，后续更新都使用缓存的语言数据
-      queryTL({ fieldName, _token }).then(res => {
+      queryTL({ fieldName, _token }).then((res) => {
         if (getResponse(res)) {
           this.setState({ resLangList: res });
           this.setCacheList(res, list, language, text);
           const tls = {};
-          res.map(item => {
+          res.map((item) => {
             tls[item.code] = item.value;
             return null;
           });
@@ -223,6 +223,7 @@ export default class TLEditor extends React.Component {
       width,
       inputSize = {},
       className = '',
+      dbc2sbc = false,
       ...otherProps
     } = this.props;
     const { disabled = false } = this.props;
@@ -234,6 +235,7 @@ export default class TLEditor extends React.Component {
       list,
       width,
       inputSize,
+      dbc2sbc,
       onCancel: this.onCancel,
       onOK: this.save,
     };
@@ -256,6 +258,7 @@ export default class TLEditor extends React.Component {
       <>
         <Input
           {...otherProps}
+          dbc2sbc={dbc2sbc}
           onChange={this.onChange}
           value={text}
           className={classNames.join(' ')}

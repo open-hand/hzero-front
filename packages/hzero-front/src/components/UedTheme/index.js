@@ -43,12 +43,16 @@ export default () => {
     }
   }, [config.current.schema]);
   return (
-    <StyleSheetManager target={getStyleSheetTarget('hzero-ued-theme-layout-and-global-style')}>
-      <>
-        {shouldUsePolyfill && <C7nPolyfillStyle theme={theme} />}
-        {config.current && config.current.schema !== 'theme2' && <GlobalStyle theme={theme} />}
+    <>
+      <StyleSheetManager target={getStyleSheetTarget('hzero-ued-c7n-polyfill-style')}>
+        <>{shouldUsePolyfill && <C7nPolyfillStyle theme={theme} />}</>
+      </StyleSheetManager>
+      <StyleSheetManager target={getStyleSheetTarget('hzero-common-global-style')}>
         <HzeroGlobalStyle />
-      </>
-    </StyleSheetManager>
+      </StyleSheetManager>
+      <StyleSheetManager target={getStyleSheetTarget('hzero-ued-theme-layout-and-global-style')}>
+        <>{config.current && config.current.schema !== 'theme2' && <GlobalStyle theme={theme} />}</>
+      </StyleSheetManager>
+    </>
   );
 };

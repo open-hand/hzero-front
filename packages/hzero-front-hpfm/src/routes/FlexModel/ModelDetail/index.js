@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { Component, Fragment } from 'react';
 import { Tabs, Button, Icon, Dropdown, Menu } from 'hzero-ui';
 import { Bind } from 'lodash-decorators';
@@ -61,7 +62,7 @@ export default class ModelDetail extends Component {
       fieldComponent: 'HPFM.CUST.FIELD_COMPONENT',
       modelRelation: 'HPFM.CUST.MODEL_RELATION',
       dateFormat: 'HPFM.CUST.DATE_FORMAT',
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         this.setState({
           fieldTypeOptions: res.fieldType || [],
@@ -81,7 +82,7 @@ export default class ModelDetail extends Component {
         type: 'flexModel/queryModelDetail',
         params,
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           this.setState({
             modelInfo: res || {},
@@ -97,7 +98,7 @@ export default class ModelDetail extends Component {
         type: 'flexModel/queryFieldsList',
         params,
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           this.setState({
             fieldList: res.dataSource,
@@ -113,7 +114,7 @@ export default class ModelDetail extends Component {
         type: 'flexModel/queryModelRelationList',
         params,
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           this.setState({
             relationList: res.dataSource,
@@ -151,7 +152,7 @@ export default class ModelDetail extends Component {
     dispatch({
       type: 'flexModel/removeField',
       params: { fieldId },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.fetchList({ modelId });
@@ -170,7 +171,7 @@ export default class ModelDetail extends Component {
     dispatch({
       type: 'flexModel/deleteRelation',
       params: { relationId },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.fetchRelationList({ modelId });
@@ -192,7 +193,7 @@ export default class ModelDetail extends Component {
         ...params,
         modelId,
       },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         this.fetchList({ modelId });
@@ -214,7 +215,7 @@ export default class ModelDetail extends Component {
           tableName: modelTable,
         },
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           this.setState({ fieldList: res.dataSource });
           notification.success();
@@ -255,7 +256,7 @@ export default class ModelDetail extends Component {
   @Bind()
   handleEditRelation(relationId = '') {
     const { relationList = [] } = this.state;
-    const data = relationList.find(item => item.id === relationId) || {};
+    const data = relationList.find((item) => item.id == relationId) || {};
     this.setState({ relationModelVisible: true, relationModelData: data });
   }
 
@@ -286,7 +287,7 @@ export default class ModelDetail extends Component {
     } = this.props;
     const menu = (
       <Menu onClick={this.handleMenuClick}>
-        {modelRelationOptions.map(item => (
+        {modelRelationOptions.map((item) => (
           <Menu.Item key={item.value}>
             <Icon type="plus" />
             {item.meaning}

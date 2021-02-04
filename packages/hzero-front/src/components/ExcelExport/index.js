@@ -246,11 +246,11 @@ export default class ExcelExport extends React.PureComponent {
       } else {
         downloadFile({ requestUrl, queryParams: params, method }).then((res) => {
           if (res) {
-            this.setState({ exportPending: false });
             if (!isEmpty(config)) {
               this.setState({ checkedKeys: [] });
             }
           }
+          this.setState({ exportPending: false });
         });
       }
     }

@@ -23,7 +23,7 @@ import { tableDS, drawerDS } from '../../stores/WaterMarkConfigDS';
 const isTenant = isTenantRoleLevel();
 @formatterCollections({ code: ['hfile.waterMark'] })
 export default class WaterMarkConfig extends React.Component {
-  tableDs = new DataSet(tableDS);
+  tableDs = new DataSet(tableDS());
 
   drawerDs = null;
 
@@ -120,7 +120,7 @@ export default class WaterMarkConfig extends React.Component {
   @Bind()
   handleEdit(isCreate, record = {}) {
     const { watermarkId } = record;
-    this.drawerDs = new DataSet(drawerDS);
+    this.drawerDs = new DataSet(drawerDS());
     this.drawerDs.create({});
     const drawerProps = {
       isTenant,

@@ -8,7 +8,7 @@ const isTenant = isTenantRoleLevel();
 const apiPrefix = isTenant ? `${HZERO_FILE}/v1/${organizationId}` : `${HZERO_FILE}/v1`;
 
 // 表格ds
-const tableDS = {
+const tableDS = () => ({
   autoQuery: true,
   selection: false,
   dataKey: 'content',
@@ -76,9 +76,9 @@ const tableDS = {
       method: 'GET',
     }),
   },
-};
+});
 
-const drawerDS = {
+const drawerDS = () => ({
   autoQuery: false,
   autoQueryAfterSubmit: false,
   fields: [
@@ -272,6 +272,6 @@ const drawerDS = {
       };
     },
   },
-};
+});
 
 export { tableDS, drawerDS };

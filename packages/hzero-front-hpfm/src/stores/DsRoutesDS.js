@@ -13,7 +13,7 @@ const isTenant = isTenantRoleLevel();
 const apiPrefix = isTenant ? `${HZERO_PLATFORM}/v1/${organizationId}` : `${HZERO_PLATFORM}/v1`;
 
 // 表格ds
-const tableDS = {
+const tableDS = () => ({
   autoQuery: true,
   selection: false,
   dataKey: 'content',
@@ -123,9 +123,9 @@ const tableDS = {
       };
     },
   },
-};
+});
 
-const detailDS = {
+const detailDS = () => ({
   autoQuery: false,
   autoQueryAfterSubmit: false,
   autoCreate: true,
@@ -232,10 +232,10 @@ const detailDS = {
       };
     },
   },
-};
+});
 
 // 详情页面下的表格信息DS
-const detailTableDS = {
+const detailTableDS = () => ({
   selection: false,
   autoQuery: false,
   autoCreate: false,
@@ -267,9 +267,9 @@ const detailTableDS = {
       };
     },
   },
-};
+});
 
-const detailTableDetailDS = {
+const detailTableDetailDS = () => ({
   selection: false,
   autoQuery: false,
   autoCreate: false,
@@ -315,9 +315,9 @@ const detailTableDetailDS = {
       };
     },
   },
-};
+});
 
-const pushTableDS = {
+const pushTableDS = () => ({
   selection: 'multiple',
   autoQuery: false,
   autoCreate: false,
@@ -346,7 +346,7 @@ const pushTableDS = {
     {
       name: 'tenantNum',
       type: 'string',
-      bind: 'tenantLov.tenantId',
+      bind: 'tenantLov.tenantNum',
     },
   ],
   fields: [
@@ -362,6 +362,6 @@ const pushTableDS = {
       method: 'GET',
     }),
   },
-};
+});
 
 export { tableDS, detailDS, detailTableDS, detailTableDetailDS, pushTableDS };

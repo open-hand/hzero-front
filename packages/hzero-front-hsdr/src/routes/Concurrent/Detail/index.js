@@ -11,7 +11,7 @@ import { Card, Col, Form, Input, Row } from 'hzero-ui';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import classNames from 'classnames';
-import { isArray, isEmpty } from 'lodash';
+import { isArray, isEmpty, isNil } from 'lodash';
 import { Bind } from 'lodash-decorators';
 
 import { Content, Header } from 'components/Page';
@@ -23,7 +23,7 @@ import formatterCollections from 'utils/intl/formatterCollections';
 import intl from 'utils/intl';
 import notification from 'utils/notification';
 import { getCurrentOrganizationId } from 'utils/utils';
-import { CODE_UPPER, EMAIL } from 'utils/regExp';
+import { CODE_UPPER } from 'utils/regExp';
 import {
   DETAIL_CARD_CLASSNAME,
   DETAIL_CARD_TABLE_CLASSNAME,
@@ -130,7 +130,7 @@ export default class Detail extends Component {
       if (!err) {
         const anotherParameters = paramList.map((item) => ({
           ...item,
-          concParamId: !isEmpty(item.concParamId) ? item.concParamId : null,
+          concParamId: !isNil(item.concParamId) ? item.concParamId : null,
           tenantId,
         }));
         if (match.params.id === 'create') {
@@ -416,14 +416,6 @@ export default class Detail extends Component {
                   >
                     {getFieldDecorator('alarmEmail', {
                       initialValue: concurrentDetail.alarmEmail,
-                      rules: [
-                        {
-                          pattern: EMAIL,
-                          message: intl
-                            .get('hsdr.concurrent.view.validation.alarmEmail')
-                            .d('格式有误'),
-                        },
-                      ],
                     })(<Input />)}
                   </Form.Item>
                 </Col>

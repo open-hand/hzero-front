@@ -281,14 +281,22 @@ export default class Detail extends Component {
       reportDataSet: { header = {} },
     } = this.props;
     const { queryParams = [], metaColumns = [] } = header;
+    const newQueryParams = queryParams.map((item) => {
+      const { uuid, ...other } = item;
+      return other;
+    });
+    const newMetaColumns = metaColumns.map((item) => {
+      const { uuid, ...other } = item;
+      return other;
+    });
     form.validateFields((err, values) => {
       if (!err) {
         if (isUndefined(match.params.id)) {
           dispatch({
             type: 'reportDataSet/createDataSet', // 新增逻辑
             payload: {
-              queryParams: JSON.stringify(queryParams),
-              metaColumns: JSON.stringify(metaColumns),
+              queryParams: JSON.stringify(newQueryParams),
+              metaColumns: JSON.stringify(newMetaColumns),
               tenantId: tenantRoleLevel ? tenantId : values.tenantId,
               datasourceCode: this.state.datasourceCode,
               ...values,
@@ -308,8 +316,8 @@ export default class Detail extends Component {
             type: 'reportDataSet/updateDataSet', // 更新逻辑
             payload: {
               ...header,
-              queryParams: JSON.stringify(queryParams),
-              metaColumns: JSON.stringify(metaColumns),
+              queryParams: JSON.stringify(newQueryParams),
+              metaColumns: JSON.stringify(newMetaColumns),
               tenantId: tenantRoleLevel ? tenantId : values.tenantId,
               datasourceCode: this.state.datasourceCode,
               ...values,
@@ -380,7 +388,7 @@ export default class Detail extends Component {
     } = this.props;
     const { metaColumns = [], ...otherValues } = header;
     const newList = metaColumns.map((item) => {
-      if (item.ordinal === values.ordinal) {
+      if (item.uuid === values.uuid) {
         return values;
       }
       return item;

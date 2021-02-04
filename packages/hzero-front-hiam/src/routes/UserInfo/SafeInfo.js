@@ -745,11 +745,7 @@ export default class SafeInfo extends React.Component {
               loading={postCaptchaLoading}
               disabled={validCodeSendLimitFlag}
               onClick={() => {
-                this.handleGainValidCodeBtnClick({
-                  type: 'oldEmail',
-                  value: userInfo.email,
-                  businessScope: 'self',
-                });
+                this.handleGainValidCodeBtnClick({ type: 'oldEmail', value: userInfo.email });
               }}
             >
               {validCodeSendLimitFlag ? (
@@ -849,11 +845,7 @@ export default class SafeInfo extends React.Component {
               disabled={validCodeSendLimitFlag}
               loading={postCaptchaLoading}
               onClick={() => {
-                this.handleGainValidCodeBtnClick({
-                  type: 'oldPhone',
-                  value: userInfo.phone,
-                  businessScope: 'self',
-                });
+                this.handleGainValidCodeBtnClick({ type: 'oldPhone', value: userInfo.phone });
               }}
             >
               {validCodeSendLimitFlag ? (
@@ -1054,7 +1046,6 @@ export default class SafeInfo extends React.Component {
                         type: 'newEmail',
                         lastCheckKey,
                         value: fieldsValue.newEmail,
-                        businessScope: 'self',
                       });
                     }
                   });
@@ -1178,7 +1169,6 @@ export default class SafeInfo extends React.Component {
                         this.handleGainValidCodeBtnClick({
                           type: 'oldEmail',
                           value: fieldsValue.oldEmail,
-                          businessScope: 'self',
                         });
                       }
                     });
@@ -1306,7 +1296,6 @@ export default class SafeInfo extends React.Component {
                         type: 'newPhone',
                         lastCheckKey,
                         value: fieldsValue.newPhone,
-                        businessScope: 'self',
                       });
                     }
                   });
@@ -1421,7 +1410,6 @@ export default class SafeInfo extends React.Component {
                       this.handleGainValidCodeBtnClick({
                         type: 'oldPhone',
                         value: fieldsValue.oldPhone,
-                        businessScope: 'self',
                       });
                     }
                   });

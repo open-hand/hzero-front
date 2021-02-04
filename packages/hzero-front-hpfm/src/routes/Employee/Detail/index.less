@@ -27,6 +27,10 @@
   }
 }
 
+.expand-icon {
+  cursor: pointer;
+}
+
 .hpfm-employee-position {
   :global {
     .ant-modal-body {
@@ -34,15 +38,18 @@
     }
   }
   .hr-type-icon {
-    line-height: 24px;
-    display: inline-flex;
+    line-height: 22px;
     vertical-align: inherit;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .hr-type-common {
     background: ~"url('hzero-front/lib/assets/org-type-icon.png')" no-repeat;
     display: inline-flex;
     width: 24px;
     height: 24px;
+    vertical-align: middle;
   }
   .hr-company {
     background-position-x: 1px;

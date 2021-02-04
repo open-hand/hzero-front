@@ -8,6 +8,7 @@
 
 import qs from 'query-string';
 import Cookies, { CookieGetOptions } from 'universal-cookie';
+import { getConfig } from 'hzero-boot';
 
 export const ACCESS_TOKEN = 'access_token';
 export const REFRESH_TOKEN = 'refresh_token';
@@ -24,8 +25,19 @@ export function getAccessToken() {
 }
 
 export function setAccessToken(token) {
+  const patchTokenConfig = getConfig('patchToken' as any);
+  let patchToken;
+  if (patchTokenConfig) {
+    if (typeof patchTokenConfig === 'function') {
+      patchToken = patchTokenConfig(undefined as any);
+    } else {
+      patchToken = patchTokenConfig;
+    }
+  }
+
   cookies.set(ACCESS_TOKEN, token, {
     path: '/',
+    ...patchToken,
   });
 }
 

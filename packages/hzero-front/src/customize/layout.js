@@ -12,11 +12,16 @@ export function loadLayout(layoutName) {
   return defaultLayout;
 }
 
-export function setLayout(layoutName, layout) {
-  mapCustomize.set({
-    module: 'hzero-front',
-    feature: 'layout',
-    key: layoutName,
-    data: { component: layout },
-  });
+export function setLayout(layoutName, layout, cover = false) {
+  if (
+    !mapCustomize.has({ module: 'hzero-front', feature: 'layout', key: layoutName }) ||
+    (cover && mapCustomize.has({ module: 'hzero-front', feature: 'layout', key: layoutName }))
+  ) {
+    mapCustomize.set({
+      module: 'hzero-front',
+      feature: 'layout',
+      key: layoutName,
+      data: { component: layout },
+    });
+  }
 }

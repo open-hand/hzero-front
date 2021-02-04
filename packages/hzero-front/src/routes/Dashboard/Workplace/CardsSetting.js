@@ -42,23 +42,23 @@ export default class CardsSetting extends React.Component {
     const { visible: prevVisible } = prevProps;
     const { visible, loadAssignableCards } = this.props;
     if (prevVisible === false && visible === true) {
-      loadAssignableCards().then(res => {
+      loadAssignableCards().then((res) => {
         if (res) {
           // 由隐藏状态变为显示状态, 计算当前 卡片设置的 state
           const { prevRoleCards, roleCards, layout, catalogType, isInitCard } = this.props;
           const editCards = {};
-          catalogType.forEach(catalog => {
+          catalogType.forEach((catalog) => {
             editCards[catalog.value] = {
               cards: [],
             };
           });
-          roleCards.forEach(card => {
+          roleCards.forEach((card) => {
             // 卡片可能没有分配
             const cardId = String(card.cardId);
-            const layoutCard = layout.find(insertCard => insertCard.i === cardId);
+            const layoutCard = layout.find((insertCard) => insertCard.i === cardId);
             const editCard = { ...card, ...layoutCard };
             editCard.isNew = prevRoleCards
-              ? !prevRoleCards.some(prevCard => String(prevCard.cardId) === cardId)
+              ? !prevRoleCards.some((prevCard) => String(prevCard.cardId) === cardId)
               : false;
             editCard.isInsert = !!layoutCard;
             editCard.isInit = isInitCard(cardId);
@@ -88,7 +88,7 @@ export default class CardsSetting extends React.Component {
   }
 
   componentWillUnmount() {
-    forEach(this.timer, timer => {
+    forEach(this.timer, (timer) => {
       clearTimeout(timer);
     });
   }
@@ -106,7 +106,7 @@ export default class CardsSetting extends React.Component {
         style={modalStyle}
         wrapClassName="ant-modal-sidebar-right"
         transitionName="move-right"
-        className={styles['card-setting']}
+        className={[styles['card-setting'], 'hzero-dashboard-card-setting'].join(' ')}
         visible={visible}
         onCancel={onCancel}
         footer={null}
@@ -119,7 +119,7 @@ export default class CardsSetting extends React.Component {
   renderCatalogTypeRow() {
     const { catalogType = [] } = this.props;
     const { editCards } = this.state;
-    return catalogType.map(catalog => {
+    return catalogType.map((catalog) => {
       const rowData = editCards[catalog.value];
       if (rowData && rowData.cards.length > 0) {
         return (
@@ -130,7 +130,7 @@ export default class CardsSetting extends React.Component {
             <Row
               gutter={16}
               key={catalog.value}
-              className={styles['card-row']}
+              className={[styles['card-row'], 'hzero-dashboard-card-row'].join(' ')}
               type="flex"
               justify="start"
             >
@@ -144,12 +144,12 @@ export default class CardsSetting extends React.Component {
   }
 
   renderCatalogTypeCols(catalog, cards) {
-    return cards.map(card => (
-      <Col key={card.cardId} className={styles['card-col']}>
+    return cards.map((card) => (
+      <Col key={card.cardId} className={[styles['card-col'], 'hzero-dashboard-card-col'].join(' ')}>
         <Tag.CheckableTag
           key="is-insert"
-          className={styles['card-col-tag']}
-          onChange={checked => this.handleCardInsertChange(card, catalog, checked)}
+          className={[styles['card-col-tag'], 'hzero-dashboard-card-col-tag'].join(' ')}
+          onChange={(checked) => this.handleCardInsertChange(card, catalog, checked)}
           checked={card.isInsert}
           disabled={card.isInit}
         >
@@ -166,7 +166,7 @@ export default class CardsSetting extends React.Component {
   handleCardInsertChange(card, catalog, checked) {
     const { editCards } = this.state;
     const { cards = [] } = editCards[catalog.value];
-    const newCards = cards.map(record => {
+    const newCards = cards.map((record) => {
       if (record.cardId === card.cardId) {
         return {
           ...record,

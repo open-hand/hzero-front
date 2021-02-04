@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/state-in-constructor */
@@ -29,6 +30,7 @@ import {
   getFieldNameAlias,
   getAddFieldAlias,
   getEditFieldAlias,
+  getDefaultActiveAlias,
   getSingleTenantValueCode,
 } from '@/utils/constConfig.js';
 import styles from '../style/index.less';
@@ -38,6 +40,10 @@ const { Option } = Select;
 const formsLayouts = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
+};
+const formLayout2 = {
+  labelCol: { span: 9 },
+  wrapperCol: { span: 15 },
 };
 
 @Form.create({ fieldNameProp: null })
@@ -53,7 +59,7 @@ export default class Modal extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.visible === false && this.props.visible === true) {
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ backUpParamList: ((this.props.data || {}).paramList || []).map(i => i) });
+      this.setState({ backUpParamList: ((this.props.data || {}).paramList || []).map((i) => i) });
     }
   }
 
@@ -69,7 +75,7 @@ export default class Modal extends Component {
             ...values,
             unitId: id,
           },
-        }).then(res => {
+        }).then((res) => {
           if (res) {
             notification.success();
             fetchUnitDetail({ unitId: id });
@@ -89,10 +95,10 @@ export default class Modal extends Component {
       fieldId,
       field: { model },
     } = data;
-    form.validateFields(err => {
+    form.validateFields((err) => {
       if (!err) {
         const fieldAlias =
-          form.getFieldValue('isModelField') === 1
+          form.getFieldValue('isModelField') == 1
             ? form.getFieldValue('fieldAlias')
             : data.fieldAlias;
         dispatch({
@@ -104,7 +110,7 @@ export default class Modal extends Component {
             fieldId,
             fieldAlias,
           },
-        }).then(res => {
+        }).then((res) => {
           if (res) {
             notification.success();
             fetchUnitDetail({ unitId });
@@ -119,17 +125,16 @@ export default class Modal extends Component {
   renderOtherOptions() {
     const { unitInfo = {}, form, data = {}, gridFixedOptions = [] } = this.props;
     const { getFieldDecorator = () => {} } = form;
-    const { formRow, formCol, gridSeq, gridFixed } = data;
+    const { formRow, formCol, gridSeq, gridFixed, rowSpan, colSpan } = data;
     const { unitType } = unitInfo;
     const isFormType = unitType === 'FORM' || unitType === 'QUERYFORM';
     if (isFormType) {
       return (
-        <Row>
+        <Row className={styles['unit-editor-form2']}>
           <Col span={11}>
             <FormItem
               label={`${intl.get('hpfm.individuationUnit.model.individuationUnit.row').d('行')}:`}
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
+              {...formLayout2}
             >
               {getFieldDecorator('formRow', {
                 initialValue: formRow,
@@ -139,12 +144,31 @@ export default class Modal extends Component {
           <Col span={11} offset={2}>
             <FormItem
               label={`${intl.get('hpfm.individuationUnit.model.individuationUnit.col').d('列')}:`}
-              labelCol={{ span: 4 }}
-              wrapperCol={{ span: 20 }}
+              {...formLayout2}
             >
               {getFieldDecorator('formCol', {
                 initialValue: formCol,
               })(<InputNumber style={{ width: '100%' }} />)}
+            </FormItem>
+          </Col>
+          <Col span={11}>
+            <FormItem
+              label={intl.get('hpfm.individual.model.config.rowSpan').d('跨行')}
+              {...formLayout2}
+            >
+              {form.getFieldDecorator('rowSpan', {
+                initialValue: rowSpan || 1,
+              })(<InputNumber style={{ width: '100%' }} precision={0} min={1} />)}
+            </FormItem>
+          </Col>
+          <Col span={11} offset={2}>
+            <FormItem
+              label={intl.get('hpfm.individual.model.config.colSpan').d('跨列')}
+              {...formLayout2}
+            >
+              {form.getFieldDecorator('colSpan', {
+                initialValue: colSpan || 1,
+              })(<InputNumber style={{ width: '100%' }} precision={0} min={1} />)}
             </FormItem>
           </Col>
         </Row>
@@ -152,12 +176,11 @@ export default class Modal extends Component {
     }
     if (unitType === 'GRID') {
       return (
-        <Row>
+        <Row className={styles['unit-editor-form2']}>
           <Col span={11}>
             <FormItem
               label={intl.get('hpfm.individuationUnit.model.individuationUnit.position').d('位置')}
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
+              {...formLayout2}
             >
               {getFieldDecorator('gridSeq', {
                 initialValue: gridSeq,
@@ -167,14 +190,13 @@ export default class Modal extends Component {
           <Col span={11} offset={2}>
             <FormItem
               label={intl.get('hpfm.individuationUnit.model.individuationUnit.fixed').d('冻结')}
-              labelCol={{ span: 6 }}
-              wrapperCol={{ span: 18 }}
+              {...formLayout2}
             >
               {getFieldDecorator('gridFixed', {
                 initialValue: gridFixed,
               })(
                 <Select allowClear style={{ width: '100%' }}>
-                  {gridFixedOptions.map(item => (
+                  {gridFixedOptions.map((item) => (
                     <Option value={item.value}>{item.meaning}</Option>
                   ))}
                 </Select>
@@ -194,13 +216,13 @@ export default class Modal extends Component {
         </Row>
       );
     }
-    if (unitType === 'FILTER' || unitType === 'TABPANE') {
+    if (unitType === 'FILTER' || unitType === 'TABPANE' || unitType === 'COLLAPSE') {
       return (
-        <Row className={styles['grid-row-filter']}>
-          <Col span={12}>
+        <Row className={styles['unit-editor-form2']}>
+          <Col span={11}>
             <FormItem
               label={intl.get('hpfm.individuationUnit.model.individuationUnit.position').d('位置')}
-              {...formsLayouts}
+              {...formLayout2}
             >
               {getFieldDecorator('gridSeq', {
                 initialValue: gridSeq,
@@ -264,11 +286,16 @@ export default class Modal extends Component {
     const {
       field = {},
       modelId,
+      fieldVisible,
+      fieldRequired,
+      fieldEditable,
       fieldName,
       fieldCode,
       fieldAlias,
       labelCol,
       wrapperCol,
+      defaultActive,
+      bindField,
       renderOptions: fieldRenderOptions,
     } = data;
     const { paramVisible } = this.state;
@@ -287,15 +314,15 @@ export default class Modal extends Component {
         destroyOnClose
         onClose={this.handleClose}
       >
-        <Form layout="inline" className={styles['unit-editor-form']}>
+        <Form className={styles['unit-editor-form2']}>
           <FormItem style={{ display: isCreate && !pureVirtual ? 'block' : 'none' }}>
             {getFieldDecorator('isModelField', {
-              initialValue: pureVirtual || (!isCreate && modelId === -1) ? 0 : 1,
+              initialValue: pureVirtual || (!isCreate && modelId == -1) ? 0 : 1,
             })(
               <Checkbox
                 checkedValue={1}
                 unCheckedValue={0}
-                onChange={v =>
+                onChange={(v) =>
                   setFieldsValue({
                     modelId: !v.target.checked ? -1 : (relationModals[0] || {}).modelId,
                   })
@@ -307,18 +334,34 @@ export default class Modal extends Component {
               </Checkbox>
             )}
           </FormItem>
+          <FormItem
+            label={getDefaultActiveAlias(unitType)}
+            labelCol={{ span: 9 }}
+            wrapperCol={{ span: 15 }}
+            style={{ display: pureVirtual ? 'block' : 'none' }}
+          >
+            {getFieldDecorator('defaultActive', {
+              initialValue: isCreate ? -1 : defaultActive,
+            })(
+              <Select style={{ width: '100%' }}>
+                {condOptions.map((item) => (
+                  <Option value={Number(item.value)}>{item.meaning}</Option>
+                ))}
+              </Select>
+            )}
+          </FormItem>
         </Form>
         <Form layout="vertical" className={styles['unit-editor-form']}>
           <FormItem
             label={intl
               .get('hpfm.individuationUnit.model.individuationUnit.modelName')
               .d('所属模型')}
-            style={{ display: getFieldValue('isModelField') === 1 ? 'block' : 'none' }}
+            style={{ display: getFieldValue('isModelField') == 1 ? 'block' : 'none' }}
           >
             {getFieldDecorator('modelId', {
               initialValue:
-                getFieldValue('isModelField') === 0
-                  ? modelId
+                getFieldValue('isModelField') == 0
+                  ? -1
                   : !isCreate
                   ? modelName
                   : (relationModals[0] || {}).modelId,
@@ -343,7 +386,7 @@ export default class Modal extends Component {
                 <Input disabled />
               ) : (
                 <Select>
-                  {relationModals.map(item => (
+                  {relationModals.map((item) => (
                     <Option value={item.modelId}>{item.modelName}</Option>
                   ))}
                 </Select>
@@ -351,9 +394,9 @@ export default class Modal extends Component {
             )}
           </FormItem>
           <FormItem label={getFieldCodeAlias(unitType)}>
-            {getFieldValue('isModelField') === 1
+            {getFieldValue('isModelField') == 1
               ? getFieldDecorator('fieldId', {
-                  initialValue: getFieldValue('isModelField') === 0 ? -1 : !isCreate && fieldCode,
+                  initialValue: getFieldValue('isModelField') == 0 ? -1 : !isCreate && fieldCode,
                   rules: [
                     {
                       required: isCreate,
@@ -379,7 +422,7 @@ export default class Modal extends Component {
                   )
                 )
               : getFieldDecorator('fieldId', { initialValue: -1 })}
-            {getFieldValue('isModelField') === 0 &&
+            {getFieldValue('isModelField') == 0 &&
               getFieldDecorator('fieldCode', {
                 initialValue: fieldCode,
                 rules: [
@@ -407,7 +450,7 @@ export default class Modal extends Component {
               ],
             })(<Input />)}
           </FormItem>
-          {getFieldValue('isModelField') === 1 ? (
+          {getFieldValue('isModelField') == 1 ? (
             <FormItem
               label={intl
                 .get('hpfm.individuationUnit.model.individuationUnit.fieldAlias')
@@ -422,11 +465,21 @@ export default class Modal extends Component {
             label={intl
               .get('hpfm.individuationUnit.model.individuationUnit.fieldType')
               .d('字段类型')}
-            style={{ display: getFieldValue('isModelField') === 1 ? 'block' : 'none' }}
+            style={{ display: getFieldValue('isModelField') == 1 ? 'block' : 'none' }}
           >
             {getFieldDecorator('fieldCategoryMeaning', {
               initialValue: !isCreate ? fieldCategoryMeaning : '',
             })(<Input disabled />)}
+          </FormItem>
+          <FormItem
+            label={intl
+              .get('hpfm.individuationUnit.model.individuationUnit.bindField')
+              .d('字段绑定')}
+            style={{ display: !pureVirtual ? 'block' : 'none' }}
+          >
+            {getFieldDecorator('bindField', {
+              initialValue: bindField,
+            })(<Input trim inputChinese={false} />)}
           </FormItem>
           {isFormType ? (
             <FormItem
@@ -445,7 +498,7 @@ export default class Modal extends Component {
                     .get('hpfm.individuationUnit.model.individuationUnit.label')
                     .d('标签')}
                 >
-                  {colOptions.map(i => (
+                  {colOptions.map((i) => (
                     <Option value={i}>{i}</Option>
                   ))}
                 </Select>
@@ -461,7 +514,7 @@ export default class Modal extends Component {
                     .get('hpfm.individuationUnit.model.individuationUnit.wrapper')
                     .d('组件')}
                 >
-                  {colOptions.map(i => (
+                  {colOptions.map((i) => (
                     <Option value={i}>{i}</Option>
                   ))}
                 </Select>
@@ -472,16 +525,13 @@ export default class Modal extends Component {
             label={intl
               .get('hpfm.individuationUnit.model.individuationUnit.renderType')
               .d('渲染方式')}
-            style={{
-              display: getFieldValue('isModelField') === 1 ? 'block' : 'none',
-            }}
           >
             {getFieldDecorator('renderOptions', {
               initialValue:
-                getFieldValue('isModelField') === 1 ? fieldRenderOptions || 'WIDGET' : 'TEXT',
+                getFieldValue('isModelField') == 1 ? fieldRenderOptions || 'WIDGET' : 'TEXT',
               rules: [
                 {
-                  required: getFieldValue('isModelField') === 1,
+                  required: getFieldValue('isModelField') == 1,
                   message: intl
                     .get('hzero.common.validation.notNull', {
                       name: intl
@@ -497,7 +547,7 @@ export default class Modal extends Component {
               ],
             })(
               <Select>
-                {renderOptions.map(item => {
+                {renderOptions.map((item) => {
                   if (isCreate && readOnly && item.value === 'FORM') {
                     return null;
                   }
@@ -512,24 +562,28 @@ export default class Modal extends Component {
               .d('组件类型')}
             style={{ display: getFieldValue('renderOptions') === 'WIDGET' ? 'block' : 'none' }}
           >
-            <Select disabled value={((data.field || {}).modelFieldWidget || {}).fieldWidget}>
-              {widgetType.map(item => (
-                <Option value={item.value}>{item.meaning}</Option>
-              ))}
-            </Select>
+            {getFieldDecorator('fieldWidget', {
+              initialValue: ((data.field || {}).modelFieldWidget || {}).fieldWidget,
+            })(
+              <Select disabled={getFieldValue('isModelField') == 1}>
+                {widgetType.map((item) => (
+                  <Option value={item.value}>{item.meaning}</Option>
+                ))}
+              </Select>
+            )}
           </FormItem>
         </Form>
-        <Form className={styles['unit-editor-form']} style={{ width: '50%', display: 'none' }}>
+        <Form className={styles['unit-editor-form2']} style={{ width: '69%' }}>
           <FormItem
             {...formsLayouts}
             label={intl.get('hpfm.individuationUnit.model.individuationUnit.visible').d('显示')}
             style={{ marginBottom: 0 }}
           >
             {getFieldDecorator('fieldVisible', {
-              initialValue: -1,
+              initialValue: fieldVisible === undefined ? -1 : fieldVisible,
             })(
               <Select style={{ width: '93%' }}>
-                {condOptions.map(item => (
+                {condOptions.map((item) => (
                   <Option value={Number(item.value)}>{item.meaning}</Option>
                 ))}
               </Select>
@@ -540,17 +594,17 @@ export default class Modal extends Component {
             label={intl.get('hpfm.individuationUnit.model.individuationUnit.editable').d('编辑')}
             style={{
               display:
-                getFieldValue('renderOptions') === 'WIDGET' && getFieldValue('isModelField') === 1
+                getFieldValue('renderOptions') === 'WIDGET' && getFieldValue('isModelField') == 1
                   ? 'block'
                   : 'none',
               marginBottom: 0,
             }}
           >
             {getFieldDecorator('fieldEditable', {
-              initialValue: -1,
+              initialValue: fieldEditable === undefined ? -1 : fieldEditable,
             })(
               <Select style={{ width: '93%' }}>
-                {condOptions.map(item => (
+                {condOptions.map((item) => (
                   <Option value={Number(item.value)}>{item.meaning}</Option>
                 ))}
               </Select>
@@ -561,24 +615,24 @@ export default class Modal extends Component {
             label={intl.get('hpfm.individuationUnit.model.individuationUnit.required').d('必输')}
             style={{
               display:
-                getFieldValue('renderOptions') === 'WIDGET' && getFieldValue('isModelField') === 1
+                getFieldValue('renderOptions') === 'WIDGET' && getFieldValue('isModelField') == 1
                   ? 'block'
                   : 'none',
               marginBottom: 0,
             }}
           >
             {getFieldDecorator('fieldRequired', {
-              initialValue: -1,
+              initialValue: fieldRequired === undefined ? -1 : fieldRequired,
             })(
               <Select style={{ width: '93%' }}>
-                {condOptions.map(item => (
+                {condOptions.map((item) => (
                   <Option value={Number(item.value)}>{item.meaning}</Option>
                 ))}
               </Select>
             )}
           </FormItem>
         </Form>
-        <Form className={styles['unit-editor-form']} style={{ marginBottom: 50 }}>
+        <Form style={{ marginBottom: 50 }}>
           {this.renderOtherOptions()}
           {((data.field || {}).modelFieldWidget || {}).fieldWidget === 'LOV' && (
             <Row>

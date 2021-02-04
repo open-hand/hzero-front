@@ -41,7 +41,7 @@ class TopLayout extends React.Component {
     // 清除首屏loading
     const loader = document.querySelector('#loader-wrapper');
     if (loader) {
-      document.body.removeChild(loader);
+      loader.parentNode.removeChild(loader);
       // 设置默认页面加载动画
       dynamic.setDefaultLoadingComponent(() => <LoadingBar />);
     }

@@ -344,7 +344,6 @@ export default class DrawerForm extends PureComponent {
             type="primary"
             loading={processing.save || false}
             onClick={() => (rangeId !== undefined ? this.update() : this.create())}
-            disabled={editableFlag === 0}
           >
             {intl.get('hzero.common.button.ok').d('确定')}
           </Button>
@@ -688,7 +687,7 @@ export default class DrawerForm extends PureComponent {
                       }),
                     },
                   ],
-                })(<Input trim inputChinese={false} />)}
+                })(<Input disabled={editableFlag === 0} trim inputChinese={false} />)}
               </FormItem>
               <FormItem
                 label={intl.get('hpfm.permission.model.permission.sqlId').d('SQLID')}
@@ -704,7 +703,7 @@ export default class DrawerForm extends PureComponent {
                       }),
                     },
                   ],
-                })(<Input />)}
+                })(<Input disabled={editableFlag === 0} />)}
               </FormItem>
               {!isTenantRoleLevel() && (
                 <FormItem
@@ -724,7 +723,7 @@ export default class DrawerForm extends PureComponent {
                   })(
                     <Lov
                       textValue={tenantName}
-                      disabled={rangeId !== undefined}
+                      disabled={rangeId !== undefined || editableFlag === 0}
                       code="HPFM.TENANT"
                     />
                   )}
@@ -747,6 +746,7 @@ export default class DrawerForm extends PureComponent {
                 })(
                   <Lov
                     textValue={serviceName}
+                    disabled={editableFlag === 0}
                     code={isSiteFlag ? 'HADM.ROUTE.SERVICE_CODE' : 'HADM.ROUTE.SERVICE_CODE.ORG'}
                   />
                 )}
@@ -755,7 +755,7 @@ export default class DrawerForm extends PureComponent {
                 {getFieldDecorator('enabledFlag', {
                   initialValue: enabledFlag === 1,
                   valuePropName: 'checked',
-                })(<Switch />)}
+                })(<Switch disabled={editableFlag === 0} />)}
               </FormItem>
               <FormItem
                 label={intl
@@ -766,7 +766,7 @@ export default class DrawerForm extends PureComponent {
                 {getFieldDecorator('customRuleFlag', {
                   initialValue: customRuleFlag === 1,
                   valuePropName: 'checked',
-                })(<Switch />)}
+                })(<Switch disabled={editableFlag === 0} />)}
               </FormItem>
               <FormItem
                 label={intl.get('hpfm.permission.model.permission.description').d('描述')}
@@ -782,7 +782,7 @@ export default class DrawerForm extends PureComponent {
                       }),
                     },
                   ],
-                })(<Input />)}
+                })(<Input disabled={editableFlag === 0} />)}
               </FormItem>
             </Form>
             {rangeId !== undefined && (

@@ -78,3 +78,13 @@ export async function refresh(params) {
     body: params,
   });
 }
+
+function languageApi() {
+  return isTenantRoleLevel() ? `${tenantId}/languages` : 'languages';
+}
+
+export async function queryLanguage() {
+  return request(`${HZERO_PLATFORM}/v1/${languageApi()}`, {
+    method: 'GET',
+  });
+}

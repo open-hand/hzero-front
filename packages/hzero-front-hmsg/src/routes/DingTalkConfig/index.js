@@ -33,9 +33,9 @@ export default class DingTalkConfig extends React.Component {
     };
   }
 
-  tableDs = new DataSet(tableDs);
+  tableDs = new DataSet(tableDs());
 
-  detailDs = new DataSet(detailDs);
+  detailDs = new DataSet(detailDs());
 
   get columns() {
     return [

@@ -253,7 +253,9 @@ export async function initiateAsyncExport(params) {
   let newUrl = !url.startsWith('/api') && !url.startsWith('http') ? `${API_HOST}${url}` : url;
   if (queryParams && Object.keys(queryParams).length >= 1) {
     queryParams.forEach((item) => {
-      newUrl += `${newUrl.indexOf('?') >= 0 ? '&' : '?'}${item.name}=${item.value}`;
+      newUrl += `${newUrl.indexOf('?') >= 0 ? '&' : '?'}${item.name}=${encodeURIComponent(
+        item.value
+      )}`;
     });
   }
   const res = request(newUrl, {

@@ -21,7 +21,11 @@ class DefaultLayoutAction extends Component {
     // 清除首屏loading
     const loader = document.querySelector('#loader-wrapper');
     if (loader) {
-      document.body.removeChild(loader);
+      try {
+        loader.parentNode.removeChild(loader);
+      } catch (e) {
+        loader.remove();
+      }
       // 设置默认页面加载动画
       dynamic.setDefaultLoadingComponent(() => <LoadingBar />);
     }

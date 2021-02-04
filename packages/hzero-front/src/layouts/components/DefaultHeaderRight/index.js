@@ -21,7 +21,7 @@ class DefaultHeaderRight extends React.Component {
   config = getEnvConfig();
 
   render() {
-    const { extraHeaderRight = null, dispatch } = this.props;
+    const { extraHeaderRight = [], dispatch } = this.props;
     const {
       // WEBSOCKET_URL,
       TRACE_LOG_ENABLE,
@@ -37,6 +37,15 @@ class DefaultHeaderRight extends React.Component {
     // } else {
     //   hasWebsocketUrl = false;
     // }
+
+    let _extraHeaderRight;
+    if (extraHeaderRight) {
+      if (Array.isArray(extraHeaderRight)) {
+        _extraHeaderRight = extraHeaderRight;
+      } else {
+        _extraHeaderRight = [extraHeaderRight];
+      }
+    }
 
     let isTraceLog = false;
     try {
@@ -61,7 +70,11 @@ class DefaultHeaderRight extends React.Component {
 
     return (
       <>
-        {extraHeaderRight}
+        {_extraHeaderRight.map((eleOrComponent) =>
+          React.isValidElement(eleOrComponent)
+            ? eleOrComponent
+            : React.createElement(eleOrComponent)
+        )}
         {hasMultiLanguage && <DefaultLanguageSelect key="language-switch" />}
         {isTraceLog && <DefaultTraceLog dispatch={dispatch} />}
         {isUed && <ThemeButton />}

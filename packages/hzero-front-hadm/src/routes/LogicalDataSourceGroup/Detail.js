@@ -33,12 +33,12 @@ const Detail = (props) => {
   } = props;
 
   const [isCreate, setIsCreate] = useState(true);
-  const formDs = useMemo(() => new DataSet(formDS), []);
-  const orderDs = useMemo(() => new DataSet(orderDS), []);
-  const drawerDs = useMemo(() => new DataSet(drawerDS), []);
-  const setDefaultDs = useMemo(() => new DataSet(setDefaultDS), []);
-  const dataSourceListDs = useMemo(() => new DataSet(dataSourceListDS), []);
-  const dataSourceFormDs = useMemo(() => new DataSet(dataSourceFormDS), []);
+  const formDs = useMemo(() => new DataSet(formDS()), []);
+  const orderDs = useMemo(() => new DataSet(orderDS()), []);
+  const drawerDs = useMemo(() => new DataSet(drawerDS()), []);
+  const setDefaultDs = useMemo(() => new DataSet(setDefaultDS()), []);
+  const dataSourceListDs = useMemo(() => new DataSet(dataSourceListDS()), []);
+  const dataSourceFormDs = useMemo(() => new DataSet(dataSourceFormDS()), []);
 
   useEffect(() => {
     const {

@@ -99,11 +99,8 @@ export default class EditForm extends Component {
     const { editValue, valueListHeader } = this.state;
     const { lovId, lovCode, tenantId } = valueListHeader;
     let { startDateActive, endDateActive } = fieldsValue;
-    startDateActive = startDateActive
-      ? moment(startDateActive).format(DEFAULT_DATETIME_FORMAT)
-      : '';
-    endDateActive = startDateActive ? moment(endDateActive).format(DEFAULT_DATETIME_FORMAT) : '';
-
+    startDateActive = startDateActive && moment(startDateActive).format(DEFAULT_DATETIME_FORMAT);
+    endDateActive = endDateActive && moment(endDateActive).format(DEFAULT_DATETIME_FORMAT);
     dispatch({
       type: 'valueList/saveLovValues',
       payload: {

@@ -23,7 +23,7 @@ export default class UserModal extends PureComponent {
     const { onSearch, form } = this.props;
     const fieldValues = form.getFieldsValue();
     if (onSearch) {
-      form.validateFields(err => {
+      form.validateFields((err) => {
         if (!err) {
           // 如果验证成功,则执行onSearch
           onSearch({ ...fieldValues, page: fields });
@@ -89,7 +89,7 @@ export default class UserModal extends PureComponent {
           </Form.Item>
           <Form.Item>
             <Button data-code="reset" onClick={this.handleFormReset}>
-              {intl.get('hzero.common.status.reset').d('重置')}
+              {intl.get('hzero.common.button.reset').d('重置')}
             </Button>
             <Button
               data-code="search"
@@ -98,7 +98,7 @@ export default class UserModal extends PureComponent {
               onClick={() => this.handleSearch()}
               style={{ marginLeft: 8 }}
             >
-              {intl.get('hzero.common.status.search').d('查询')}
+              {intl.get('hzero.common.button.search').d('查询')}
             </Button>
           </Form.Item>
         </Form>
@@ -113,7 +113,7 @@ export default class UserModal extends PureComponent {
             selectedRowKeys,
             onChange,
           }}
-          onChange={page => this.handleSearch(page)}
+          onChange={(page) => this.handleSearch(page)}
         />
       </Modal>
     );

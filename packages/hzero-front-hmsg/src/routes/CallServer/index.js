@@ -23,7 +23,7 @@ import { tableDs, detailDs, formConfigDs } from '../../stores/CallServerDS';
 
 const tenantId = getCurrentOrganizationId();
 
-const newDetailDs = new DataSet(detailDs);
+const newDetailDs = new DataSet(detailDs());
 
 @formatterCollections({ code: ['hmsg.callServer', 'entity.tenant', 'hmsg.common'] })
 export default class CallServer extends React.Component {
@@ -34,9 +34,9 @@ export default class CallServer extends React.Component {
     };
   }
 
-  formConfigDs = new DataSet(formConfigDs);
+  formConfigDs = new DataSet(formConfigDs());
 
-  tableDs = new DataSet(tableDs);
+  tableDs = new DataSet(tableDs());
 
   get columns() {
     return [

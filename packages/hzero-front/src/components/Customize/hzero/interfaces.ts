@@ -43,6 +43,7 @@ export interface FieldConfig {
   fixed?: string;
   width?: number;
   fieldType?: string;
+  defaultActive?: number;
   required?: number;
   editable?: number;
   visible?: number;
@@ -70,6 +71,7 @@ export interface FieldConfig {
   renderOptions?: string;
   dateFormat?: string;
   conValidDTO?: ConValid;
+  defaultValueCon?: ConValid;
   conditionHeaderDTOs?: ConditionHeaderDTO[];
   selfValid?: Function; // 非接口返回属性
   paramList?: ParamList[];

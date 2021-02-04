@@ -5,6 +5,18 @@
  * @copyright Copyright (c) 2018, Hand
  */
 
+import { getConfig } from 'hzero-boot';
+
+let phone = '';
+const phoneReg = getConfig('phoneReg');
+if (phoneReg) {
+  if (typeof phoneReg === 'function') {
+    phone = phoneReg();
+  } else {
+    phone = phoneReg;
+  }
+}
+
 /**
  * 验证 邮箱
  * 提示: intl.get('hzero.common.validation.email').d('邮箱格式不正确')
@@ -15,7 +27,9 @@ export const EMAIL = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0
  * 验证 手机,
  * 提示: intl.get('hzero.common.validation.phone').d('手机格式不正确')
  */
-export const PHONE = /^134[0-8]\d{7}$|^13[^4]\d{8}$|^14[5-9]\d{8}$|^15[^4]\d{8}$|^16[6]\d{8}$|^17[0-8]\d{8}$|^18[\d]{9}$|^19[8,9]\d{8}$/;
+export const PHONE =
+  phone ||
+  /^134[0-8]\d{7}$|^13[^4]\d{8}$|^14[5-9]\d{8}$|^15[^4]\d{8}$|^16[6]\d{8}$|^17[0-8]\d{8}$|^18[\d]{9}$|^19[8,9]\d{8}$/;
 
 /**
  * 验证 字符串 前后 必须为 非空白字符

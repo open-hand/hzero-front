@@ -246,25 +246,29 @@ export default class CardManage extends React.Component {
             dataSource={dataSource}
           />
         </Content>
-        <CardEditModal
-          {...cardEditModalProps}
-          confirmLoading={cardEditModalLoading}
-          detailLoading={detailLoading}
-          catalogType={catalogType}
-          fdLevel={fdLevel}
-          onOk={this.handleCardEditModalOk}
-          onCancel={this.handleCardEditModalCancel}
-        />
-        <CardTenantEditModal
-          {...cardTenantEditModalProps}
-          path={path}
-          confirmLoading={cardTenantEditModalLoading}
-          onOk={this.handleCardTenantEditModalOk}
-          onCancel={this.handleCardTenantEditModalCancel}
-          onFetchCardTenants={this.handleFetchCardTends}
-          onRemoveCardTenants={this.handleRemoveCardTenants}
-          fetchCardTenantsLoading={cardTenantEditModalTableLoading}
-        />
+        {cardEditModalProps.modalProps.visible && (
+          <CardEditModal
+            {...cardEditModalProps}
+            confirmLoading={cardEditModalLoading}
+            detailLoading={detailLoading}
+            catalogType={catalogType}
+            fdLevel={fdLevel}
+            onOk={this.handleCardEditModalOk}
+            onCancel={this.handleCardEditModalCancel}
+          />
+        )}
+        {cardTenantEditModalProps.modalProps.visible && (
+          <CardTenantEditModal
+            {...cardTenantEditModalProps}
+            path={path}
+            confirmLoading={cardTenantEditModalLoading}
+            onOk={this.handleCardTenantEditModalOk}
+            onCancel={this.handleCardTenantEditModalCancel}
+            onFetchCardTenants={this.handleFetchCardTends}
+            onRemoveCardTenants={this.handleRemoveCardTenants}
+            fetchCardTenantsLoading={cardTenantEditModalTableLoading}
+          />
+        )}
       </React.Fragment>
     );
   }
@@ -301,7 +305,7 @@ export default class CardManage extends React.Component {
         ...params,
         ...pagination,
       },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         this.setState({
           dataSource: res.content,
@@ -380,7 +384,7 @@ export default class CardManage extends React.Component {
       payload: {
         dashboardCardId: record.id,
       },
-    }).then(res => {
+    }).then((res) => {
       this.setState({
         cardEditModalProps: {
           editRecord: res || {}, // 编辑的数据
@@ -413,7 +417,7 @@ export default class CardManage extends React.Component {
           ...cardEditModalProps.editRecord,
           ...formFields,
         },
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           // 成功
@@ -424,7 +428,7 @@ export default class CardManage extends React.Component {
       dispatch({
         type: 'cardManage/cardCreate', // 卡片新建
         payload: formFields,
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           // 成功
@@ -496,7 +500,7 @@ export default class CardManage extends React.Component {
     return dispatch({
       type: 'cardManage/cardTenantAdd',
       payload,
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         notification.success();
         // 成功 关闭模态框 不需要刷新页面

@@ -12,7 +12,7 @@ import {
   Select,
 } from 'hzero-ui';
 import moment from 'moment';
-import { isArray, isEmpty, isFunction } from 'lodash';
+import { isArray, isEmpty, isFunction, isUndefined } from 'lodash';
 import qs from 'querystring';
 import { Bind } from 'lodash-decorators';
 
@@ -22,6 +22,7 @@ import {
   getResponse,
   getDateFormat,
   getDateTimeFormat,
+  tableScrollWidth,
 } from 'utils/utils';
 import intl from 'utils/intl';
 import { DEFAULT_DATETIME_FORMAT, DEFAULT_DATE_FORMAT } from 'utils/constants';
@@ -296,7 +297,7 @@ class LovModal extends React.Component {
 
   render() {
     const {
-      lov: { valueField: rowkey = defaultRowKey, tableFields = [], queryFields = [] },
+      lov: { valueField: rowkey = defaultRowKey, tableFields = [], queryFields = [], height },
       ldpData = {},
       form: { getFieldDecorator },
       lovLoadLoading,
@@ -329,6 +330,11 @@ class LovModal extends React.Component {
             }
           : rest;
       }),
+      scroll: {
+        x: tableScrollWidth(tableFields),
+        // eslint-disable-next-line no-nested-ternary
+        y: isUndefined(height) ? 'calc(100vh - 401px)' : height > 498 ? height - 98 : 400,
+      },
       onRow: (record, index) => ({
         onDoubleClick: () => this.handleRowDoubleClick(record, index),
         onClick: () => this.handleRowClick(record, index),

@@ -18,7 +18,7 @@ const organizationId = getCurrentOrganizationId();
 const levelUrl = isTenantRoleLevel() ? `/${organizationId}` : '';
 
 // 安全组列表
-const secGrpDS = {
+const secGrpDS = () => ({
   transport: {
     read: ({ data, params }) => ({
       url: `${HZERO_IAM}/v1${levelUrl}/sec-grps`,
@@ -122,7 +122,7 @@ const secGrpDS = {
       type: 'string',
     },
   ],
-};
+});
 
 // 安全组分配角色
 const assignRoleDS = (secGrpId) => ({
@@ -310,7 +310,7 @@ const visitPermissionDS = (secGrpId) => ({
 });
 
 // 字段权限列表
-const fieldPermissionDS = {
+const fieldPermissionDS = () => ({
   pageSize: 10,
   selection: false,
   autoQuery: true,
@@ -376,10 +376,10 @@ const fieldPermissionDS = {
       type: 'string',
     },
   ],
-};
+});
 
 // 字段权限侧滑
-const fieldPermissionDrawerDS = {
+const fieldPermissionDrawerDS = () => ({
   pageSize: 10,
   selection: false,
   autoQuery: true,
@@ -455,10 +455,10 @@ const fieldPermissionDrawerDS = {
       lookupCode: 'HIAM.FIELD.PERMISSION_TYPE',
     },
   ],
-};
+});
 
 // 工作台列表
-const cardDS = {
+const cardDS = () => ({
   pageSize: 10,
   autoQuery: true,
   fields: [
@@ -550,10 +550,10 @@ const cardDS = {
       type: 'string',
     },
   ],
-};
+});
 
 // 数据权限维度
-const dimensionDS = {
+const dimensionDS = () => ({
   pageSize: 10,
   selection: false,
   autoQuery: true,
@@ -583,7 +583,7 @@ const dimensionDS = {
       type: 'string',
     },
   ],
-};
+});
 
 // 分配角色添加角色弹窗
 const addRoleDS = ({ secGrpId }) => ({
@@ -782,7 +782,7 @@ const addCardDS = ({ roleId, secGrpId }) => ({
   ],
 });
 
-const roleLovDS = {
+const roleLovDS = () => ({
   autoCreate: true,
   fields: [
     {
@@ -805,7 +805,7 @@ const roleLovDS = {
       bind: 'roleLov.id',
     },
   ],
-};
+});
 
 export {
   secGrpDS,

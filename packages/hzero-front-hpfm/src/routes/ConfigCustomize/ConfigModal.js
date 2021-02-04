@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import {
@@ -30,6 +31,7 @@ import {
   getFieldCodeAlias,
   getFieldNameAlias,
   getFieldConfigAlias,
+  getDefaultActiveAlias,
 } from '@/utils/constConfig.js';
 import ParamsModal from '@/components/CommonModal/ParamsConfigModal';
 import ComputeRuleModal from '@/components/CommonModal/ComputeRuleModal';
@@ -39,13 +41,17 @@ import LovMulti from 'components/Customize/hzero/LovMulti';
 import RelatedModal from './RelatedModal';
 import ConditionModal from './ConditionModal';
 import SelfConditionModal from './SelfConditionModal';
+import DefaultValueModal from './DefaultValueModal';
 import styles from './index.less';
 
 const formLayout = {
   labelCol: { span: 6 },
   wrapperCol: { span: 18 },
 };
-
+const formLayout2 = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 16 },
+};
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -58,6 +64,9 @@ const { Option } = Select;
     conditionList,
     validatorList,
     headerProps,
+    defaultValueProps,
+    defaultConList,
+    defaultValidList,
   } = configCustomize;
   return {
     moduleList,
@@ -66,6 +75,9 @@ const { Option } = Select;
     headerProps,
     conditionList,
     validatorList,
+    defaultValueProps,
+    defaultConList,
+    defaultValidList,
     saveLoading: loading.effects['configCustomize/saveFieldIndividual'],
   };
 })
@@ -85,7 +97,7 @@ export default class ConfigModal extends React.Component {
       condOptions: [],
     };
     const { form } = props;
-    ['fieldWidget', 'fieldId', 'fieldCategory', 'fieldType', 'fieldName'].forEach(i =>
+    ['fieldWidget', 'fieldId', 'fieldCategory', 'fieldType', 'fieldName'].forEach((i) =>
       form.registerField(i)
     );
   }
@@ -97,7 +109,7 @@ export default class ConfigModal extends React.Component {
       id,
       modelId,
       codes: { condOptions = [] },
-      type,
+      // type,
       visible,
       form,
     } = this.props;
@@ -105,11 +117,12 @@ export default class ConfigModal extends React.Component {
     if (visible === true && previsible === false) {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
-        condOptions:
-          record.custType === 'EXT' || type === 'new'
-            ? // eslint-disable-next-line eqeqeq
-              condOptions.filter(i => i.value != '-1')
-            : condOptions,
+        condOptions,
+        // condOptions:
+        //   record.custType === 'EXT' || type === 'new'
+        //     ? // eslint-disable-next-line eqeqeq
+        //       condOptions.filter((i) => i.value != '-1')
+        //     : condOptions,
       });
     }
     if (visible === false && previsible === true) {
@@ -119,14 +132,14 @@ export default class ConfigModal extends React.Component {
       dispatch({
         type: 'configCustomize/queryConditions',
         payload: { configFieldId: record.configFieldId, unitId: id },
-      }).then(res => {
+      }).then((res) => {
         if (isEmpty(res)) return;
         const conditionHeaders = {
           required: {},
           visible: {},
           editable: {},
         };
-        res.forEach(i => {
+        res.forEach((i) => {
           conditionHeaders[i.conType] = i;
         });
         this.setState({ conditionHeaders });
@@ -135,18 +148,22 @@ export default class ConfigModal extends React.Component {
       dispatch({
         type: 'configCustomize/queryFieldMapping',
         payload: { configFieldId: record.configFieldId },
-      }).then(res => {
+      }).then((res) => {
         if (isEmpty(res)) return;
         this.setState({ fieldLovMaps: res });
         record.fieldLovMaps = res;
       });
       dispatch({
         type: 'configCustomize/querySelfValidator',
-        payload: { configFieldId: record.configFieldId, unitId: id },
+        payload: { configFieldId: record.configFieldId, unitId: id, conType: 'valid' },
+      });
+      dispatch({
+        type: 'configCustomize/queryDefaultValueFx',
+        payload: { configFieldId: record.configFieldId, unitId: id, conType: 'defaultValue' },
       });
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
-        backUpParamList: (record.paramList || []).map(i => i),
+        backUpParamList: (record.paramList || []).map((i) => i),
         backUpRenderRule: record.renderRule,
       });
     }
@@ -158,8 +175,36 @@ export default class ConfigModal extends React.Component {
     }
   }
 
-  getSelectConfig() {
-    // const { fieldLovMaps } = this.state;
+  getDefaultValueRender(child, visibleFx) {
+    const { defaultValueFx } = this.state;
+    const { defaultValidList } = this.props;
+    const valids = defaultValueFx === undefined ? defaultValidList : defaultValueFx.valids;
+    return (
+      <Row className={styles['flex-center-vertical']}>
+        <Col span={18}>{child}</Col>
+        <Col
+          span={6}
+          style={{ display: visibleFx ? 'block' : 'none', marginBottom: '14px', marginLeft: '8px' }}
+          className={styles['fx-alink']}
+        >
+          <Tooltip
+            placement="right"
+            title={intl.get('hpfm.individual.model.config.condition').d('条件配置')}
+          >
+            <a
+              className={(valids || []).length > 0 ? 'active' : ''}
+              onClick={() => this.toggleDefaultValueModal()}
+            >
+              fx
+            </a>
+            <Badge count={(valids || []).length} />
+          </Tooltip>
+        </Col>
+      </Row>
+    );
+  }
+
+  getSelectConfig(_, visibleFx) {
     const {
       form,
       // record,
@@ -169,8 +214,7 @@ export default class ConfigModal extends React.Component {
       <>
         <FormItem
           label={intl.get('hpfm.individual.model.config.multipleFlag').d('启用多选')}
-          labelCol={{ span: 5 }}
-          wrapperCol={{ span: 9 }}
+          {...formLayout2}
         >
           {form.getFieldDecorator('multipleFlag', {
             initialValue: Number(widget.multipleFlag || 0),
@@ -185,7 +229,10 @@ export default class ConfigModal extends React.Component {
             />
           )}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.valueCode').d('值集编码')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.valueCode').d('值集编码')}
+        >
           {form.getFieldDecorator('sourceCode', {
             initialValue: widget.sourceCode,
           })(
@@ -197,18 +244,25 @@ export default class ConfigModal extends React.Component {
             />
           )}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue,
-          })(
-            <FlexSelect
-              lovCode={form.getFieldValue('sourceCode')}
-              fieldCode="defaultValue"
-              multipleFlag={form.getFieldValue('multipleFlag')}
-              params={getContextParams(paramList, { isConfig: true })}
-            />
-          )}
-        </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue,
+            })(
+              <FlexSelect
+                lovCode={form.getFieldValue('sourceCode')}
+                fieldCode="defaultValue"
+                multipleFlag={form.getFieldValue('multipleFlag')}
+                params={getContextParams(paramList, { isConfig: true })}
+              />
+            )}
+          </FormItem>,
+          visibleFx
+        )}
         <Button
           icon="setting"
           type="primary"
@@ -237,7 +291,7 @@ export default class ConfigModal extends React.Component {
     );
   }
 
-  getLovConfig() {
+  getLovConfig(_, visibleFx) {
     const { fieldLovMaps } = this.state;
     const {
       form,
@@ -248,8 +302,7 @@ export default class ConfigModal extends React.Component {
       <>
         <FormItem
           label={intl.get('hpfm.individual.model.config.multipleFlag').d('启用多选')}
-          labelCol={{ span: 5 }}
-          wrapperCol={{ span: 9 }}
+          {...formLayout2}
         >
           {form.getFieldDecorator('multipleFlag', {
             initialValue: Number(widget.multipleFlag || 0),
@@ -261,7 +314,10 @@ export default class ConfigModal extends React.Component {
             />
           )}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.valueCode').d('值集编码')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.valueCode').d('值集编码')}
+        >
           {form.getFieldDecorator('sourceCode', {
             initialValue: widget.sourceCode,
           })(
@@ -274,25 +330,40 @@ export default class ConfigModal extends React.Component {
             />
           )}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue,
-          })(
-            form.getFieldValue('multipleFlag') === 1 ? (
-              <LovMulti
-                code={form.getFieldValue('sourceCode')}
-                queryParams={getContextParams(paramList, { isConfig: true })}
-                translateData={widget.defaultValueMeaning || {}}
-              />
-            ) : (
-              <Lov
-                code={form.getFieldValue('sourceCode')}
-                queryParams={getContextParams(paramList, { isConfig: true })}
-                textValue={widget.defaultValueMeaning || widget.defaultValue}
-              />
-            )
-          )}
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.textField').d('回显配置')}
+        >
+          {form.getFieldDecorator('textField', {
+            initialValue: widget.textField,
+          })(<Input trim inputChinese={false} />)}
         </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue,
+            })(
+              form.getFieldValue('multipleFlag') === 1 ? (
+                <LovMulti
+                  code={form.getFieldValue('sourceCode')}
+                  queryParams={getContextParams(paramList, { isConfig: true })}
+                  translateData={widget.defaultValueMeaning || {}}
+                />
+              ) : (
+                <Lov
+                  code={form.getFieldValue('sourceCode')}
+                  queryParams={getContextParams(paramList, { isConfig: true })}
+                  textValue={widget.defaultValueMeaning || widget.defaultValue}
+                />
+              )
+            )}
+          </FormItem>,
+          visibleFx
+        )}
         <Button
           icon="setting"
           type="primary"
@@ -322,66 +393,97 @@ export default class ConfigModal extends React.Component {
     );
   }
 
-  getInputConfig() {
+  getInputConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
     } = this.props;
     return (
       <>
-        <FormItem label={intl.get('hpfm.individual.model.config.maxLength').d('最大长度')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.maxLength').d('最大长度')}
+        >
           {form.getFieldDecorator('textMaxLength', {
             initialValue: widget.textMaxLength,
           })(<InputNumber precision={0} min={1} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.minLength').d('最小长度')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.minLength').d('最小长度')}
+        >
           {form.getFieldDecorator('textMinLength', {
             initialValue: widget.textMinLength,
           })(<InputNumber precision={0} min={1} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue,
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.placeholder').d('背景文字')}
+        >
+          {form.getFieldDecorator('placeholder', {
+            initialValue: widget.placeholder,
           })(<Input trim />)}
         </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue,
+            })(<Input trim />)}
+          </FormItem>,
+          visibleFx
+        )}
       </>
     );
   }
 
-  getInputNumberConfig() {
+  getInputNumberConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
     } = this.props;
     return (
       <>
-        <FormItem label={intl.get('hpfm.individual.model.config.max').d('最大值')}>
+        <FormItem {...formLayout2} label={intl.get('hpfm.individual.model.config.max').d('最大值')}>
           {form.getFieldDecorator('numberMax', {
             initialValue: widget.numberMax,
           })(<InputNumber precision={0} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.min').d('最小值')}>
+        <FormItem {...formLayout2} label={intl.get('hpfm.individual.model.config.min').d('最小值')}>
           {form.getFieldDecorator('numberMin', {
             initialValue: widget.numberMin,
           })(<InputNumber precision={0} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.decimal').d('精度')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.decimal').d('精度')}
+        >
           {form.getFieldDecorator('numberDecimal', {
             initialValue: widget.numberDecimal,
           })(<InputNumber precision={0} min={0} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue,
-          })(<InputNumber />)}
-        </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue,
+            })(<InputNumber />)}
+          </FormItem>,
+          visibleFx
+        )}
       </>
     );
   }
 
   getTLEditorConfig() {}
 
-  getDatePickerConfig() {
+  getDatePickerConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
@@ -390,96 +492,136 @@ export default class ConfigModal extends React.Component {
     const format = form.getFieldValue('dateFormat') || widget.dateFormat || DEFAULT_DATE_FORMAT;
     return (
       <>
-        <FormItem label={intl.get('hpfm.individual.model.config.dateFormat').d('日期格式')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.dateFormat').d('日期格式')}
+        >
           {form.getFieldDecorator('dateFormat', {
             initialValue: widget.dateFormat,
           })(
             <Select style={{ width: '100%' }}>
-              {codes.dateFormat.map(i => (
+              {codes.dateFormat.map((i) => (
                 <Option value={i.value}>{i.meaning}</Option>
               ))}
             </Select>
           )}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue ? moment(widget.defaultValue) : '',
-            getValueProps: dateStr => ({
-              value: dateStr ? moment(dateStr, format) : dateStr,
-            }),
-            getValueFromEvent(e) {
-              if (!e || !e.target) {
-                return e && e.format ? e.format(format) : e;
-              }
-              const { target } = e;
-              return target.type === 'checkbox' ? target.checked : target.value;
-            },
-          })(<DatePicker format={format} showTime style={{ width: '100%' }} />)}
-        </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue ? moment(widget.defaultValue) : '',
+              getValueProps: (dateStr) => ({
+                value: dateStr ? moment(dateStr, format) : dateStr,
+              }),
+              getValueFromEvent(e) {
+                if (!e || !e.target) {
+                  return e && e.format ? e.format(format) : e;
+                }
+                const { target } = e;
+                return target.type === 'checkbox' ? target.checked : target.value;
+              },
+            })(<DatePicker format={format} showTime style={{ width: '100%' }} />)}
+          </FormItem>,
+          visibleFx
+        )}
       </>
     );
   }
 
-  getTextAreaConfig() {
+  getTextAreaConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
     } = this.props;
     return (
       <>
-        <FormItem label={intl.get('hpfm.individual.model.config.maxLength').d('最大长度')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.maxLength').d('最大长度')}
+        >
           {form.getFieldDecorator('textMaxLength', {
             initialValue: widget.textMaxLength,
           })(<InputNumber precision={0} min={1} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.minLength').d('最小长度')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.minLength').d('最小长度')}
+        >
           {form.getFieldDecorator('textMinLength', {
             initialValue: widget.textMinLength,
           })(<InputNumber precision={0} min={1} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.textAreaMaxLine').d('文本域行数')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.textAreaMaxLine').d('文本域行数')}
+        >
           {form.getFieldDecorator('textAreaMaxLine', {
             initialValue: widget.textAreaMaxLine,
           })(<InputNumber precision={0} min={1} />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: widget.defaultValue,
-          })(<Input trim />)}
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.placeholder').d('背景文字')}
+        >
+          {form.getFieldDecorator('placeholder', {
+            initialValue: widget.placeholder,
+          })(<Input.TextArea trim />)}
         </FormItem>
+        {this.getDefaultValueRender(
+          <FormItem
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 15 }}
+            label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+          >
+            {form.getFieldDecorator('defaultValue', {
+              initialValue: widget.defaultValue,
+            })(<Input trim />)}
+          </FormItem>,
+          visibleFx
+        )}
       </>
     );
   }
 
-  getCheckboxConfig() {
+  getCheckboxConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
     } = this.props;
-    return (
-      <>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: Number(widget.defaultValue || 0),
-          })(<Checkbox checkedValue={1} unCheckedValue={0} />)}
-        </FormItem>
-      </>
+    return this.getDefaultValueRender(
+      <FormItem
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 15 }}
+        label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+      >
+        {form.getFieldDecorator('defaultValue', {
+          initialValue: Number(widget.defaultValue || 0),
+        })(<Checkbox checkedValue={1} unCheckedValue={0} />)}
+      </FormItem>,
+      visibleFx
     );
   }
 
-  getSwitchConfig() {
+  getSwitchConfig(_, visibleFx) {
     const {
       form,
       record: { widget = {} },
     } = this.props;
-    return (
-      <>
-        <FormItem label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}>
-          {form.getFieldDecorator('defaultValue', {
-            initialValue: Number(widget.defaultValue || 0),
-          })(<Switch checkedValue={1} unCheckedValue={0} />)}
-        </FormItem>
-      </>
+    return this.getDefaultValueRender(
+      <FormItem
+        labelCol={{ span: 8 }}
+        wrapperCol={{ span: 15 }}
+        label={intl.get('hpfm.individual.model.config.defaultValue').d('默认值')}
+      >
+        {form.getFieldDecorator('defaultValue', {
+          initialValue: Number(widget.defaultValue || 0),
+        })(<Switch checkedValue={1} unCheckedValue={0} />)}
+      </FormItem>,
+      visibleFx
     );
   }
 
@@ -490,17 +632,23 @@ export default class ConfigModal extends React.Component {
     } = this.props;
     return (
       <>
-        <FormItem label={intl.get('hpfm.individual.model.config.linkTitle').d('链接标题')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.linkTitle').d('链接标题')}
+        >
           {form.getFieldDecorator('linkTitle', {
             initialValue: widget.linkTitle,
           })(<Input />)}
         </FormItem>
-        <FormItem label={intl.get('hpfm.individual.model.config.linkHref').d('URL')}>
+        <FormItem
+          {...formLayout2}
+          label={intl.get('hpfm.individual.model.config.linkHref').d('URL')}
+        >
           {form.getFieldDecorator('linkHref', {
             initialValue: widget.linkHref,
           })(<Input />)}
         </FormItem>
-        <FormItem>
+        <FormItem {...formLayout2}>
           {form.getFieldDecorator('linkNewWindow', {
             initialValue: isNil(widget.linkNewWindow) ? 1 : widget.linkNewWindow,
             valuePropsName: 'checked',
@@ -552,33 +700,33 @@ export default class ConfigModal extends React.Component {
     );
   }
 
-  configMap() {
+  configMap(visibleFx) {
     const { record = {}, form, unitType } = this.props;
     if (unitType === 'TABPANE') return null;
     switch (record.fieldWidget || form.getFieldValue('fieldWidget')) {
       case 'RADIO_GROUP':
       case 'SELECT':
-        return this.getSelectConfig(record);
+        return this.getSelectConfig(record, visibleFx);
       case 'LOV':
-        return this.getLovConfig(record);
+        return this.getLovConfig(record, visibleFx);
       case 'INPUT':
-        return this.getInputConfig(record);
+        return this.getInputConfig(record, visibleFx);
       case 'INPUT_NUMBER':
-        return this.getInputNumberConfig(record);
+        return this.getInputNumberConfig(record, visibleFx);
       case 'TL_EDITOR':
-        return this.getTLEditorConfig(record);
+        return this.getTLEditorConfig(record, visibleFx);
       case 'DATE_PICKER':
-        return this.getDatePickerConfig(record);
+        return this.getDatePickerConfig(record, visibleFx);
       case 'TEXT_AREA':
-        return this.getTextAreaConfig(record);
+        return this.getTextAreaConfig(record, visibleFx);
       case 'CHECKBOX':
-        return this.getCheckboxConfig(record);
+        return this.getCheckboxConfig(record, visibleFx);
       case 'SWITCH':
-        return this.getSwitchConfig(record);
+        return this.getSwitchConfig(record, visibleFx);
       case 'UPLOAD':
-        return this.getUploadConfig(record);
+        return this.getUploadConfig(record, visibleFx);
       case 'LINK':
-        return this.getLinkConfig(record);
+        return this.getLinkConfig(record, visibleFx);
       default:
         return null;
     }
@@ -632,6 +780,14 @@ export default class ConfigModal extends React.Component {
   }
 
   @Bind()
+  toggleDefaultValueModal() {
+    const { defaultValueVisible } = this.state;
+    this.setState({
+      defaultValueVisible: !defaultValueVisible,
+    });
+  }
+
+  @Bind()
   updateLovMappings(fieldLovMaps) {
     this.setState({
       fieldLovMaps,
@@ -657,6 +813,13 @@ export default class ConfigModal extends React.Component {
   }
 
   @Bind()
+  updateDefaultValueFx(newSelfValidator) {
+    this.setState({
+      defaultValueFx: newSelfValidator,
+    });
+  }
+
+  @Bind()
   saveRenderRule({ renderRule }) {
     const { record } = this.props;
     record.renderRule = renderRule;
@@ -673,8 +836,11 @@ export default class ConfigModal extends React.Component {
       headerProps,
       conditionList,
       validatorList,
+      defaultValueProps,
+      defaultConList,
+      defaultValidList,
     } = this.props;
-    const { selfValidator } = this.state;
+    const { selfValidator, defaultValueFx } = this.state;
     form.validateFields((err, values) => {
       if (err) return;
       const { field = {}, widget, ...others } = record;
@@ -683,6 +849,11 @@ export default class ConfigModal extends React.Component {
         conType: 'valid',
         lines: conditionList,
         valids: validatorList,
+      };
+      const oldDefaultValueFx = {
+        ...defaultValueProps,
+        lines: defaultConList,
+        valids: defaultValidList,
       };
       const allData = { ...field, ...widget, ...values };
       const {
@@ -727,12 +898,13 @@ export default class ConfigModal extends React.Component {
           ...getWidgetConfig(fieldWidget, allData),
         },
         conValid: selfValidator || oldConValid,
+        defaultValueCon: defaultValueFx || oldDefaultValueFx,
         ...rest,
       };
       dispatch({
         type: 'configCustomize/saveFieldIndividual',
         payload,
-      }).then(res => {
+      }).then((res) => {
         if (res) {
           notification.success();
           refreshLineData(id);
@@ -781,6 +953,7 @@ export default class ConfigModal extends React.Component {
       lovMappings: undefined,
       defaultValue: undefined,
       multipleFlag: undefined,
+      textField: undefined,
     });
     this.setState({ fieldLovMaps: [] });
     record.fieldLovMaps = [];
@@ -789,7 +962,7 @@ export default class ConfigModal extends React.Component {
 
   @Bind()
   onClose() {
-    const { record, onClose = () => {}, form } = this.props;
+    const { record, onClose = () => {}, form, dispatch } = this.props;
     record.paramList = this.state.backUpParamList;
     record.renderRule = this.state.backUpRenderRule;
     form.setFieldsValue({
@@ -815,6 +988,7 @@ export default class ConfigModal extends React.Component {
       linkNewWindow: undefined,
       lovMappings: undefined,
       defaultValue: undefined,
+      textField: undefined,
     });
     this.setState({
       fieldLovMaps: [],
@@ -827,6 +1001,15 @@ export default class ConfigModal extends React.Component {
       backUpRenderRule: '',
       condOptions: [],
       selfValidator: undefined,
+      defaultValueFx: undefined,
+    });
+    dispatch({
+      type: 'configCustomize/updateState',
+      payload: {
+        headerProps: {},
+        conditionList: [],
+        validatorList: [],
+      },
     });
     // eslint-disable-next-line no-unused-expressions
     typeof onClose === 'function' && onClose({ field: {}, widget: {} });
@@ -848,10 +1031,12 @@ export default class ConfigModal extends React.Component {
       paramVisible,
       compRuleVisible,
       selfConditionVisible,
+      defaultValueVisible,
       targetProp,
       conditionHeaders,
       condOptions,
       selfValidator,
+      defaultValueFx,
     } = this.state;
     const {
       codes,
@@ -874,7 +1059,7 @@ export default class ConfigModal extends React.Component {
     const valids = selfValidator === undefined ? validatorList : selfValidator.valids;
     const pureVirtual = unitType === 'TABPANE' || unitType === 'COLLAPSE';
     const isCreate = type === 'new';
-    const isVirtual = record.modelId === -1 || form.getFieldValue('isModelField') === 0;
+    const isVirtual = record.modelId == -1 || form.getFieldValue('isModelField') == 0;
     const visibleFx = unitType !== 'FILTER' && unitType !== 'QUERYFORM';
     const isFormType = unitType === 'FORM' || unitType === 'QUERYFORM';
     return (
@@ -889,12 +1074,12 @@ export default class ConfigModal extends React.Component {
       >
         <FormItem style={{ display: isCreate && !pureVirtual ? 'block' : 'none' }}>
           {form.getFieldDecorator('isModelField', {
-            initialValue: pureVirtual || (!isCreate && record.modelId === -1) ? 0 : 1,
+            initialValue: pureVirtual || (!isCreate && record.modelId == -1) ? 0 : 1,
           })(
             <Checkbox
               checkedValue={1}
               unCheckedValue={0}
-              onChange={v =>
+              onChange={(v) =>
                 form.setFieldsValue({
                   modelId: !v.target.checked ? -1 : (moduleList[0] || {}).modelId,
                   fieldId: !v.target.checked ? -1 : undefined,
@@ -907,6 +1092,19 @@ export default class ConfigModal extends React.Component {
             </Checkbox>
           )}
         </FormItem>
+        {pureVirtual && (
+          <FormItem label={getDefaultActiveAlias(unitType)}>
+            {form.getFieldDecorator('defaultActive', {
+              initialValue: isCreate ? -1 : record.defaultActive,
+            })(
+              <Select style={{ width: '100%' }}>
+                {condOptions.map((item) => (
+                  <Option value={Number(item.value)}>{item.meaning}</Option>
+                ))}
+              </Select>
+            )}
+          </FormItem>
+        )}
         <FormItem
           label={intl.get('hpfm.individual.model.config.modelCategory').d('所属模型')}
           style={{ display: isVirtual ? 'none' : 'block' }}
@@ -923,7 +1121,7 @@ export default class ConfigModal extends React.Component {
             ],
           })(
             <Select style={{ width: '100%' }} disabled={type !== 'new'}>
-              {moduleList.map(i => (
+              {moduleList.map((i) => (
                 <Option value={i.modelId}>{i.modelName}</Option>
               ))}
             </Select>
@@ -968,7 +1166,7 @@ export default class ConfigModal extends React.Component {
               initialValue: record.custType,
             })(
               <Select style={{ width: '100%' }} disabled>
-                {codes.custType.map(i => (
+                {codes.custType.map((i) => (
                   <Option value={i.value}>{i.meaning}</Option>
                 ))}
               </Select>
@@ -995,7 +1193,7 @@ export default class ConfigModal extends React.Component {
               initialValue: (record.field || {}).fieldType,
             })(
               <Select style={{ width: '100%' }} disabled>
-                {codes.fieldType.map(i => (
+                {codes.fieldType.map((i) => (
                   <Option value={i.value}>{i.meaning}</Option>
                 ))}
               </Select>
@@ -1035,7 +1233,7 @@ export default class ConfigModal extends React.Component {
                 style={{ width: '46%', marginRight: '8%', float: 'left' }}
                 placeholder={intl.get('hpfm.individual.model.config.label').d('标签')}
               >
-                {colOptions.map(i => (
+                {colOptions.map((i) => (
                   <Option value={i}>{i}</Option>
                 ))}
               </Select>
@@ -1049,7 +1247,7 @@ export default class ConfigModal extends React.Component {
                 style={{ width: '46%' }}
                 placeholder={intl.get('hpfm.individual.model.config.wrapper').d('组件')}
               >
-                {colOptions.map(i => (
+                {colOptions.map((i) => (
                   <Option value={i}>{i}</Option>
                 ))}
               </Select>
@@ -1065,11 +1263,24 @@ export default class ConfigModal extends React.Component {
               initialValue: record.whereOption || '=',
             })(
               <Select style={{ width: '100%' }} disabled={record.custType === 'STD'}>
-                {codes.whereOptions.map(i => (
+                {codes.whereOptions.map((i) => (
                   <Option value={i.value}>{i.meaning}</Option>
                 ))}
               </Select>
             )}
+          </FormItem>
+        ) : null}
+
+        {!pureVirtual ? (
+          <FormItem
+            label={intl
+              .get('hpfm.individuationUnit.model.individuationUnit.bindField')
+              .d('字段绑定')}
+            style={{ display: !pureVirtual ? 'block' : 'none' }}
+          >
+            {form.getFieldDecorator('bindField', {
+              initialValue: record.bindField,
+            })(<Input trim inputChinese={false} />)}
           </FormItem>
         ) : null}
         <FormItem
@@ -1080,7 +1291,7 @@ export default class ConfigModal extends React.Component {
             initialValue: record.renderOptions || (isVirtual ? 'TEXT' : 'WIDGET'),
           })(
             <Select style={{ width: '100%' }} disabled={!isVirtual && record.custType === 'STD'}>
-              {codes.renderOptions.map(i => (
+              {codes.renderOptions.map((i) => (
                 <Option value={i.value}>{i.meaning}</Option>
               ))}
             </Select>
@@ -1096,7 +1307,7 @@ export default class ConfigModal extends React.Component {
                 initialValue: isCreate ? 1 : record.visible,
               })(
                 <Select style={{ width: '93%' }}>
-                  {condOptions.map(item => (
+                  {condOptions.map((item) => (
                     <Option value={Number(item.value)}>{item.meaning}</Option>
                   ))}
                 </Select>
@@ -1141,7 +1352,7 @@ export default class ConfigModal extends React.Component {
                 initialValue: isCreate ? 1 : record.fieldEditable,
               })(
                 <Select style={{ width: '93%' }}>
-                  {condOptions.map(item => (
+                  {condOptions.map((item) => (
                     <Option value={Number(item.value)}>{item.meaning}</Option>
                   ))}
                 </Select>
@@ -1186,7 +1397,7 @@ export default class ConfigModal extends React.Component {
                 initialValue: isCreate ? 0 : record.fieldRequired,
               })(
                 <Select style={{ width: '93%' }}>
-                  {condOptions.map(item => (
+                  {condOptions.map((item) => (
                     <Option value={Number(item.value)}>{item.meaning}</Option>
                   ))}
                 </Select>
@@ -1243,11 +1454,22 @@ export default class ConfigModal extends React.Component {
                   initialValue: record.gridFixed,
                 })(
                   <Select style={{ width: '93%' }} allowClear>
-                    {codes.fixed.map(i => (
+                    {codes.fixed.map((i) => (
                       <Option value={i.value}>{i.meaning}</Option>
                     ))}
                   </Select>
                 )}
+              </FormItem>
+            </Col>
+            <Col span={12} style={{ display: unitType === 'GRID' ? 'block' : 'none' }}>
+              <FormItem
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 15 }}
+                label={intl.get('hpfm.individual.model.config.sorter').d('可排序')}
+              >
+                {form.getFieldDecorator('sorter', {
+                  initialValue: Number(record.sorter || 0),
+                })(<Checkbox checkedValue={1} unCheckedValue={0} />)}
               </FormItem>
             </Col>
           </Row>
@@ -1270,6 +1492,26 @@ export default class ConfigModal extends React.Component {
               >
                 {form.getFieldDecorator('formCol', {
                   initialValue: record.formCol,
+                })(<InputNumber style={{ width: '93%' }} precision={0} min={1} />)}
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label={intl.get('hpfm.individual.model.config.rowSpan').d('跨行')}
+                {...formLayout}
+              >
+                {form.getFieldDecorator('rowSpan', {
+                  initialValue: record.rowSpan || 1,
+                })(<InputNumber style={{ width: '93%' }} precision={0} min={1} />)}
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label={intl.get('hpfm.individual.model.config.colSpan').d('跨列')}
+                {...formLayout}
+              >
+                {form.getFieldDecorator('colSpan', {
+                  initialValue: record.colSpan || 1,
                 })(<InputNumber style={{ width: '93%' }} precision={0} min={1} />)}
               </FormItem>
             </Col>
@@ -1329,14 +1571,14 @@ export default class ConfigModal extends React.Component {
                 (record.custType === 'STD' && !isVirtual)
               }
             >
-              {codes.fieldWidget.map(i => (
+              {codes.fieldWidget.map((i) => (
                 <Option value={i.value}>{i.meaning}</Option>
               ))}
             </Select>
           )}
         </FormItem>
         {(form.getFieldValue('renderOptions') || record.renderOptions) === 'WIDGET'
-          ? this.configMap()
+          ? this.configMap(visibleFx)
           : null}
         <Button
           icon="setting"
@@ -1430,6 +1672,7 @@ export default class ConfigModal extends React.Component {
         )}
         {selfConditionVisible && (
           <SelfConditionModal
+            destroyOnClose
             visible={selfConditionVisible}
             unitType={unitType}
             unitId={id}
@@ -1439,6 +1682,22 @@ export default class ConfigModal extends React.Component {
             fieldId={record.configFieldId}
             fieldList={fieldList}
             onClose={this.toggleSelfConditionModal}
+          />
+        )}
+        {defaultValueVisible && (
+          <DefaultValueModal
+            destroyOnClose
+            extForm={form}
+            visible={defaultValueVisible}
+            unitType={unitType}
+            unitId={id}
+            unitList={unitList}
+            selfValidator={defaultValueFx}
+            updateSelfValidator={this.updateDefaultValueFx}
+            fieldId={record.configFieldId}
+            paramList={record.paramList}
+            fieldList={fieldList}
+            onClose={this.toggleDefaultValueModal}
           />
         )}
       </Drawer>
@@ -1460,7 +1719,10 @@ function getWidgetConfig(type, allData) {
     bucketDirectory,
     linkTitle,
     linkHref,
+    linkNewWindow,
     multipleFlag,
+    textField,
+    placeholder,
   } = allData;
 
   const config = {
@@ -1475,6 +1737,8 @@ function getWidgetConfig(type, allData) {
     dateFormat: undefined,
     lovMappings: undefined,
     multipleFlag: undefined,
+    textField: undefined,
+    placeholder: undefined,
     defaultValue: allData.defaultValue,
     fieldWidget: allData.fieldWidget,
   };
@@ -1484,6 +1748,7 @@ function getWidgetConfig(type, allData) {
     case 'LOV':
       config.multipleFlag = multipleFlag;
       config.sourceCode = sourceCode;
+      config.textField = textField;
       break;
     case 'CHECKBOX':
     case 'SWITCH':
@@ -1491,6 +1756,7 @@ function getWidgetConfig(type, allData) {
     case 'INPUT':
       config.textMaxLength = textMaxLength;
       config.textMinLength = textMinLength;
+      config.placeholder = placeholder;
       break;
     case 'INPUT_NUMBER':
       config.numberMax = numberMax;
@@ -1504,6 +1770,7 @@ function getWidgetConfig(type, allData) {
       config.textMaxLength = textMaxLength;
       config.textMinLength = textMinLength;
       config.textAreaMaxLine = textAreaMaxLine;
+      config.placeholder = placeholder;
       break;
     case 'UPLOAD':
       config.bucketDirectory = bucketDirectory;
@@ -1513,6 +1780,7 @@ function getWidgetConfig(type, allData) {
     case 'LINK':
       config.linkHref = linkHref;
       config.linkTitle = linkTitle;
+      config.linkNewWindow = linkNewWindow;
       break;
     default:
       config.defaultValue = undefined;

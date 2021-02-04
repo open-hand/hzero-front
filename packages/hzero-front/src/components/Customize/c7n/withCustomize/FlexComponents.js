@@ -7,12 +7,10 @@
  */
 
 import { IntlField, Upload } from 'choerodon-ui/pro';
+import { HZERO_PLATFORM } from 'utils/config';
 import React from 'react';
 import { isNil } from 'lodash';
-import { getEnvConfig } from 'utils/iocUtils';
 import { getCurrentOrganizationId, getUserOrganizationId } from 'utils/utils';
-
-const { HZERO_PLATFORM } = getEnvConfig('config');
 
 export function FlexLink(options, extra = {}) {
   const { currentData = {} } = extra;

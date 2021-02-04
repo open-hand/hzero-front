@@ -191,6 +191,15 @@ class NormalHeader extends Component {
     //   hasWebsocketUrl = false;
     // }
 
+    let _extraRight;
+    if (extraRight) {
+      if (Array.isArray(extraRight)) {
+        _extraRight = extraRight;
+      } else {
+        _extraRight = [extraRight];
+      }
+    }
+
     let isTraceLog = false;
     try {
       isTraceLog = TRACE_LOG_ENABLE ? JSON.parse(TRACE_LOG_ENABLE) : false;
@@ -239,10 +248,14 @@ class NormalHeader extends Component {
           </div>
         </div>
         <div className={getHeaderClassName('right')}>
-          {React.Children.map(extraRight, (ele) => (
-            <div className={classNames(getHeaderClassName('right', 'item'))}>{ele}</div>
+          {_extraRight.map((eleOrComponent) => (
+            <div className={classNames(getHeaderClassName('right', 'item'))}>
+              {React.isValidElement(eleOrComponent)
+                ? eleOrComponent
+                : React.createElement(eleOrComponent)}
+            </div>
           ))}
-          {extraRight.length !== 0 && (
+          {_extraRight.length !== 0 && (
             <span
               className={classNames(
                 getHeaderClassName('right', 'item'),

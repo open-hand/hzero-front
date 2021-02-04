@@ -10,6 +10,14 @@ import request from 'utils/request';
 import { HZERO_PLATFORM } from 'utils/config';
 import { getCurrentOrganizationId } from 'utils/utils';
 
+const headerArr = `${process.env.CUST_HEADER}`.split('#');
+const headers =
+  headerArr.length > 1
+    ? {
+        [headerArr[0]]: headerArr[1],
+      }
+    : undefined;
+
 // const mockapi = '/api/hpfm';
 
 export async function queryCode(params = {}) {
@@ -43,6 +51,7 @@ export async function queryUnitDetails(params = {}) {
 }
 export async function saveFieldIndividual(params = {}) {
   return request(`${HZERO_PLATFORM}/v1/${getCurrentOrganizationId()}/unit-config/save`, {
+    headers,
     body: params,
     method: 'POST',
   });

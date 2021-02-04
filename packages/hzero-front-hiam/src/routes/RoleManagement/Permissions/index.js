@@ -6,11 +6,12 @@
  * @copyright Copyright (c) 2018, Hand
  */
 import React, { PureComponent } from 'react';
-import { Button, Checkbox, Form, Input, Table, Tag, Row, Col } from 'hzero-ui';
+import { Button, Checkbox, Form, Input, Tag, Row, Col } from 'hzero-ui';
 import { isEmpty } from 'lodash';
 
+import Table from '@/components/VirtualTable';
+
 import intl from 'utils/intl';
-import { tableScrollWidth } from 'utils/utils';
 import { SEARCH_FORM_ITEM_LAYOUT } from 'utils/constants';
 
 import Drawer from '../Drawer';
@@ -194,7 +195,7 @@ export default class Permissions extends PureComponent {
     });
   }
 
-  operationRender(text, record) {
+  operationRender({ rowData: record }) {
     const checkboxProps = {
       indeterminate: record.checkedFlag === 'P',
       checked: record.checkedFlag === 'Y',
@@ -232,16 +233,16 @@ export default class Permissions extends PureComponent {
       //   width: 300,
       // },
       {
-        title: intl
-          .get(`hiam.roleManagement.model.roleManagement.permissionSetName`)
-          .d('权限层级名称'),
+        title: intl.get(`hiam.roleManagement.model.roleManagement.permissionName`).d('权限名称'),
         dataIndex: 'name',
+        width: 335,
       },
       {
         title: intl.get(`hiam.roleManagement.model.roleManagement.permission.Type`).d('权限类型'),
         dataIndex: 'permissionType',
         width: 150,
-        render: (value = '', record) => {
+        render: ({ rowData: record, dataIndex }) => {
+          const value = record[dataIndex];
           const texts = {
             api: intl.get('hiam.roleManagement.view.message.api').d('API'),
             button: intl.get('hiam.roleManagement.view.message.button').d('按钮'),
@@ -260,7 +261,7 @@ export default class Permissions extends PureComponent {
       },
       {
         title: intl.get('hzero.common.button.action').d('操作'),
-        width: 85,
+        width: 70,
         render: this.operationRender,
         // (text, record) =>
         //   record.psLeafFlag === 1 && (
@@ -273,9 +274,12 @@ export default class Permissions extends PureComponent {
       },
     ];
     const tableProps = {
+      isTree: true,
+      rowKey: 'key',
       columns,
-      dataSource,
-      scroll: { x: tableScrollWidth(columns, 300) },
+      data: dataSource,
+      // dataSource,
+      // scroll: { x: tableScrollWidth(columns, 300) },
       loading:
         processing.query ||
         processing.batchAssignPermissionSets ||
@@ -284,7 +288,10 @@ export default class Permissions extends PureComponent {
       childrenColumnName: 'subMenus',
       pagination: false,
       expandedRowKeys,
-      onExpand: this.onExpand,
+      onExpandChange: this.onExpand,
+      height: 600,
+      shouldUpdateScroll: false,
+      // onExpand: this.onExpand,
     };
     return (
       <Drawer {...drawerProps}>

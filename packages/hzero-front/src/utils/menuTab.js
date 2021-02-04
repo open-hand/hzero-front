@@ -16,7 +16,8 @@ import { getDvaApp } from './iocUtils';
 
 import { getCurrentRole, getSession, setSession } from './utils';
 
-const menuTabEventManager = new EventEmitter();
+const menuTabEventManager =
+  window.menuTabEventManager || (window.menuTabEventManager = new EventEmitter());
 
 const menuTabBeforeRemoveEvents =
   window.menuTabBeforeRemoveEvents || (window.menuTabBeforeRemoveEvents = new Map());

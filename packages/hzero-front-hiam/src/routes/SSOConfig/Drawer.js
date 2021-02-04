@@ -49,7 +49,9 @@ export default class Drawer extends React.Component {
           delete fieldValues.ssoClientPwd;
           delete fieldValues.ssoUserInfo;
         }
-
+        if (!fieldsValue.loginNameField) {
+          delete fieldValues.loginNameField;
+        }
         onOk(fieldValues, initData);
         this.setState({ visible: true, ouathVisible: true });
       }
@@ -158,6 +160,7 @@ export default class Drawer extends React.Component {
                       }}
                       code="HPFM.COMPANY"
                       disabled={
+                        // eslint-disable-next-line no-nested-ternary
                         !isSiteFlag
                           ? false
                           : editflag

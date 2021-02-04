@@ -47,7 +47,7 @@ const TargetDrawer = (props) => {
   const detailTableDs = useMemo(
     () =>
       new DataSet({
-        ...detailTableDS,
+        ...detailTableDS(),
         fields: [...detailTableDS.fields],
         events: {
           select: ({ dataSet }) => {
@@ -65,12 +65,12 @@ const TargetDrawer = (props) => {
     []
   );
   const createConfigDs = useMemo(() => new DataSet(createConfigDS), []);
-  const useConfigDs = useMemo(() => new DataSet(useConfigDS), []);
+  const useConfigDs = useMemo(() => new DataSet(useConfigDS()), []);
   const useProxyDs = useMemo(() => new DataSet(useProxyDS), []);
   const bindDs = useMemo(() => new DataSet(bindDS), []);
   const addBroadcastDs = useMemo(() => new DataSet(addBroadcastDS), []);
   const removeBroadcastDs = useMemo(() => new DataSet(removeBroadcastDS), []);
-  const detailDs = useMemo(() => new DataSet(detailDS), []);
+  const detailDs = useMemo(() => new DataSet(detailDS()), []);
 
   const [isCreate, setIsCreate] = useState(null);
   const [disabledFlag, setDisabledFlag] = useState(true);

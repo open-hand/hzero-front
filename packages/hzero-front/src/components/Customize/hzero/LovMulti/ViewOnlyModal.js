@@ -28,12 +28,13 @@ import {
 import intl from 'utils/intl';
 import { DEFAULT_DATETIME_FORMAT, DEFAULT_DATE_FORMAT } from 'utils/constants';
 import { totalRender } from 'utils/renderer';
+import { getEnvConfig } from 'utils/iocUtils';
 import notification from 'utils/notification';
 import request from 'utils/request';
-import { getEnvConfig } from 'utils/iocUtils';
 import { queryLovData } from 'services/api';
 import styles from './index.less';
 
+const { HZERO_PLATFORM } = getEnvConfig('config');
 const FormItem = Form.Item;
 const formItemLayout = {
   labelCol: {
@@ -44,7 +45,6 @@ const formItemLayout = {
   },
 };
 
-const { HZERO_PLATFORM } = getEnvConfig('config');
 const defaultRowKey = 'lovId';
 const pageSizeOptions = ['10', '20', '50', '100'];
 @Form.create({ fieldNameProp: null })
@@ -243,12 +243,25 @@ export default class LovMultiModal extends React.Component {
     return String(obj[str]);
   }
 
+  queryLovDataByPost(url, params) {
+    const { page, size, ...others } = params;
+    return getResponse(
+      request(url, {
+        method: 'POST',
+        body: others,
+        query: { page, size },
+      })
+    );
+  }
+
   @Bind()
   splitGroupSelect({ resolve, onError, onFinish }) {
     const { params, url } = this.processQueryParams({ current: 1, pageSize: 500 }, 'right');
     const _this = this;
+    const { queryUsePost } = this.props.lov;
+    const query = queryUsePost ? this.queryLovDataByPost : queryLovData;
     function select(queryParams) {
-      queryLovData(url, queryParams)
+      query(url, queryParams)
         .then((res) => {
           if (getResponse(res)) {
             const data = processTreeData(res.content || []);
@@ -408,7 +421,7 @@ export default class LovMultiModal extends React.Component {
             <Col span={span} key={queryItem.field}>
               <FormItem {...formItemLayout} label={queryItem.label}>
                 {getFieldDecorator(queryItem.field)(
-                  <InputNumber style={{ width: '100%' }} onPressEnter={this.queryData} />
+                  <InputNumber style={{ width: '100%' }} onPressEnter={this.onSearchSelected} />
                 )}
               </FormItem>
             </Col>

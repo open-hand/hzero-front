@@ -6,9 +6,7 @@
 
 import intl from 'utils/intl';
 import React from 'react';
-import { getAccessToken } from 'utils/utils';
-import { HZERO_IAM, HZERO_PLATFORM, API_HOST } from 'utils/config';
-import { getMenuId } from 'utils/menuTab';
+import { HZERO_IAM, HZERO_PLATFORM } from 'utils/config';
 import { Icon, Tooltip } from 'hzero-ui';
 
 export const sysToolsCacheAxiosConfig = () => ({
@@ -17,71 +15,51 @@ export const sysToolsCacheAxiosConfig = () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/code-rule`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     config: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/config`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     database: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/database`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     datasource: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/datasource`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     customize: () => ({
       url: `${HZERO_PLATFORM}/v1/ui-customize/refreshCache`,
       method: 'get',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     'entity-table': () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/entity-table`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     'permission-range': () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/permission-range`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     profile: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/profile`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     prompt: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/prompt`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     message: () => ({
       url: `${HZERO_PLATFORM}/v1/tool/cache/return-message`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
   },
   hiam: {
@@ -89,43 +67,36 @@ export const sysToolsCacheAxiosConfig = () => ({
       url: `${HZERO_IAM}/v1/tool/cache/client`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     ldap: () => ({
       url: `${HZERO_IAM}/v1/tool/cache/ldap`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     user: () => ({
       url: `${HZERO_IAM}/v1/tool/cache/user`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     domain: () => ({
       url: `${HZERO_IAM}/v1/tool/cache/domain`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
+    }),
+    doctype: () => ({
+      url: `${HZERO_IAM}/v1/tool/cache/doc-type`,
+      data: {},
+      method: 'POST',
     }),
     'open-app': () => ({
       url: `${HZERO_IAM}/v1/tool/cache/open-app`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
     'password-policy': () => ({
       url: `${HZERO_IAM}/v1/tool/cache/password-policy`,
       data: {},
       method: 'POST',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
   },
 });
@@ -136,22 +107,16 @@ export const sysToolsPermissionAxiosConfig = () => ({
       url: `${HZERO_IAM}/v1/tool/permission/assign-super-role`,
       method: 'POST',
       data: {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
-    'assign-inherit-role': data => ({
+    'assign-inherit-role': (data) => ({
       url: `${HZERO_IAM}/v1/tool/permission/assign-inherit-role`,
       method: 'POST',
       params: data || {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
-    fresh: data => ({
+    fresh: (data) => ({
       url: `${HZERO_IAM}/v1/tool/permission/fresh`,
       method: 'POST',
       data: data || {},
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
   },
 });
@@ -265,8 +230,6 @@ export const sysToolsPasswordPolicyAxiosConfig = () => ({
     'public-key': () => ({
       url: `${HZERO_PLATFORM}/v1/tool/pass/public-key`,
       method: 'GET',
-      baseURL: `${API_HOST}`,
-      headers: { Authorization: `bearer ${getAccessToken()}`, 'H-Menu-Id': `${getMenuId()}` },
     }),
   },
 });

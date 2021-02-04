@@ -17,7 +17,7 @@ function codeValidator(value) {
 /**
  * TODO: c7n中，querybar='bar'时，queryFileds使用lov时，bind字段也会出现，后期c7n会修复
  */
-const tableDs = {
+const tableDs = () => ({
   selection: false,
   autoQuery: true,
   queryFields: [
@@ -128,9 +128,9 @@ const tableDs = {
       };
     },
   },
-};
+});
 
-const detailDs = {
+const detailDs = () => ({
   autoQueryAfterSubmit: false,
   fields: [
     !isTenantRoleLevel() && {
@@ -289,6 +289,6 @@ const detailDs = {
       };
     },
   },
-};
+});
 
 export { tableDs, detailDs };

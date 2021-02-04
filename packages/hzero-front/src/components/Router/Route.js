@@ -4,6 +4,6 @@ import { Route } from 'dva/router';
 
 export default class WrapperRoute extends Route {
   shouldComponentUpdate(nextProps, nextState) {
-    return !!nextState.match;
+    return !!nextState?.match;
   }
 }

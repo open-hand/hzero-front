@@ -77,7 +77,7 @@ const { TreeNode } = Tree;
   organizationId: getCurrentOrganizationId(),
   currentUser: getCurrentUser(),
 }))
-@formatterCollections({ code: ['hiam.subAccount'] })
+@formatterCollections({ code: ['hiam.subAccount', 'hiam.securityGroup'] })
 @cacheComponent({ cacheKey: '/hiam/sub-account-org/users' })
 export default class SubAccountOrg extends React.Component {
   constructor(props) {

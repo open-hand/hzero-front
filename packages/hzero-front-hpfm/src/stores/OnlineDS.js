@@ -11,7 +11,7 @@ import uuid from 'uuid/v4';
 
 const organizationId = getCurrentOrganizationId();
 
-const listDS = {
+const listDS = () => ({
   primaryKey: uuid(),
   dataKey: 'content',
   selection: false,
@@ -63,7 +63,7 @@ const listDS = {
     },
   ],
   transport: {
-    read: config => {
+    read: (config) => {
       const { data } = config;
       const { tenantId } = data;
       return {
@@ -77,6 +77,6 @@ const listDS = {
       };
     },
   },
-};
+});
 
 export { listDS };

@@ -61,11 +61,11 @@ export default class ApiManagement extends React.Component {
       apiManagementFlag: false,
       tenantApiManagementFlag: false,
     };
-    this.formDS = new DataSet(formDS);
+    this.formDS = new DataSet(formDS());
     this.tableDS = new DataSet(tableDS(this.formDS));
-    this.tenantDS = new DataSet(tenantDS);
-    this.drawerDS = new DataSet(drawerDS);
-    this.tenantFormDS = new DataSet(tenantFormDS);
+    this.tenantDS = new DataSet(tenantDS());
+    this.drawerDS = new DataSet(drawerDS());
+    this.tenantFormDS = new DataSet(tenantFormDS());
     this.tenantTableDS = new DataSet(tenantTableDS(this.tenantFormDS));
     // this.refreshDs = null;
   }

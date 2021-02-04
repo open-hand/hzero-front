@@ -210,7 +210,7 @@ export default class Detail extends React.Component {
       dispatch({
         type: 'lovSetting/removeLineData',
         payload: this.state.selectedRow,
-      }).then(response => {
+      }).then((response) => {
         if (response) {
           this.refreshLine();
           notification.success();
@@ -386,7 +386,7 @@ export default class Detail extends React.Component {
         dispatch({
           type: 'lovSetting/saveHead',
           payload: data,
-        }).then(response => {
+        }).then((response) => {
           if (response) {
             callback();
           }
@@ -456,7 +456,7 @@ export default class Detail extends React.Component {
     const rowSelection = {
       // selectedRow: this.state.selectedRow,
       onChange: this.onSelectChange,
-      selectedRowKeys: selectedRow.map(n => n.viewLineId),
+      selectedRowKeys: selectedRow.map((n) => n.viewLineId),
     };
     const notEditable = false;
     return (
@@ -540,7 +540,7 @@ export default class Detail extends React.Component {
                           )}
                     </Form.Item>
                   </Col>
-                  {isTenant && isNotCurrentTenant && (
+                  {!isTenant && (
                     <Col {...FORM_COL_3_LAYOUT}>
                       <Form.Item
                         {...EDIT_FORM_ITEM_LAYOUT}
@@ -630,7 +630,9 @@ export default class Detail extends React.Component {
                                   : 'HPFM.LOV.LOV_DETAIL'
                               }
                               className={FORM_FIELD_CLASSNAME}
-                              queryParams={{ lovQueryFlag: 1 }}
+                              queryParams={
+                                isTenant ? { lovQueryFlag: 1 } : { lovQueryFlag: 1, tenantId }
+                              }
                             />
                           )}
                     </Form.Item>

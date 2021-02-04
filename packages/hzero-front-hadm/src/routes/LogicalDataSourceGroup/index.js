@@ -21,7 +21,7 @@ const LogicalDataSourceGroup = (props) => {
     history,
     match: { path },
   } = props;
-  const tableDs = useMemo(() => new DataSet(tableDS), []);
+  const tableDs = useMemo(() => new DataSet(tableDS()), []);
 
   const columns = useMemo(
     () => [

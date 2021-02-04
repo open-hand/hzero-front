@@ -77,6 +77,7 @@ export default class CreateEmployeeDrawer extends React.Component {
                   new DataSet({
                     selection: 'single',
                     data: res,
+                    paging: false,
                   })
                 );
               }
@@ -95,6 +96,7 @@ export default class CreateEmployeeDrawer extends React.Component {
                 new DataSet({
                   selection: 'single',
                   data: res,
+                  paging: false,
                 })
               );
             }
@@ -127,6 +129,7 @@ export default class CreateEmployeeDrawer extends React.Component {
             new DataSet({
               selection: 'single',
               data: res,
+              paging: false,
             })
           );
         }
@@ -175,6 +178,7 @@ export default class CreateEmployeeDrawer extends React.Component {
             new DataSet({
               selection: 'single',
               data: res,
+              paging: false,
             })
           );
         }
@@ -193,12 +197,7 @@ export default class CreateEmployeeDrawer extends React.Component {
           <Form dataSet={employeeFormDS}>
             <TextField name="employeeCode" disabled={employeeCodeFlag} />
             <TextField name="name" />
-            <SelectBox name="gender">
-              <Option value={0}>{intl.get('hpfm.organization.model.position.men').d('男')}</Option>
-              <Option value={1}>
-                {intl.get('hpfm.organization.model.position.women').d('女')}
-              </Option>
-            </SelectBox>
+            <SelectBox name="gender" />
             <TextField name="mobile" />
             <TextField name="email" />
             <Lov name="departmentLov" onChange={this.departmentLovChange} />

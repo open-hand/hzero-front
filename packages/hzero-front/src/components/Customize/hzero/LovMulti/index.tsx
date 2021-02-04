@@ -46,6 +46,7 @@ export interface LovProps {
   translateData: any;
   showAll: boolean;
   viewOnly: boolean;
+  queryUsePost: boolean;
 }
 
 export default class TransferLov extends React.Component<LovProps, any> {
@@ -208,6 +209,7 @@ export default class TransferLov extends React.Component<LovProps, any> {
     const {
       disabled = false,
       onClick = (e) => e,
+      queryUsePost = false,
       lovOptions: { valueField: customValueField, displayField: customDisplayField } = {} as any,
     } = this.props;
     if (disabled || this.loading) return; // 节流
@@ -222,7 +224,7 @@ export default class TransferLov extends React.Component<LovProps, any> {
 
     queryLov({ viewCode, tenantId })
       .then((oriLov) => {
-        const lov = { ...oriLov };
+        const lov = { ...oriLov, queryUsePost };
         if (customValueField) {
           lov.valueField = customValueField;
         }

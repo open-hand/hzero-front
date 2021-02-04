@@ -27,7 +27,7 @@ let modal;
 @observer
 class FieldPermissionDrawer extends Component {
   configDS = new DataSet({
-    ...fieldPermissionDrawerDS,
+    ...fieldPermissionDrawerDS(),
     transport: {
       read: ({ data, params }) => {
         const { record = {}, isSelf = false, roleId, secGrpId, secGrpSource } = this.props;
@@ -50,7 +50,7 @@ class FieldPermissionDrawer extends Component {
         const { record = {} } = this.props;
         const permissionId = record.get('id');
         let nextData = [...data];
-        nextData = nextData.map(val => {
+        nextData = nextData.map((val) => {
           const nextVal = { ...val };
           const { __id, _status, ...rest } = nextVal;
           return { ...rest, _status: _status === 'add' ? 'create' : _status, permissionId };
@@ -83,22 +83,22 @@ class FieldPermissionDrawer extends Component {
     return [
       {
         name: 'fieldLov',
-        editor: record => {
+        editor: (record) => {
           if (record.status === 'add') return <Lov noCache onChange={this.handleChangeField} />;
         },
       },
       { name: 'fieldTypeMeaning' },
       {
         name: 'permissionType',
-        editor: record => {
+        editor: (record) => {
           if (record.status === 'add' || record.status === 'update') {
-            return <Select onChange={value => this.selectChange(value, record)} />;
+            return <Select onChange={(value) => this.selectChange(value, record)} />;
           }
         },
       },
       {
         name: 'permissionRule',
-        editor: record => {
+        editor: (record) => {
           if (record.status === 'add' || record.get('editing') === true) {
             if (record.get('permissionType') === 'DESENSITIZE') {
               return <TextField />;
@@ -109,7 +109,7 @@ class FieldPermissionDrawer extends Component {
       },
       {
         name: 'remark',
-        editor: record => {
+        editor: (record) => {
           if (record.status === 'add' || record.get('editing') === true) return <TextField />;
         },
       },
@@ -128,26 +128,28 @@ class FieldPermissionDrawer extends Component {
   commands(record) {
     return [
       <span className="action-link">
-        {// eslint-disable-next-line no-nested-ternary
-        record.status === 'add' ? (
-          <a onClick={() => this.handleClear(record)}>
-            {intl.get('hzero.common.button.clean').d('清除')}
-          </a>
-        ) : // eslint-disable-next-line no-nested-ternary
-        record.get('editing') === true ? (
-          <a onClick={() => this.handleCancel(record)}>
-            {intl.get('hzero.common.status.cancel').d('取消')}
-          </a>
-        ) : record.get('deleteEnableFlag') === 1 ? (
-          <>
-            <a onClick={() => this.handleEdit(record)} disabled={record.status === 'delete'}>
-              {intl.get('hzero.common.button.edit').d('编辑')}
+        {
+          // eslint-disable-next-line no-nested-ternary
+          record.status === 'add' ? (
+            <a onClick={() => this.handleClear(record)}>
+              {intl.get('hzero.common.button.clean').d('清除')}
             </a>
-            <a onClick={() => this.handleDelete(record)} disabled={record.status === 'delete'}>
-              {intl.get('hzero.common.button.delete').d('删除')}
+          ) : // eslint-disable-next-line no-nested-ternary
+          record.get('editing') === true ? (
+            <a onClick={() => this.handleCancel(record)}>
+              {intl.get('hzero.common.status.cancel').d('取消')}
             </a>
-          </>
-        ) : null}
+          ) : record.get('deleteEnableFlag') === 1 ? (
+            <>
+              <a onClick={() => this.handleEdit(record)} disabled={record.status === 'delete'}>
+                {intl.get('hzero.common.button.edit').d('编辑')}
+              </a>
+              <a onClick={() => this.handleDelete(record)} disabled={record.status === 'delete'}>
+                {intl.get('hzero.common.button.delete').d('删除')}
+              </a>
+            </>
+          ) : null
+        }
       </span>,
     ];
   }

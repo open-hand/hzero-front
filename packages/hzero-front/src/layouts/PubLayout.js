@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Layout } from 'hzero-ui';
 import { isEmpty, map } from 'lodash';
-import { Bind } from 'lodash-decorators';
+import { Bind, memoize } from 'lodash-decorators';
 import DocumentTitle from 'react-document-title';
 import { connect } from 'dva';
 import { Switch, Route, Redirect } from 'dva/router';
@@ -53,7 +53,7 @@ const getRedirect = (item, redirectData = []) => {
       menuPath += `/${menuPaths[i]}`;
       const from = menuPath;
       const to = `${menuPath}/${menuPaths[i + 1]}`;
-      const exist = redirectData.some(route => route.from === from);
+      const exist = redirectData.some((route) => route.from === from);
       if (!exist) {
         redirectData.push({ from, to });
       }
@@ -87,7 +87,7 @@ class PublicLayout extends React.Component {
     // 清除首屏loading
     const loader = document.querySelector('#loader-wrapper');
     if (loader) {
-      document.body.removeChild(loader);
+      loader.parentNode.removeChild(loader);
       // 设置默认页面加载动画
       dynamic.setDefaultLoadingComponent(() => <LoadingBar />);
     }
@@ -116,7 +116,7 @@ class PublicLayout extends React.Component {
   @Bind()
   receiveWebSocketMsg() {
     webSocketManagener.initWebSocket();
-    webSocketManagener.addListener('client', messageData => {
+    webSocketManagener.addListener('client', (messageData) => {
       const { dispatch, count } = this.props;
       const { message } = messageData;
       const messageJson = isEmpty(message) ? undefined : JSON.parse(message);
@@ -152,11 +152,20 @@ class PublicLayout extends React.Component {
       // const authorizedPath = Object.keys(routerData).find(
       //   item => check(routerData[item].authority, item) && item !== '/'
       // );
-      const authorizedPath = Object.keys(routerData).find(item => item !== '/');
+      const authorizedPath = Object.keys(routerData).find((item) => item !== '/');
       return authorizedPath;
     }
     return redirect;
   };
+
+  @memoize
+  getRedirectData(menu) {
+    const redirectData = this.props.redirectData || [{ from: '/', to: '/workplace' }];
+    menu.forEach((item) => {
+      getRedirect(item, redirectData);
+    });
+    return redirectData;
+  }
 
   render() {
     const {
@@ -167,16 +176,15 @@ class PublicLayout extends React.Component {
       activeTabKey,
       tabs,
     } = this.props;
-    const redirectData = [{ from: '/', to: '/workplace' }]; // 根目录需要跳转到工作台
-    menu.forEach(item => {
-      getRedirect(item, redirectData);
-    });
+
+    const redirectData = this.getRedirectData(menu);
+
     const bashRedirect = this.getBashRedirect();
 
     const layout = (
       <Layout style={{ height: '100vh', overflow: 'hidden' }}>
         <Switch>
-          {map(redirectData, item => (
+          {map(redirectData, (item) => (
             <Redirect key={item.from} exact from={item.from} to={item.to} />
           ))}
           {bashRedirect ? <Redirect exact from="/" to={bashRedirect} /> : null}
@@ -184,7 +192,7 @@ class PublicLayout extends React.Component {
         </Switch>
         {map(
           tabs,
-          pane =>
+          (pane) =>
             activeTabKey === pane.key && (
               <Content key={pane.key} className="page-container" style={showStyle}>
                 {getTabRoutes({

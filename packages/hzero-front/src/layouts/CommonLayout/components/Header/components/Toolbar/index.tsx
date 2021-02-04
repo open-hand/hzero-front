@@ -78,6 +78,25 @@ const Toolbar: React.FC<ToolbarProps> = ({
   isModal = 0,
   isSelect = 0,
 }) => {
+  const _extraHeaderRight = React.useMemo(() => {
+    if (!extraHeaderRight) {
+      return undefined;
+    }
+    if (Array.isArray(extraHeaderRight)) {
+      return (
+        <>
+          {extraHeaderRight.map((com) => {
+            return React.isValidElement(com) ? com : React.createElement(com);
+          })}
+        </>
+      );
+    } else if (React.isValidElement(extraHeaderRight)) {
+      return extraHeaderRight;
+    } else {
+      return (React.createElement as any)(extraHeaderRight);
+    }
+  }, [extraHeaderRight]);
+
   const hasWebsocketUrl = React.useMemo(() => {
     let websocketUrlSeted;
     if (
@@ -170,9 +189,9 @@ const Toolbar: React.FC<ToolbarProps> = ({
       },
       {
         key: 'extra-header-right',
-        ele: extraHeaderRight
+        ele: _extraHeaderRight
           ? dealOverrideElementConfig['extra-header-right'].show
-            ? extraHeaderRight
+            ? _extraHeaderRight
             : false
           : false,
         sort: dealOverrideElementConfig['extra-header-right'].sort || 80,

@@ -18,7 +18,7 @@ export default class LogDrawer extends React.PureComponent {
     };
   }
 
-  logDetailDs = new DataSet(logDetailDs);
+  logDetailDs = new DataSet(logDetailDs());
 
   async componentDidMount() {
     await this.queryData();
@@ -53,7 +53,7 @@ export default class LogDrawer extends React.PureComponent {
       destroyOnClose: true,
       closable: true,
       title: intl.get('hpfm.syncOuterSystem.view.message.title.logDetail').d('日志详情'),
-      children: arrString.map(item => (
+      children: arrString.map((item) => (
         <pre
           style={{ color: item.startsWith('error') ? 'red' : 'black', overflow: 'visible' }}
           dangerouslySetInnerHTML={{ __html: item }}

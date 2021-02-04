@@ -39,8 +39,8 @@ import styles from './index.less';
 @withProps(
   // checkStatusFormDS 注入 到 this.porps
   () => {
-    const checkStatusFormDS = new DataSet(checkStatusFormConfigDS);
-    const searchFormDS = new DataSet(searchFormConfigDS);
+    const checkStatusFormDS = new DataSet(checkStatusFormConfigDS());
+    const searchFormDS = new DataSet(searchFormConfigDS());
     const tableDS = new DataSet(tableConfigDS(checkStatusFormDS, searchFormDS));
     checkStatusFormDS.buttonRefreshFlag = true;
     checkStatusFormDS.buttonAddPermissionFlag = false;
@@ -56,8 +56,8 @@ import styles from './index.less';
 export default class MissPermissionRecord extends React.Component {
   constructor(props) {
     super(props);
-    this.permissionSetDS = new DataSet(permissionSetDS);
-    this.clearPermissionRecordFormDS = new DataSet(clearPermissionRecordFormDS);
+    this.permissionSetDS = new DataSet(permissionSetDS());
+    this.clearPermissionRecordFormDS = new DataSet(clearPermissionRecordFormDS());
     this.state = {
       moreSearchFlag: false,
       buttonRefreshFlag: null,

@@ -22,7 +22,7 @@ export default class LogList extends React.Component {
     };
   }
 
-  logDs = new DataSet(logDs);
+  logDs = new DataSet(logDs());
 
   get columns() {
     return [

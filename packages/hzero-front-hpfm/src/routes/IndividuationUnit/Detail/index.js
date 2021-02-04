@@ -23,14 +23,15 @@ import { connect } from 'dva';
 
 import { queryMapIdpValue } from 'services/api';
 import intl from 'utils/intl';
+import { yesOrNoRender } from 'utils/renderer';
 import notification from 'utils/notification';
 import {
   colOptions,
   getFieldNameAlias,
   getFieldConfigAlias,
   getAddFieldAlias,
+  getDefaultActiveAlias,
 } from '@/utils/constConfig.js';
-
 import Modal from './Modal';
 import styles from '../style/index.less';
 
@@ -69,7 +70,7 @@ function getIntlMapping(key) {
     default:
   }
 }
-const UEDDisplayFormItem = props => {
+const UEDDisplayFormItem = (props) => {
   const { label, value } = props;
   return (
     <FormItem label={label} {...formsLayouts}>
@@ -107,7 +108,7 @@ export default class IndividuationUnitDetail extends Component {
     dispatch({
       type: 'individuationUnit/queryGroupUnits',
       params: { unitGroupId: detailGroupId },
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         this.setState({ groupUnits: res.length > 0 ? res : [] });
       }
@@ -121,11 +122,11 @@ export default class IndividuationUnitDetail extends Component {
     dispatch({
       type: 'individuationUnit/queryRelatedUnits',
       payload: { unitId: id },
-    }).then(res => {
+    }).then((res) => {
       if (!isEmpty(res)) {
         const unitList = res || [];
         const fieldList = {};
-        unitList.forEach(i => {
+        unitList.forEach((i) => {
           fieldList[i.unitId] = i.unitFields || [];
         });
         this.setState({ unitList, fieldList });
@@ -141,7 +142,7 @@ export default class IndividuationUnitDetail extends Component {
     dispatch({
       type: 'individuationUnit/fetchUnitDetail',
       params,
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         const { unit = {}, fields = [] } = res || {};
         const { modelId } = unit;
@@ -161,7 +162,7 @@ export default class IndividuationUnitDetail extends Component {
         type: 'individuationUnit/queryRelationModels',
         params,
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           this.setState({ relationModals: res || [] });
         }
@@ -175,10 +176,10 @@ export default class IndividuationUnitDetail extends Component {
       renderOptions: 'HPFM.CUST.RENDER_OPTIONS',
       condOptions: 'HPFM.CUST.UNIT_COND_OPTIONS',
       widgetType: 'HPFM.CUST.FIELD_COMPONENT',
-    }).then(res => {
+    }).then((res) => {
       if (res) {
         const widgetTypeObj = {};
-        (res.widgetType || []).forEach(i => {
+        (res.widgetType || []).forEach((i) => {
           widgetTypeObj[i.value] = i.meaning;
         });
         this.setState({
@@ -209,7 +210,7 @@ export default class IndividuationUnitDetail extends Component {
             ...unitInfo,
             ...params,
           },
-        }).then(res => {
+        }).then((res) => {
           if (res) {
             notification.success();
             this.queryRelatedUnits(unitId);
@@ -239,7 +240,7 @@ export default class IndividuationUnitDetail extends Component {
           unitFieldId: fieldId,
         },
       })
-      .then(res => {
+      .then((res) => {
         if (res) {
           notification.success();
           const { unitId } = this.props;
@@ -289,32 +290,43 @@ export default class IndividuationUnitDetail extends Component {
       widgetTypeObj,
     } = this.state;
     const isFormType = unitType === 'FORM' || unitType === 'QUERYFORM';
+    const pureVirtual = unitType === 'TABPANE' || unitType === 'COLLAPSE';
     const commonColumns = [
       {
         title: getFieldNameAlias(unitType),
         dataIndex: 'fieldName',
         render: this.renderFieldName,
       },
-      unitType !== 'TABPANE' && {
+      pureVirtual && {
+        title: getDefaultActiveAlias(unitType),
+        dataIndex: 'defaultActive',
+        width: 100,
+        render: yesOrNoRender,
+      },
+      !pureVirtual && {
         title: intl.get('hpfm.individuationUnit.model.individuationUnit.fieldType').d('字段类型'),
         dataIndex: 'field.fieldCategoryMeaning',
         width: 90,
       },
-      unitType !== 'TABPANE' && {
+      !pureVirtual && {
         title: intl.get('hpfm.individuationUnit.model.individuationUnit.model').d('所属模型'),
         dataIndex: 'field.modelName',
       },
-      unitType !== 'TABPANE' && {
+      !pureVirtual && {
+        title: intl.get('hpfm.individuationUnit.model.individuationUnit.bindField').d('字段绑定'),
+        dataIndex: 'bindField',
+      },
+      !pureVirtual && {
         title: intl.get('hpfm.individuationUnit.model.individuationUnit.widgetType').d('组件类型'),
         dataIndex: 'field.modelFieldWidget.fieldWidget',
         width: 100,
-        render: text => widgetTypeObj[text] || text,
+        render: (text) => widgetTypeObj[text] || text,
       },
-      unitType !== 'TABPANE' && {
+      !pureVirtual && {
         title: intl.get('hpfm.individuationUnit.model.individuationUnit.renderType').d('渲染方式'),
         dataIndex: 'renderOptions',
         width: 100,
-        render: text => getIntlMapping(text) || text,
+        render: (text) => getIntlMapping(text) || text,
       },
     ].filter(Boolean);
     if (isFormType) {
@@ -355,7 +367,7 @@ export default class IndividuationUnitDetail extends Component {
         title: intl.get('hpfm.individuationUnit.model.individuationUnit.fixed').d('冻结'),
         dataIndex: 'gridFixed',
         width: 80,
-        render: text => getIntlMapping(text) || text,
+        render: (text) => getIntlMapping(text) || text,
       },
     ];
   }
@@ -534,7 +546,7 @@ export default class IndividuationUnitDetail extends Component {
                         initialValue: formMaxCol,
                       })(
                         <Select allowClear showSearch style={{ width: '120px' }}>
-                          {colOptions.map(i => (
+                          {colOptions.map((i) => (
                             <Option value={i}>{i}</Option>
                           ))}
                         </Select>
@@ -559,7 +571,7 @@ export default class IndividuationUnitDetail extends Component {
                             .get('hpfm.individuationUnit.model.individuationUnit.label')
                             .d('标签')}
                         >
-                          {colOptions.map(i => (
+                          {colOptions.map((i) => (
                             <Option value={i}>{i}</Option>
                           ))}
                         </Select>
@@ -575,7 +587,7 @@ export default class IndividuationUnitDetail extends Component {
                             .get('hpfm.individuationUnit.model.individuationUnit.wrapper')
                             .d('组件')}
                         >
-                          {colOptions.map(i => (
+                          {colOptions.map((i) => (
                             <Option value={i}>{i}</Option>
                           ))}
                         </Select>
@@ -641,8 +653,8 @@ export default class IndividuationUnitDetail extends Component {
                     })(
                       <Select mode="multiple" style={{ width: '75%' }} optionLabelProp="title">
                         {groupUnits
-                          .filter(i => i.id !== unitId)
-                          .map(i => (
+                          .filter((i) => i.id !== unitId)
+                          .map((i) => (
                             <Option value={i.unitCode} title={i.unitName}>
                               <div style={{ fontWeight: 500, color: '#333' }}>{i.unitName}</div>
                               <div style={{ color: '#666' }}>{i.unitCode}</div>

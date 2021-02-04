@@ -1,14 +1,18 @@
+/* eslint-disable eqeqeq */
 import React from 'react';
 import { Form, Modal, Icon, Select, Popconfirm, Input } from 'hzero-ui';
 import intl from 'utils/intl';
 import { getEditTableData } from 'utils/utils';
 import EditTable from 'components/EditTable';
 import { Bind } from 'lodash-decorators';
+import formatterCollections from 'utils/intl/formatterCollections';
+
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
 
+@formatterCollections({ code: ['hpfm.individual', 'hpfm.customize'] })
 export default class ConditionModal extends React.Component {
   constructor(props) {
     super(props);
@@ -22,8 +26,8 @@ export default class ConditionModal extends React.Component {
   onDelete(deleteId) {
     const { paramList } = this.state;
     this.setState({
-      paramList: paramList.filter(({ _status, _id, paramId }) =>
-        _status === 'create' ? deleteId !== _id : deleteId !== paramId
+      paramList: paramList.filter(({ _status, _id, paramKey }) =>
+        _status === 'create' ? deleteId !== _id : deleteId !== paramKey
       ),
     });
   }
@@ -91,7 +95,7 @@ export default class ConditionModal extends React.Component {
   autoCompleteFieldKey(id, form) {
     const { fieldList = {} } = this.props;
     const fieldObj = (fieldList[form.getFieldValue(`paramUnitId`)] || []).find(
-      (i) => i.modelFieldId === id
+      (i) => i.modelFieldId == id
     );
     form.setFieldsValue({ paramKey: fieldObj.unitFieldCode });
   }
@@ -141,6 +145,9 @@ export default class ConditionModal extends React.Component {
                   <Select style={{ width: '100%' }} disabled={readOnly}>
                     <Option value="context">
                       {intl.get('hpfm.customize.common.contextParam').d('上下文参数')}
+                    </Option>
+                    <Option value="url">
+                      {intl.get('hpfm.customize.common.urlParam').d('url参数')}
                     </Option>
                     <Option value="fixed">
                       {intl.get('hpfm.customize.common.fixed').d('固定值')}
@@ -253,11 +260,11 @@ export default class ConditionModal extends React.Component {
         width: 60,
         render: (val, record) => (
           <Popconfirm
-            title={intl.get('hzero.common.message.confirm.delete').d('是否删除此条记录？')}
+            title={intl.get('hzero.common.message.confirm.delete').d('是否删除此条记录')}
             okText={intl.get('hzero.common.status.yes').d('是')}
             cancelText={intl.get('hzero.common.status.no').d('否')}
             onConfirm={() =>
-              this.onDelete(record._status === 'create' ? record._id : record.paramId)
+              this.onDelete(record._status === 'create' ? record._id : record.paramKey)
             }
           >
             <Icon type="delete" style={{ cursor: 'pointer' }} />

@@ -27,11 +27,11 @@ if (typeof window !== 'undefined') {
 const Detail = (props) => {
   const { id: instanceId, isRefresh } = props;
 
-  const detailDS = React.useMemo(() => new DataSet(detailDs), []);
+  const detailDS = React.useMemo(() => new DataSet(detailDs()), []);
 
-  const tableDS = React.useMemo(() => new DataSet(tableDs), []);
+  const tableDS = React.useMemo(() => new DataSet(tableDs()), []);
 
-  const codeDS = React.useMemo(() => new DataSet(codeDs), []);
+  const codeDS = React.useMemo(() => new DataSet(codeDs()), []);
 
   // const configInfo = (detailDS.current && detailDS.current.get('configInfoYml')) || {};
   // const envInfo = (detailDS.current && detailDS.current.get('envInfoYml')) || {};

@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import uuidv4 from 'uuid/v4';
 import { Modal, Form, Input, Select, InputNumber, Row, Col, Tooltip, Icon } from 'hzero-ui';
 import { isEmpty } from 'lodash';
 import { Bind } from 'lodash-decorators';
@@ -60,7 +61,7 @@ export default class Drawer extends PureComponent {
   @Bind()
   saveBtn() {
     const { form, onOk, onEditOk, itemData } = this.props;
-    const { uuid } = itemData;
+    const { uuid = uuidv4() } = itemData;
     if (onOk) {
       form.validateFields((err, values) => {
         if (isEmpty(err)) {

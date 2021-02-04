@@ -578,11 +578,6 @@ module.exports = [
     models: [],
   },
   {
-    path: '/hpfm/value-list/import-data/:code',
-    component: () => import('../routes/himp/CommentImport'),
-    models: [],
-  },
-  {
     path: '/hpfm/rule-engine',
     models: [() => import('../models/ruleEngine')],
     components: [
@@ -721,6 +716,11 @@ module.exports = [
         models: [() => import('../models/valueList')],
       },
     ],
+  },
+  {
+    path: '/hpfm/value-list/import-data/:code',
+    component: () => import('../routes/himp/CommentImport'),
+    models: [],
   },
   {
     path: '/hpfm/customize',
