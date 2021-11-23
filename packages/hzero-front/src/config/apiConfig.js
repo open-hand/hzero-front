@@ -69,25 +69,24 @@ const config = {
       return '`${process.env.MULTIPLE_SKIN_ENABLE}`';
     },
   },
+  // 菜单标签
+  TOP_MENU_LABELS: {
+    init: () => {
+      return '`${process.env.TOP_MENU_LABELS}`';
+    },
+  },
   // 是否按照标签并集查询(即只要存在一个标签即可), 默认否(false)
   TOP_MENU_UNION_LABEL: {
     init: () => {
-      return '`${process.env.BUILD_TOP_MENU_UNION_LABEL}`';
+      return '`${process.env.TOP_MENU_UNION_LABEL}`';
     },
   },
   // 环境标识
   ENV_SIGN: {
     init: () => {
-      return '`${process.env.BUILD_ENV_SIGN}`';
+      return '`${process.env.ENV_SIGN}`';
     },
   },
-  // 菜单标签
-  TOP_MENU_LABELS: {
-    init: () => {
-      return '`${process.env.BUILD_TOP_MENU_LABELS}`';
-    },
-  },
-
   // 过期时间(单位分钟)
   INVALID_TIME: {
     init: () => {
@@ -98,6 +97,11 @@ const config = {
   CUSTOMIZE_ICON_NAME: {
     init: () => {
       return '`${process.env.CUSTOMIZE_ICON_NAME}`';
+    },
+  },
+  MULTIPLE_LANGUAGE_ENABLE: {
+    init: () => {
+      return '`${process.env.MULTIPLE_LANGUAGE_ENABLE}`';
     },
   },
   // hpfm 模块
@@ -455,7 +459,7 @@ const config = {
     init: () => "`${process.env.BKT_HFILE || 'hfle'}`",
   },
   BKT_HIOT: {
-    init: () => "`${process.env.BKT_HFILE || 'hiot'}`",
+    init: () => "`${process.env.BKT_HIOT || 'hiot'}`",
   },
 };
 
