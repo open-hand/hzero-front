@@ -3,13 +3,13 @@
  *
  * @date: 2018-6-30
  * @author: niujiaqing <njq.niu@hand-china.com>
- * @version: 0.0.1
- * @copyright Copyright (c) 2018, Hand
+ * @version: 0.0.2
+ * @copyright Copyright (c) 2022, Hand
  */
 import React from 'react';
 import classNames from 'classnames';
 
-const PageContent = props => {
+const PageContent = React.forwardRef((props, ref) => {
   const {
     title,
     description,
@@ -26,7 +26,7 @@ const PageContent = props => {
   const contentClassString = classNames('page-content', className);
   return (
     <div className={classString} style={wrapperStyle}>
-      <div className={contentClassString} style={style}>
+      <div ref={ref} className={contentClassString} style={style}>
         {title || description ? (
           <div className="page-content-header" key="page-content-header">
             <div className="title">{title}</div>
